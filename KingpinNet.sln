@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet", "src\KingpinNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestKingpinNet", "test\TestKingpinNet\TestKingpinNet.csproj", "{FDF193E9-650D-431E-A322-3F87CEB86B4A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcceptTests", "test\AcceptTests\AcceptTests.csproj", "{FD51770E-2047-418C-B21C-68B04AB0D3E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "test\AcceptTests\Tests.csproj", "{FD51770E-2047-418C-B21C-68B04AB0D3E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

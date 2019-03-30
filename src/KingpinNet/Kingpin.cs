@@ -5,32 +5,35 @@ namespace KingpinNet
 {
     public class Kingpin
     {
-        private static readonly List<CommandBuilder> _commands = new List<CommandBuilder>();
-        private static readonly List<FlagBuilder> _flags = new List<FlagBuilder>();
-        private static readonly List<ArgumentBuilder> _arguments = new List<ArgumentBuilder>();
-        private static string _name;
-        private static string _help;
+        private static KingpinApplication _application = new KingpinApplication();
+
+        static Kingpin()
+        {
+            _application.Name = System.AppDomain.CurrentDomain.FriendlyName;
+            _application.Help = "";
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(() => GenerateHelp());
+            //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
+            //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
+        }
+
+        private static void GenerateHelp()
+        {
+            var helpGenerator = new HelpGenerator(_application);
+            helpGenerator.Generate(Console.Out);
+        }
 
         public static CommandBuilder Command(string name, string help)
         {
-            _name = name;
-            _help = help;
-            var result = new CommandBuilder(name, help);
-            _commands.Add(result);
-            return result;
+            return _application.Command(name, help);
         }
 
         public static FlagBuilder Flag(string name, string help)
         {
-            var result = new FlagBuilder(name, help);
-            _flags.Add(result);
-            return result;
+            return _application.Flag(name, help);
         }
         public static ArgumentBuilder Argument(string name, string help)
         {
-            var result = new ArgumentBuilder(name, help);
-            _arguments.Add(result);
-            return result;
+            return _application.Argument(name, help);
         }
 
         int _current = 0;
@@ -39,7 +42,7 @@ namespace KingpinNet
         {
             var result = new Dictionary<string, string>();
 
-            var parser = new Parser(_commands, _flags, _arguments);
+            var parser = new Parser(_application);
             return parser.Parse(args);
         }
 
@@ -48,15 +51,8 @@ namespace KingpinNet
         {
             var result = new Dictionary<string, string>();
 
-            var parser = new Parser(commands, flags, arguments);
+            var parser = new Parser(_application);
             return parser.Parse(args);
         }
-
-        public enum TokenType
-        {
-            Flag,
-
-        }
-
     }
 }

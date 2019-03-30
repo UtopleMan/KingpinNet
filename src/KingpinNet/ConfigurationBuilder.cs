@@ -30,6 +30,11 @@ namespace KingpinNet
             return this;
         }
 
+        internal void Action(Action action)
+        {
+            Item.Action = action;
+        }
+
         public CommandLineItemBuilder FileExists()
         {
             Item.FileShouldExist = true;
@@ -100,6 +105,11 @@ namespace KingpinNet
         {
             Item.ShortName = shortName;
             return this;
+        }
+
+        internal bool IsHidden()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -187,6 +197,7 @@ namespace KingpinNet
         public string[] HintOptions;
         public bool IsDefault;
         public char ShortName;
+        public Action Action;
 
         //public CommandLineItem Copy()
         //{

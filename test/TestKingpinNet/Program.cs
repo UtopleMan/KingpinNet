@@ -35,7 +35,8 @@ namespace TestKingpinNet
             var runUrlSwitch = runUrlCommand.Flag("switch", "a switch").IsBool();
 
             var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddKingpinNetCommandLine(args).Build();
-
+            if (configuration["help"] == "true")
+                return;
             Console.WriteLine(configuration["flag"]);
             Console.ReadLine();
         }
