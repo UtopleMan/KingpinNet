@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    steps:
+      - checkout
+      - run: find .
+      - run: dotnet restore
+      - run: dotnet build
+      - run: dotnet test --no-build Seedwork.Test
