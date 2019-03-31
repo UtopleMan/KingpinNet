@@ -25,8 +25,8 @@ namespace TestKingpinNet
             Console.WriteLine("                               \"Y88888P'  o888o                                                                      ");
 
 
-            var runCommand = Kingpin.Command("run", "run a command").IsDefault();
-            var generalFlag = Kingpin.Flag("general", "a general flag").Short('g').IsInt().IsUrl().IsIp().IsEnum(typeof(EnumType)).IsDuration().IsTcp().IsFloat().Default("5s");
+            var runCommand = Kingpin.AddCommand("run", "run a command").IsDefault();
+            var generalFlag = Kingpin.AddFlag("general", "a general flag").Short('g').IsInt().IsUrl().IsIp().IsEnum(typeof(EnumType)).IsDuration().IsTcp().IsFloat().Default("5s");
 
             var runUrlCommand = runCommand.AddCommand("url", "Run a URL");
 

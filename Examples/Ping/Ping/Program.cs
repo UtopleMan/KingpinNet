@@ -5,10 +5,10 @@ namespace Ping
 {
     class Program
     {
-        static Flag debug = Kingpin.Flag("debug", "Enable debug mode.").IsBool();
-        static Flag timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
-        static Argument ip = Kingpin.Argument("ip", "IP address to ping.").IsRequired().IsIp();
-        static Argument count = Kingpin.Argument("count", "Number of packets to send").IsInt();
+        static Flag debug = Kingpin.AddFlag("debug", "Enable debug mode.").IsBool();
+        static Flag timeout = Kingpin.AddFlag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
+        static Argument ip = Kingpin.AddArgument("ip", "IP address to ping.").IsRequired().IsIp();
+        static Argument count = Kingpin.AddArgument("count", "Number of packets to send").IsInt();
 
         static void Main(string[] args)
         {

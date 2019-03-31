@@ -11,7 +11,7 @@ namespace KingpinNet
         {
             _application.Name = System.AppDomain.CurrentDomain.FriendlyName;
             _application.Help = "";
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
+            AddFlag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
@@ -32,16 +32,16 @@ namespace KingpinNet
             helpGenerator.Generate(Console.Out);
         }
 
-        public static Command Command(string name, string help)
+        public static Command AddCommand(string name, string help)
         {
             return _application.Command(name, help);
         }
 
-        public static Flag Flag(string name, string help)
+        public static Flag AddFlag(string name, string help)
         {
             return _application.Flag(name, help);
         }
-        public static Argument Argument(string name, string help)
+        public static Argument AddArgument(string name, string help)
         {
             return _application.Argument(name, help);
         }

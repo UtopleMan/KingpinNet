@@ -69,7 +69,7 @@ namespace Tests
             // Arrange
             string[] args = new[] { "run", "--myflag=danish" };
             var application = new KingpinApplication();
-            var command = Kingpin.Command("run", "This is a command");
+            var command = Kingpin.AddCommand("run", "This is a command");
             var flag = command.AddFlag("myflag", "This is the flag of the person");
             application.Commands.Add(command);
 
@@ -157,7 +157,7 @@ namespace Tests
             // Arrange
             string[] args = new[] { "-h=help" };
             var application = new KingpinApplication();
-            var flag = Kingpin.Flag("help", "This is the help").Short('h');
+            var flag = Kingpin.AddFlag("help", "This is the help").Short('h');
             application.Flags.Add(flag);
 
             // Act
@@ -174,7 +174,7 @@ namespace Tests
             // Arrange
             string[] args = new string[0];
             var application = new KingpinApplication();
-            var flag = Kingpin.Flag("required", "This is the required flag").IsRequired();
+            var flag = Kingpin.AddFlag("required", "This is the required flag").IsRequired();
             application.Flags.Add(flag);
 
             // Act
