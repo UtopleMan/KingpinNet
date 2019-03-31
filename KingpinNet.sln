@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet", "src\KingpinNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestKingpinNet", "test\TestKingpinNet\TestKingpinNet.csproj", "{FDF193E9-650D-431E-A322-3F87CEB86B4A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "test\AcceptTests\Tests.csproj", "{FD51770E-2047-418C-B21C-68B04AB0D3E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "test\UnitTests\Tests.csproj", "{D50977DE-D381-4190-B517-8CB2639D5F95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{FDF193E9-650D-431E-A322-3F87CEB86B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDF193E9-650D-431E-A322-3F87CEB86B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDF193E9-650D-431E-A322-3F87CEB86B4A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD51770E-2047-418C-B21C-68B04AB0D3E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD51770E-2047-418C-B21C-68B04AB0D3E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD51770E-2047-418C-B21C-68B04AB0D3E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD51770E-2047-418C-B21C-68B04AB0D3E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D50977DE-D381-4190-B517-8CB2639D5F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D50977DE-D381-4190-B517-8CB2639D5F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D50977DE-D381-4190-B517-8CB2639D5F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D50977DE-D381-4190-B517-8CB2639D5F95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
