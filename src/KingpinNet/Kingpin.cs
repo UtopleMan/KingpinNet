@@ -11,27 +11,37 @@ namespace KingpinNet
         {
             _application.Name = System.AppDomain.CurrentDomain.FriendlyName;
             _application.Help = "";
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(() => GenerateHelp());
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
-        private static void GenerateHelp()
+        public static void Author(string author)
+        {
+            _application.Author = author;
+        }
+
+        public static void Version(string version)
+        {
+            _application.Version = version;
+        }
+
+        private static void GenerateHelp(string argument)
         {
             var helpGenerator = new HelpGenerator(_application);
             helpGenerator.Generate(Console.Out);
         }
 
-        public static CommandBuilder Command(string name, string help)
+        public static Command Command(string name, string help)
         {
             return _application.Command(name, help);
         }
 
-        public static FlagBuilder Flag(string name, string help)
+        public static Flag Flag(string name, string help)
         {
             return _application.Flag(name, help);
         }
-        public static ArgumentBuilder Argument(string name, string help)
+        public static Argument Argument(string name, string help)
         {
             return _application.Argument(name, help);
         }
@@ -46,8 +56,8 @@ namespace KingpinNet
             return parser.Parse(args);
         }
 
-        public static IDictionary<string, string> Parse(List<CommandBuilder> commands, List<FlagBuilder> flags,
-            List<ArgumentBuilder> arguments, IEnumerable<string> args)
+        public static IDictionary<string, string> Parse(List<Command> commands, List<Flag> flags,
+            List<Argument> arguments, IEnumerable<string> args)
         {
             var result = new Dictionary<string, string>();
 

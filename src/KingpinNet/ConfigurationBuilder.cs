@@ -3,121 +3,142 @@ using System.Collections.Generic;
 
 namespace KingpinNet
 {
-    public class CommandLineItemBuilder
+    public class CommandLineItemBuilder<T>
     {
         public CommandLineItem Item;
-        public CommandLineItemBuilder IsUrl()
+        public T IsUrl()
         {
             Item.ValueType = ValueType.Url;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsRequired()
+        public T IsRequired()
         {
             Item.IsRequired = true;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsBool()
+        public T IsBool()
         {
             Item.ValueType = ValueType.Bool;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsInt()
+        public T IsInt()
         {
             Item.ValueType = ValueType.Int;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        internal void Action(Action action)
+        internal void Action(Action<string> action)
         {
             Item.Action = action;
         }
 
-        public CommandLineItemBuilder FileExists()
+        public T FileExists()
         {
             Item.FileShouldExist = true;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
 
         }
 
-        public CommandLineItemBuilder DirectoryExists()
+        public T DirectoryExists()
         {
             Item.DirectoryShouldExist = true;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsIp()
+        public T IsIp()
         {
             Item.ValueType = ValueType.Ip;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsEnum(Type type)
+        public T IsEnum(Type type)
         {
             Item.ValueType = ValueType.Enum;
             Item.TypeOfEnum = type;
 
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsDuration()
+        public T IsDuration()
         {
             Item.ValueType = ValueType.Duration;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsTcp()
+        public T IsTcp()
         {
             Item.ValueType = ValueType.Tcp;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder IsFloat()
+        public T IsFloat()
         {
             Item.ValueType = ValueType.Float;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
         }
 
-        public CommandLineItemBuilder Default(string defaultValue)
+        public T Short(char shortName)
+        {
+            Item.ShortName = shortName;
+            var obj = (object)this;
+            return (T)obj;
+        }
+
+        public T IsHidden()
+        {
+            Item.IsHidden = true;
+            var obj = (object)this;
+            return (T)obj;
+        }
+
+        public T Default(string defaultValue)
         {
             Item.DefaultValue = defaultValue;
-            return this;
+            var obj = (object)this;
+            return (T)obj;
+        }
+
+        public override string ToString()
+        {
+            return Item?.Value;
         }
     }
-    public class ArgumentBuilder : CommandLineItemBuilder
+    public class Argument : CommandLineItemBuilder<Argument>
     {
-        public ArgumentBuilder(string name, string help)
+        public Argument(string name, string help)
         {
             Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Argument };
         }
     }
 
-    public class FlagBuilder : CommandLineItemBuilder
+    public class Flag : CommandLineItemBuilder<Flag>
     {
-        public FlagBuilder(string name, string help)
+        public Flag(string name, string help)
         {
             Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Flag };
         }
-
-        public FlagBuilder Short(char shortName)
-        {
-            Item.ShortName = shortName;
-            return this;
-        }
-
-        internal bool IsHidden()
-        {
-            throw new NotImplementedException();
-        }
     }
 
-    public class CommandBuilder : CommandLineItemBuilder
+    public class Command : CommandLineItemBuilder<Command>
     {
-        public CommandBuilder(string name, string help)
+        public Command(string name, string help)
         {
-            Item = new CommandLineItem {
+            Item = new CommandLineItem
+            {
                 Name = name,
                 Help = help,
                 ItemType = ItemType.Command,
@@ -126,32 +147,32 @@ namespace KingpinNet
 
         public string Name => Item.Name;
 
-        public CommandBuilder HintOptions(params string[] hints)
+        public Command HintOptions(params string[] hints)
         {
             Item.HintOptions = hints;
             return this;
         }
 
-        public FlagBuilder Flag(string name, string help)
+        public Flag AddFlag(string name, string help)
         {
-            var result = new FlagBuilder(name, help);
+            var result = new Flag(name, help);
             Item.Flags.Add(result);
             return result;
         }
-        public ArgumentBuilder Argument(string name, string help)
+        public Argument AddArgument(string name, string help)
         {
-            var result = new ArgumentBuilder(name, help);
+            var result = new Argument(name, help);
             Item.Arguments.Add(result);
             return result;
         }
-        public CommandBuilder Command(string name, string help)
+        public Command AddCommand(string name, string help)
         {
-            var result = new CommandBuilder(name, help);
+            var result = new Command(name, help);
             Item.Commands.Add(result);
             return result;
         }
 
-        public CommandBuilder IsDefault()
+        public Command IsDefault()
         {
             Item.IsDefault = true;
             return this;
@@ -181,9 +202,9 @@ namespace KingpinNet
 
     public class CommandLineItem
     {
-        public readonly List<CommandBuilder> Commands = new List<CommandBuilder>();
-        public readonly List<FlagBuilder> Flags = new List<FlagBuilder>();
-        public readonly List<ArgumentBuilder> Arguments = new List<ArgumentBuilder>();
+        public readonly List<Command> Commands = new List<Command>();
+        public readonly List<Flag> Flags = new List<Flag>();
+        public readonly List<Argument> Arguments = new List<Argument>();
         public ItemType ItemType = ItemType.None;
         public ValueType ValueType = ValueType.String;
         public string Name;
@@ -197,33 +218,8 @@ namespace KingpinNet
         public string[] HintOptions;
         public bool IsDefault;
         public char ShortName;
-        public Action Action;
-
-        //public CommandLineItem Copy()
-        //{
-        //    return new CommandLineItem
-        //    {
-        //        ItemType = ItemType,
-        //        Name = Name,
-        //        Help = Help,
-        //        IsBool = IsBool,
-        //        IsUrl = IsUrl,
-        //        IsRequired = IsRequired,
-        //        IsInt = IsInt,
-        //        FileShouldExist = FileShouldExist,
-        //        DirectoryShouldExist = DirectoryShouldExist,
-        //        IsIp = IsIp,
-        //        IsEnum = IsEnum,
-        //        IsDuration = IsDuration,
-        //        IsTcp = IsTcp,
-        //        IsFloat = IsFloat,
-        //        EnumType = EnumType,
-        //        DefaultValue = DefaultValue,
-        //        Value = Value,
-        //        HintOptions = HintOptions,
-        //        IsDefault = IsDefault,
-        //        ShortName = ShortName
-        //    };
-        //}
+        public Action<string> Action;
+        public bool IsHidden;
+        public bool IsSet;
     }
 }

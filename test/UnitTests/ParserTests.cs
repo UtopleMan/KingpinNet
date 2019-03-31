@@ -17,7 +17,7 @@ namespace Tests
             // Arrange
             string[] args = new[] { "run" };
             var application = new KingpinApplication();
-            application.Commands.Add(new CommandBuilder("run", "This is a command"));
+            application.Commands.Add(new Command("run", "This is a command"));
 
             // Act
             var subject = new Parser(application);
@@ -33,8 +33,8 @@ namespace Tests
             // Arrange
             string[] args = new[] { "cmd1", "cmd2" };
             var application = new KingpinApplication();
-            var command = new CommandBuilder("cmd1", "command1 help");
-            command.Command("cmd2", "command2 help");
+            var command = new Command("cmd1", "command1 help");
+            command.AddCommand("cmd2", "command2 help");
             application.Commands.Add(command);
 
             // Act
@@ -51,9 +51,9 @@ namespace Tests
             // Arrange
             string[] args = new[] { "run", "an_argument" };
             var application = new KingpinApplication();
-            var command = new CommandBuilder("run", "This is a command");
+            var command = new Command("run", "This is a command");
             application.Commands.Add(command);
-            var argument = command.Argument("argument", "This is an argument");
+            var argument = command.AddArgument("argument", "This is an argument");
 
             // Act
             var subject = new Parser(application);
@@ -70,7 +70,7 @@ namespace Tests
             string[] args = new[] { "run", "--myflag=danish" };
             var application = new KingpinApplication();
             var command = Kingpin.Command("run", "This is a command");
-            var flag = command.Flag("myflag", "This is the flag of the person");
+            var flag = command.AddFlag("myflag", "This is the flag of the person");
             application.Commands.Add(command);
 
             // Act
@@ -89,7 +89,7 @@ namespace Tests
             // Arrange
             string[] args = new[] { "--myflag=danish" };
             var application = new KingpinApplication();
-            var flag = new FlagBuilder("myflag", "This is the flag of the person");
+            var flag = new Flag("myflag", "This is the flag of the person");
             application.Flags.Add(flag);
 
             // Act
@@ -107,8 +107,8 @@ namespace Tests
             // Arrange
             string[] args = new[] { "--myflag" };
             var application = new KingpinApplication();
-            var flag = new FlagBuilder("myflag", "This is the flag of the person").IsBool();
-            application.Flags.Add((FlagBuilder)flag);
+            var flag = new Flag("myflag", "This is the flag of the person").IsBool();
+            application.Flags.Add((Flag)flag);
 
             // Act
             var subject = new Parser(application);
@@ -125,8 +125,8 @@ namespace Tests
             // Arrange
             string[] args = new[] { "--myflag" };
             var application = new KingpinApplication();
-            var flag = new FlagBuilder("myflag", "This is the flag of the person");
-            application.Flags.Add((FlagBuilder)flag);
+            var flag = new Flag("myflag", "This is the flag of the person");
+            application.Flags.Add((Flag)flag);
 
             // Act
             var subject = new Parser(application);
@@ -140,7 +140,7 @@ namespace Tests
             // Arrange
             string[] args = new[] { "hurray" };
             var application = new KingpinApplication();
-            var argument = new ArgumentBuilder("argument", "This is an argument");
+            var argument = new Argument("argument", "This is an argument");
             application.Arguments.Add(argument);
 
             // Act
@@ -166,6 +166,20 @@ namespace Tests
 
             // Assert
             Assert.AreEqual(result["help"], "help");
+        }
+
+        [Test]
+        public void IsRequiredShouldFailWhenNoArgumentIsGiven()
+        {
+            // Arrange
+            string[] args = new string[0];
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("required", "This is the required flag").IsRequired();
+            application.Flags.Add(flag);
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
         }
     }
 }

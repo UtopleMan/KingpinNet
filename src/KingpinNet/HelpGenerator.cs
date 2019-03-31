@@ -53,7 +53,7 @@ namespace KingpinNet
             return result;
         }
 
-        private void RecurseCommands(string currentCommand, List<CommandBuilder> commands, List<Tuple<string,
+        private void RecurseCommands(string currentCommand, List<Command> commands, List<Tuple<string,
             CommandLineItem>> finalCommands)
         {
             foreach (var command in commands)
