@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace KingpinNet
 {
     public class Parser
     {
-        private readonly List<Command> _commands;
-        private readonly List<Flag> _globalFlags;
-        private readonly List<Argument> _globalArguments;
+        private readonly List<CommandItem> _commands;
+        private readonly List<FlagItem> _globalFlags;
+        private readonly List<ArgumentItem> _globalArguments;
         private Dictionary<string, string> _result;
         private List<string> _args;
         private int _currentItem;
@@ -56,7 +58,7 @@ namespace KingpinNet
             CheckArguments(_globalArguments);
         }
 
-        private void CheckCommands(List<Command> commands)
+        private void CheckCommands(List<CommandItem> commands)
         {
             foreach (var command in commands)
             {
@@ -70,14 +72,14 @@ namespace KingpinNet
             }
         }
 
-        private void CheckArguments(List<Argument> arguments)
+        private void CheckArguments(List<ArgumentItem> arguments)
         {
             foreach (var argument in arguments)
                 if (argument.Item.IsRequired && !argument.Item.IsSet)
                     throw new ParseException($"Required argument <{argument.Item.Name}> not set");
         }
 
-        private void CheckFlags(List<Flag> flags)
+        private void CheckFlags(List<FlagItem> flags)
         {
             foreach (var flag in flags)
                 if (flag.Item.IsRequired && !flag.Item.IsSet)
@@ -120,7 +122,7 @@ namespace KingpinNet
             _currentItem++;
         }
 
-        private bool IsArgument(string arg, List<Argument> arguments, out CommandLineItem item)
+        private bool IsArgument(string arg, List<ArgumentItem> arguments, out CommandLineItem item)
         {
             item = null;
 
@@ -159,12 +161,12 @@ namespace KingpinNet
             throw new ParseException("Found too many = signs" + arg);
         }
 
-        private bool IsValidArgument(Argument argument, string arg)
+        private bool IsValidArgument(ArgumentItem argument, string arg)
         {
             return IsValidItem(argument.Item, arg);
         }
 
-        private bool IsValidFlag(Flag flag, string arg)
+        private bool IsValidFlag(FlagItem flag, string arg)
         {
             var parts = arg.Split('=');
 
@@ -185,10 +187,7 @@ namespace KingpinNet
 
         private bool IsValidItem(CommandLineItem item, string argument)
         {
-            if (item.ValueType == ValueType.String)
-            {
-                return true;
-            }
+
             if (item.ValueType == ValueType.Bool)
             {
                 if (bool.TryParse(argument, out bool result))
@@ -196,44 +195,67 @@ namespace KingpinNet
             }
             else if (item.DirectoryShouldExist)
             {
-                return true;
+                if (Directory.Exists(argument))
+                    return true;
             }
             else if (item.FileShouldExist)
             {
-                return true;
+                if (File.Exists(argument))
+                    return true;
             }
             else if (item.ValueType == ValueType.Duration)
             {
-                return true;
+                if (TimeSpan.TryParse(argument, out TimeSpan result))
+                    return true;
             }
             else if (item.ValueType == ValueType.Enum)
             {
-                return true;
+                try
+                {
+                    var parse = Enum.Parse(item.TypeOfEnum, argument);
+                    return true;
+                }
+                catch (ArgumentException)
+                {
+                }
             }
             else if (item.ValueType == ValueType.Float)
             {
-                return true;
+                if (float.TryParse(argument, out float result))
+                    return true;
             }
             else if (item.ValueType == ValueType.Int)
             {
-                return true;
+                if (Int32.TryParse(argument, out Int32 result))
+                    return true;
             }
             else if (item.ValueType == ValueType.Ip)
             {
-                return true;
+                return Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument);
             }
             else if (item.ValueType == ValueType.Tcp)
             {
-                return true;
+                return Regex(@"(([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})|(\w*.\w*.\w*)):[0-9]{1,5}", argument);
             }
             else if (item.ValueType == ValueType.Url)
+            {
+                return Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute);
+            }
+            else if (item.ValueType == ValueType.String)
             {
                 return true;
             }
             return false;
         }
 
-        private bool IsFlag(string arg, List<Flag> flags, out CommandLineItem item)
+        private bool Regex(string regex, string input)
+        {
+            var regexEngine = new Regex(regex);
+            var match = regexEngine.Match(input);
+            return match.Success;
+        }
+
+        private bool IsFlag(string arg, List<FlagItem> flags, out CommandLineItem item)
         {
             item = null;
 
@@ -269,7 +291,7 @@ namespace KingpinNet
         }
 
 
-        private bool IsCommand(string arg, List<Command> commands, out CommandLineItem commandFound)
+        private bool IsCommand(string arg, List<CommandItem> commands, out CommandLineItem commandFound)
         {
             commandFound = null;
             foreach (var command in commands)

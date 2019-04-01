@@ -64,7 +64,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Flags.Add(new Flag("flag", "flag help"));
+            application.Flags.Add(new FlagItem("flag", "flag help"));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -79,7 +79,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Flags.Add(new Flag("flag", "flag help").Short('f'));
+            application.Flags.Add(new FlagItem("flag", "flag help").Short('f'));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -93,8 +93,8 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Flags.Add(new Flag("flag1", "flag1 help").Short('f'));
-            application.Flags.Add(new Flag("flag2", "flag2 help").Short('g'));
+            application.Flags.Add(new FlagItem("flag1", "flag1 help").Short('f'));
+            application.Flags.Add(new FlagItem("flag2", "flag2 help").Short('g'));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -110,7 +110,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Arguments.Add(new Argument("arg", "arg help"));
+            application.Arguments.Add(new ArgumentItem("arg", "arg help"));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -126,8 +126,8 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Arguments.Add(new Argument("arg1", "arg1 help"));
-            application.Arguments.Add(new Argument("arg2", "arg2 help"));
+            application.Arguments.Add(new ArgumentItem("arg1", "arg1 help"));
+            application.Arguments.Add(new ArgumentItem("arg2", "arg2 help"));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -143,7 +143,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Commands.Add(new Command("cmd", "command help"));
+            application.Commands.Add(new CommandItem("cmd", "command help"));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -159,8 +159,8 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Commands.Add(new Command("cmd1", "command1 help"));
-            application.Commands.Add(new Command("cmd2", "command2 help"));
+            application.Commands.Add(new CommandItem("cmd1", "command1 help"));
+            application.Commands.Add(new CommandItem("cmd2", "command2 help"));
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -176,7 +176,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            var command = new Command("cmd1", "command1 help");
+            var command = new CommandItem("cmd1", "command1 help");
             command.AddCommand("cmd2", "command2 help");
             application.Commands.Add(command);
             // Act
@@ -194,7 +194,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            var command = new Command("cmd", "command help");
+            var command = new CommandItem("cmd", "command help");
             command.AddFlag("flag", "flag help");
             application.Commands.Add(command);
             // Act
@@ -212,7 +212,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            var command = new Command("cmd", "command help");
+            var command = new CommandItem("cmd", "command help");
             command.AddFlag("flag1", "flag1 help");
             command.AddFlag("flag2", "flag2 help");
             application.Commands.Add(command);
@@ -231,7 +231,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            var command = new Command("cmd", "command help");
+            var command = new CommandItem("cmd", "command help");
             command.AddArgument("arg1", "arg1 help");
             command.AddArgument("arg2", "arg2 help");
             application.Commands.Add(command);
@@ -250,7 +250,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            var command = new Command("cmd1", "command1 help");
+            var command = new CommandItem("cmd1", "command1 help");
             command.AddFlag("flag", "flag help");
             command.AddCommand("cmd2", "command2 help");
             application.Commands.Add(command);

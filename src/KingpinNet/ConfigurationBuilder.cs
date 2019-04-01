@@ -117,25 +117,25 @@ namespace KingpinNet
             return Item?.Value;
         }
     }
-    public class Argument : CommandLineItemBuilder<Argument>
+    public class ArgumentItem : CommandLineItemBuilder<ArgumentItem>
     {
-        public Argument(string name, string help)
+        public ArgumentItem(string name, string help)
         {
             Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Argument };
         }
     }
 
-    public class Flag : CommandLineItemBuilder<Flag>
+    public class FlagItem : CommandLineItemBuilder<FlagItem>
     {
-        public Flag(string name, string help)
+        public FlagItem(string name, string help)
         {
             Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Flag };
         }
     }
 
-    public class Command : CommandLineItemBuilder<Command>
+    public class CommandItem : CommandLineItemBuilder<CommandItem>
     {
-        public Command(string name, string help)
+        public CommandItem(string name, string help)
         {
             Item = new CommandLineItem
             {
@@ -147,32 +147,32 @@ namespace KingpinNet
 
         public string Name => Item.Name;
 
-        public Command HintOptions(params string[] hints)
+        public CommandItem HintOptions(params string[] hints)
         {
             Item.HintOptions = hints;
             return this;
         }
 
-        public Flag AddFlag(string name, string help)
+        public FlagItem AddFlag(string name, string help)
         {
-            var result = new Flag(name, help);
+            var result = new FlagItem(name, help);
             Item.Flags.Add(result);
             return result;
         }
-        public Argument AddArgument(string name, string help)
+        public ArgumentItem AddArgument(string name, string help)
         {
-            var result = new Argument(name, help);
+            var result = new ArgumentItem(name, help);
             Item.Arguments.Add(result);
             return result;
         }
-        public Command AddCommand(string name, string help)
+        public CommandItem AddCommand(string name, string help)
         {
-            var result = new Command(name, help);
+            var result = new CommandItem(name, help);
             Item.Commands.Add(result);
             return result;
         }
 
-        public Command IsDefault()
+        public CommandItem IsDefault()
         {
             Item.IsDefault = true;
             return this;
@@ -202,9 +202,9 @@ namespace KingpinNet
 
     public class CommandLineItem
     {
-        public readonly List<Command> Commands = new List<Command>();
-        public readonly List<Flag> Flags = new List<Flag>();
-        public readonly List<Argument> Arguments = new List<Argument>();
+        public readonly List<CommandItem> Commands = new List<CommandItem>();
+        public readonly List<FlagItem> Flags = new List<FlagItem>();
+        public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
         public ItemType ItemType = ItemType.None;
         public ValueType ValueType = ValueType.String;
         public string Name;

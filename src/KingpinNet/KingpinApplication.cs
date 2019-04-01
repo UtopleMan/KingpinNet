@@ -4,30 +4,30 @@ namespace KingpinNet
 {
     public class KingpinApplication
     {
-        public readonly List<Command> Commands = new List<Command>();
-        public readonly List<Flag> Flags = new List<Flag>();
-        public readonly List<Argument> Arguments = new List<Argument>();
+        public readonly List<CommandItem> Commands = new List<CommandItem>();
+        public readonly List<FlagItem> Flags = new List<FlagItem>();
+        public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
         public string Name;
         public string Help;
         public string Version;
         public string Author;
 
-        public Command Command(string name, string help)
+        public CommandItem Command(string name, string help)
         {
-            var result = new Command(name, help);
+            var result = new CommandItem(name, help);
             Commands.Add(result);
             return result;
         }
 
-        public Flag Flag(string name, string help)
+        public FlagItem Flag(string name, string help)
         {
-            var result = new Flag(name, help);
+            var result = new FlagItem(name, help);
             Flags.Add(result);
             return result;
         }
-        public Argument Argument(string name, string help)
+        public ArgumentItem Argument(string name, string help)
         {
-            var result = new Argument(name, help);
+            var result = new ArgumentItem(name, help);
             Arguments.Add(result);
             return result;
         }
