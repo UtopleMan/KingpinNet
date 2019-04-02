@@ -11,7 +11,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{76
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestKingpinNet", "Examples\TestKingpinNet\TestKingpinNet.csproj", "{F3B2B2CB-37B8-4FF1-AA5D-D8B6A2F3B4DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ping", "Examples\Ping\Ping\Ping.csproj", "{8DD910F9-DBCD-4212-BB1A-9BA58B69125C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping", "Examples\Ping\Ping\Ping.csproj", "{8DD910F9-DBCD-4212-BB1A-9BA58B69125C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", "{8E193EB9-C73B-4C3F-BA7C-51DABFC72F84}"
+	ProjectSection(SolutionItems) = preProject
+		.circleci\config.yml = .circleci\config.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

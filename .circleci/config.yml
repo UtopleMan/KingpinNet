@@ -8,4 +8,5 @@ jobs:
       - run: find .
       - run: dotnet restore
       - run: dotnet build
+      - run: ls
       - run: dotnet test --no-build Tests
