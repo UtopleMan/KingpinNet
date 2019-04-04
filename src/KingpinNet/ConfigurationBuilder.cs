@@ -77,6 +77,14 @@ namespace KingpinNet
             return (T)obj;
         }
 
+        public T IsDate()
+        {
+            Item.ValueType = ValueType.Date;
+            var obj = (object)this;
+            return (T)obj;
+        }
+
+
         public T IsTcp()
         {
             Item.ValueType = ValueType.Tcp;
@@ -153,19 +161,19 @@ namespace KingpinNet
             return this;
         }
 
-        public FlagItem AddFlag(string name, string help)
+        public FlagItem Flag(string name, string help)
         {
             var result = new FlagItem(name, help);
             Item.Flags.Add(result);
             return result;
         }
-        public ArgumentItem AddArgument(string name, string help)
+        public ArgumentItem Argument(string name, string help)
         {
             var result = new ArgumentItem(name, help);
             Item.Arguments.Add(result);
             return result;
         }
-        public CommandItem AddCommand(string name, string help)
+        public CommandItem Command(string name, string help)
         {
             var result = new CommandItem(name, help);
             Item.Commands.Add(result);
@@ -197,7 +205,8 @@ namespace KingpinNet
         Enum,
         Duration,
         Tcp,
-        Float
+        Float,
+        Date
     }
 
     public class CommandLineItem

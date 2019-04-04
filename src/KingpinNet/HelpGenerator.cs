@@ -90,7 +90,7 @@ namespace KingpinNet
                     flagName = $"      --{flag.Item.Name}";
 
                 var spacing = maxFlagLength - flagName.Length;
-                var finalString = flagName.PadRight(spacing);
+                var finalString = flagName.PadRight(maxFlagLength);
                 output.WriteLine($"{finalString}   {flag.Item.Help}");
             }
         }

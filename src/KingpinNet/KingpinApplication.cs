@@ -11,6 +11,8 @@ namespace KingpinNet
         public string Help;
         public string Version;
         public string Author;
+        public bool ShowHelpOnException;
+        public bool ExitOnException;
 
         public CommandItem Command(string name, string help)
         {

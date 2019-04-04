@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -46,7 +47,7 @@ namespace KingpinNet
                 else if (IsArgument(_args[_currentItem], _globalArguments, out CommandLineItem argumentFound))
                     Add(argumentFound);
                 else
-                    throw new ParseException("Something went wrong");
+                    throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
             }
             CheckAllRequiredItemsIsSet();
         }
@@ -99,7 +100,7 @@ namespace KingpinNet
                 else if (IsArgument(_args[_currentItem], command.Arguments, out CommandLineItem argumentFound))
                     Add(argumentFound);
                 else
-                    throw new ParseException("Something is out of place");
+                    throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
             }
         }
 
@@ -240,6 +241,10 @@ namespace KingpinNet
             else if (item.ValueType == ValueType.Url)
             {
                 return Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute);
+            }
+            else if (item.ValueType == ValueType.Date)
+            {
+                return DateTime.TryParseExact(argument, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
             }
             else if (item.ValueType == ValueType.String)
             {

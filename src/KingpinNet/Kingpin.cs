@@ -16,6 +16,11 @@ namespace KingpinNet
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
+        public static void ShowHelpOnException( )
+        {
+            _application.ShowHelpOnException = true;
+        }
+
         public static void Author(string author)
         {
             _application.Author = author;
@@ -47,15 +52,28 @@ namespace KingpinNet
             return _application.Argument(name, help);
         }
 
-        int _current = 0;
-
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
-            var result = new Dictionary<string, string>();
-
             var parser = new Parser(_application);
-            return parser.Parse(args);
+            try
+            {
+                return parser.Parse(args);
+            }
+            catch (ParseException exception)
+            {
+                if (_application.ShowHelpOnException)
+                {
+                    Console.WriteLine(exception.Message);
+                    GenerateHelp("");
+                }
+                if (_application.ExitOnException)
+                {
+                    Environment.Exit(1);
+                }
+                return new Dictionary<string, string>() { { "KingpinError", exception.Message } };
+            }
         }
+
 
         public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
             List<ArgumentItem> arguments, IEnumerable<string> args)
@@ -64,6 +82,11 @@ namespace KingpinNet
 
             var parser = new Parser(_application);
             return parser.Parse(args);
+        }
+
+        public static void ExitOnException()
+        {
+            _application.ExitOnException = true;
         }
     }
 }
