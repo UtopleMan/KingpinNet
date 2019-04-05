@@ -1,8 +1,14 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  my-executor:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    # working_directory: /tmp
+
+jobs:
+  build:
+    executor: my-executor
     steps:
       - checkout
       - run: 
@@ -12,9 +18,6 @@ jobs:
       - run: 
           name: Replace version in nuspec file
           command: sed 's/buildversion/'"$CIRCLE_BUILD_NUM"'/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.final.nuspec
-          filters:
-            branches:
-              only: master
 
       - run:
           name: Build code
@@ -22,18 +25,31 @@ jobs:
 
       - run:
           name: Run tests
-          command: dotnet test --no-build
+          command: dotnet test --no-build --logger "junit;LogFilePath=results.xml"
 
       - run: 
           name: Make NuGet packages
           command: dotnet pack
-          filters:
-            branches:
-              only: master
 
+      - store_test_results:
+          path: test/UnitTests/results.xml
+
+  deploy:
+    executor: my-executor
+    steps:
       - run:
           name: Push package to NuGet
           command: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
+
+workflows:
+  version: 2
+
+  btd:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
           filters:
             branches:
               only: master
