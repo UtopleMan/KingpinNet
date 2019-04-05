@@ -5,7 +5,8 @@
     <PackageId>KingpinNet</PackageId>
     <Version>0.1.0</Version>
     <Authors>Peter Andersen</Authors>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <NuspecFile>KingpinNet.nuspec</NuspecFile>
   </PropertyGroup>
 
   <ItemGroup>
