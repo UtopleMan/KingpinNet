@@ -32,7 +32,7 @@ jobs:
           command: dotnet pack
 
       - store_test_results:
-          path: test/UnitTests/results.xml
+          path: test
 
   deploy:
     executor: my-executor
