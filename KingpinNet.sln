@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", "{8E193EB9-C73B-4C3F-BA7C-51DABFC72F84}"
 	ProjectSection(SolutionItems) = preProject
 		.circleci\config.yml = .circleci\config.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

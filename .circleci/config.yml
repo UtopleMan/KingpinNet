@@ -5,21 +5,32 @@ jobs:
       - image: mcr.microsoft.com/dotnet/core/sdk:2.2
     steps:
       - checkout
-      - run: find .
-      - run: dotnet restore
+      - run: 
+          name: Restore NuGet packages
+          command: dotnet restore
+
       - run: 
           name: Replace version in nuspec file
           command: sed 's/buildversion/'"$CIRCLE_BUILD_NUM"'/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.final.nuspec
           filters:
             branches:
               only: master
-      - run: dotnet build
+
+      - run:
+          name: Build code
+          command: dotnet build
+
+      - run:
+          name: Run tests
+          command: dotnet test --no-build
+
       - run: 
-          name: Make Nuget Package
+          name: Make NuGet packages
           command: dotnet pack
           filters:
             branches:
               only: master
+
       - run:
           name: Push package to NuGet
           command: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
