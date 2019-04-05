@@ -8,6 +8,7 @@ jobs:
       - run: find .
       - run: dotnet restore
       - run: sed 's/--build--/$CIRCLE_BUILD_NUM/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.nuspec
+      - run: cat src/KingpinNet/KingpinNet.nuspec
       - run: dotnet build
       - run: dotnet pack
       - run: dotnet test --no-build
