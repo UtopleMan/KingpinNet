@@ -10,4 +10,4 @@ jobs:
       - run: dotnet build
       - run: find .
       - run: dotnet test --no-build
-      - run: dotnet nuget push src\KingpinNet\bin\Debug\KingpinNet.0.1.0.nupkg -k oy2nm7ikkan6mxlentiq7map4imx77terc7vid7i3r4bte -s https://api.nuget.org/v3/index.json
+      - run: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.0.nupkg -k oy2nm7ikkan6mxlentiq7map4imx77terc7vid7i3r4bte -s https://api.nuget.org/v3/index.json
