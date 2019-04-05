@@ -33,9 +33,6 @@ jobs:
 
   deploy:
     executor: my-executor
-    filters:
-      branches:
-        only: master
     steps:
       - run:
           name: Push package to NuGet
@@ -50,4 +47,6 @@ workflows:
       - deploy:
           requires:
             - build
-
+          filters:
+            branches:
+              only: master
