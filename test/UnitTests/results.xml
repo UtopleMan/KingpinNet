@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<testsuites time="0.072" tests="45" failures="0">
+  <testsuite id="0" name="Tests.dll" tests="45" failures="0" time="0.072">
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteApplictaionHelp" time="0.0170000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteApplictaionName" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteEmpty" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalArgument" time="0.0010000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalArguments" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalCommand" time="0.0020000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalCommands" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalCommandWithArguments" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalCommandWithFlag" time="0.0010000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalCommandWithFlags" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalFlag" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalFlags" time="0.0010000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteGlobalFlagWithShortName" time="0.0000001" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteNestedCommands" time="0.0010000" />
+    <testcase classname="Tests.HelpGeneratorTests" name="WriteNestedCommandWithGlobalCommandWithAFlag" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="IsRequiredShouldFailWhenNoArgumentIsGiven" time="0.0140000" />
+    <testcase classname="Tests.ParserTests" name="ParseBoolFail" time="0.0030000" />
+    <testcase classname="Tests.ParserTests" name="ParseBoolSuccess" time="0.0130000" />
+    <testcase classname="Tests.ParserTests" name="ParseDirectoryShouldExistFail" time="0.0020000" />
+    <testcase classname="Tests.ParserTests" name="ParseDirectoryShouldExistSuccess" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseDurationFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseDurationSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseEnumFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseEnumSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseFileShouldExistFail" time="0.0020000" />
+    <testcase classname="Tests.ParserTests" name="ParseFileShouldExistSuccess" time="0.0030000" />
+    <testcase classname="Tests.ParserTests" name="ParseFloatFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseFloatSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseGlobalArgument" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseGlobalBoolFlag" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseGlobalFlag" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseGlobalNonBoolFlagThrowsException" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseGlobalShortFlag" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseIntFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseIntSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseIpFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseIpSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseNestedCommand" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseSimpleCommand" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseSimpleCommandWithArgument" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseSimpleCommandWithFlag" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseTcpFail" time="0.0040000" />
+    <testcase classname="Tests.ParserTests" name="ParseTcpSuccess" time="0.0000001" />
+    <testcase classname="Tests.ParserTests" name="ParseUrlFail" time="0.0010000" />
+    <testcase classname="Tests.ParserTests" name="ParseUrlSuccess" time="0.0000001" />
+  </testsuite>
+</testsuites>

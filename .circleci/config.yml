@@ -25,7 +25,7 @@ jobs:
 
       - run:
           name: Run tests
-          command: dotnet test --no-build
+          command: dotnet test --no-build --logger "junit;LogFilePath=results.xml"
 
       - run: 
           name: Make NuGet packages
