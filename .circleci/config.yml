@@ -4,7 +4,7 @@ executors:
   dotnetcore:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:2.2
-    working_directory: /tmp
+    working_directory: /source
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
 
       - run: 
           name: Make NuGet packages
-          command: dotnet pack -o /tmp
+          command: dotnet pack -o /source
 
       - store_test_results:
           path: test
@@ -39,7 +39,7 @@ jobs:
     steps:
       - run:
           name: Push package to NuGet
-          command: dotnet nuget push /tmp/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
+          command: dotnet nuget push /source/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
 
 workflows:
   version: 2
