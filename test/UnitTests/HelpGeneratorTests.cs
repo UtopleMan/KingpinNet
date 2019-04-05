@@ -1,4 +1,5 @@
-﻿using KingpinNet;
+﻿using System;
+using KingpinNet;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
@@ -57,6 +58,7 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
+            TestContext.Out.WriteLine(result);
             Assert.IsTrue(result.Contains("\r\n\r\nThis is the glorious test app\r\n\r\n"));
         }
         [Test]
