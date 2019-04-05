@@ -31,6 +31,9 @@ jobs:
           name: Make NuGet packages
           command: dotnet pack
 
+      - store_test_results:
+          path: test/UnitTests/results.xml
+
   deploy:
     executor: my-executor
     steps:
