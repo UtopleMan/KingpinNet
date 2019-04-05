@@ -29,7 +29,7 @@ jobs:
 
       - run: 
           name: Make NuGet packages
-          command: dotnet pack -o workspace/packages
+          command: dotnet pack -o /source/workspace/packages
 
       - store_test_results:
           path: test
