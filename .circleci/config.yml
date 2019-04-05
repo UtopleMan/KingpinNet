@@ -8,6 +8,6 @@ jobs:
       - run: find .
       - run: dotnet restore
       - run: dotnet build
-      - run: find .
+      - run: dotnet pack
       - run: dotnet test --no-build
       - run: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.0.nupkg -k oy2eorzfj6vz5pvshgnacpq3z4mn2t2uzndiyhqucvds5e -s https://api.nuget.org/v3/index.json
