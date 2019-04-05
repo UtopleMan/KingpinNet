@@ -7,9 +7,8 @@ jobs:
       - checkout
       - run: find .
       - run: dotnet restore
-      - run: sed 's/buildversion/$CIRCLE_BUILD_NUM/g' src/KingpinNet/KingpinNet.nuspec > KingpinNet.nuspec
+      - run: sed 's/buildversion/${CIRCLE_BUILD_NUM}/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.nuspec
       - run: cat src/KingpinNet/KingpinNet.nuspec
-      - run: cat KingpinNet.nuspec
       - run: dotnet build
       - run: dotnet pack
       - run: dotnet test --no-build
