@@ -59,7 +59,7 @@ namespace Tests
             // Assert
             var result = writer.ToString();
             TestContext.Out.WriteLine(result);
-            Assert.IsTrue(result.Contains("\r\n\r\nThis is the glorious test app\r\n\r\n"));
+            Assert.IsTrue(result.Contains(Environment.NewLine + Environment.NewLine + "This is the glorious test app"+ Environment.NewLine + Environment.NewLine));
         }
         [Test]
         public void WriteGlobalFlag()
