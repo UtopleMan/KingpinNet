@@ -73,7 +73,7 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("Flags:\r\n      --flag   flag help\r\n"));
+            Assert.IsTrue(result.Contains($"Flags:{Environment.NewLine}      --flag   flag help{Environment.NewLine}"));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("Flags:\r\n  -f, --flag   flag help\r\n"));
+            Assert.IsTrue(result.Contains($"Flags:{Environment.NewLine}  -f, --flag   flag help{Environment.NewLine}"));
         }
         [Test]
         public void WriteGlobalFlags()
@@ -103,8 +103,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: [<flags>] \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Flags:\r\n  -f, --flag1   flag1 help\r\n  -g, --flag2   flag2 help\r\n"));
+            Assert.IsTrue(result.Contains($"usage: [<flags>] {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Flags:{Environment.NewLine}  -f, --flag1   flag1 help{Environment.NewLine}  -g, --flag2   flag2 help{Environment.NewLine}"));
         }
 
         [Test]
@@ -119,8 +119,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: [<arg>]\r\n\r\n"));
-            Assert.IsTrue(result.Contains("Args:\r\n  [<arg>]   arg help\r\n"));
+            Assert.IsTrue(result.Contains($"usage: [<arg>]{Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Args:{Environment.NewLine}  [<arg>]   arg help{Environment.NewLine}"));
         }
 
         [Test]
@@ -136,8 +136,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: [<args> ...]\r\n\r\n"));
-            Assert.IsTrue(result.Contains("Args:\r\n  [<arg1>]   arg1 help\r\n  [<arg2>]   arg2 help\r\n"));
+            Assert.IsTrue(result.Contains($"usage: [<args> ...]{Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Args:{Environment.NewLine}  [<arg1>]   arg1 help{Environment.NewLine}  [<arg2>]   arg2 help{Environment.NewLine}"));
         }
 
         [Test]
@@ -152,8 +152,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd \r\n    command help\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd {Environment.NewLine}    command help{Environment.NewLine}"));
         }
 
         [Test]
@@ -169,9 +169,9 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd1 \r\n    command1 help\r\n"));
-            Assert.IsTrue(result.Contains(             "  cmd2 \r\n    command2 help\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd1 {Environment.NewLine}    command1 help{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"  cmd2 {Environment.NewLine}    command2 help{Environment.NewLine}"));
         }
         [Test]
         public void WriteNestedCommands()
@@ -187,8 +187,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd1 cmd2 \r\n    command2 help\r\n\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd1 cmd2 {Environment.NewLine}    command2 help{Environment.NewLine}{Environment.NewLine}"));
         }
 
         [Test]
@@ -205,8 +205,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd --flag=<Flag> \r\n    command help\r\n\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd --flag=<Flag> {Environment.NewLine}    command help{Environment.NewLine}{Environment.NewLine}"));
         }
 
         [Test]
@@ -224,8 +224,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd [<flags>] \r\n    command help\r\n\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd [<flags>] {Environment.NewLine}    command help{Environment.NewLine}{Environment.NewLine}"));
         }
 
         [Test]
@@ -243,8 +243,8 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd <arg1> <arg2> \r\n    command help\r\n\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd <arg1> <arg2> {Environment.NewLine}    command help{Environment.NewLine}{Environment.NewLine}"));
         }
 
         [Test]
@@ -262,9 +262,9 @@ namespace Tests
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: <command> \r\n\r\n"));
-            Assert.IsTrue(result.Contains("Commands:\r\n  cmd1 --flag=<Flag> \r\n    command1 help\r\n\r\n"));
-            Assert.IsTrue(result.Contains("  cmd1 cmd2 \r\n    command2 help\r\n\r\n"));
+            Assert.IsTrue(result.Contains($"usage: <command> {Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"Commands:{Environment.NewLine}  cmd1 --flag=<Flag> {Environment.NewLine}    command1 help{Environment.NewLine}{Environment.NewLine}"));
+            Assert.IsTrue(result.Contains($"  cmd1 cmd2 {Environment.NewLine}    command2 help{Environment.NewLine}{Environment.NewLine}"));
         }
     }
 }
