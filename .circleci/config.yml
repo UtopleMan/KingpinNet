@@ -9,4 +9,4 @@ jobs:
       - run: dotnet restore
       - run: dotnet build
       - run: ls
-      - run: dotnet test --no-build /root/project/test/UnitTests/bin/Debug/netcoreapp2.2/Tests.dll
+      - run: dotnet test --no-build test/UnitTests/bin/Debug/netcoreapp2.2/Tests.dll
