@@ -177,7 +177,7 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = new CommandItem("cmd1", "command1 help");
-            command.AddCommand("cmd2", "command2 help");
+            command.Command("cmd2", "command2 help");
             application.Commands.Add(command);
             // Act
             var subject = new HelpGenerator(application);
@@ -195,7 +195,7 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = new CommandItem("cmd", "command help");
-            command.AddFlag("flag", "flag help");
+            command.Flag("flag", "flag help");
             application.Commands.Add(command);
             // Act
             var subject = new HelpGenerator(application);
@@ -213,8 +213,8 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = new CommandItem("cmd", "command help");
-            command.AddFlag("flag1", "flag1 help");
-            command.AddFlag("flag2", "flag2 help");
+            command.Flag("flag1", "flag1 help");
+            command.Flag("flag2", "flag2 help");
             application.Commands.Add(command);
             // Act
             var subject = new HelpGenerator(application);
@@ -232,8 +232,8 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = new CommandItem("cmd", "command help");
-            command.AddArgument("arg1", "arg1 help");
-            command.AddArgument("arg2", "arg2 help");
+            command.Argument("arg1", "arg1 help");
+            command.Argument("arg2", "arg2 help");
             application.Commands.Add(command);
             // Act
             var subject = new HelpGenerator(application);
@@ -251,8 +251,8 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = new CommandItem("cmd1", "command1 help");
-            command.AddFlag("flag", "flag help");
-            command.AddCommand("cmd2", "command2 help");
+            command.Flag("flag", "flag help");
+            command.Command("cmd2", "command2 help");
             application.Commands.Add(command);
             // Act
             var subject = new HelpGenerator(application);

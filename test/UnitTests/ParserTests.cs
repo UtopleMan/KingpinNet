@@ -36,7 +36,7 @@ namespace Tests
             string[] args = new[] { "cmd1", "cmd2" };
             var application = new KingpinApplication();
             var command = new CommandItem("cmd1", "command1 help");
-            command.AddCommand("cmd2", "command2 help");
+            command.Command("cmd2", "command2 help");
             application.Commands.Add(command);
 
             // Act
@@ -55,7 +55,7 @@ namespace Tests
             var application = new KingpinApplication();
             var command = new CommandItem("run", "This is a command");
             application.Commands.Add(command);
-            var argument = command.AddArgument("argument", "This is an argument");
+            var argument = command.Argument("argument", "This is an argument");
 
             // Act
             var subject = new Parser(application);
@@ -72,7 +72,7 @@ namespace Tests
             string[] args = new[] { "run", "--myflag=danish" };
             var application = new KingpinApplication();
             var command = Kingpin.Command("run", "This is a command");
-            var flag = command.AddFlag("myflag", "This is the flag of the person");
+            var flag = command.Flag("myflag", "This is the flag of the person");
             application.Commands.Add(command);
 
             // Act
