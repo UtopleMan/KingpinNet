@@ -7,9 +7,22 @@ jobs:
       - checkout
       - run: find .
       - run: dotnet restore
-      - run: sed 's/buildversion/'"$CIRCLE_BUILD_NUM"'/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.final.nuspec
-      - run: cat src/KingpinNet/KingpinNet.final.nuspec
+      - run: 
+          name: Replace version in nuspec file
+          command: sed 's/buildversion/'"$CIRCLE_BUILD_NUM"'/g' src/KingpinNet/KingpinNet.nuspec > src/KingpinNet/KingpinNet.final.nuspec
+          filters:
+            branches:
+              only: master
       - run: dotnet build
-      - run: dotnet pack
-      - run: dotnet test --no-build
-      - run: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
+      - run: 
+          name: Make Nuget Package
+          command: dotnet pack
+          filters:
+            branches:
+              only: master
+      - run:
+          name: Push package to NuGet
+          command: dotnet nuget push src/KingpinNet/bin/Debug/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
+          filters:
+            branches:
+              only: master
