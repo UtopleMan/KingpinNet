@@ -52,7 +52,7 @@ jobs:
       - run: find .
       - run:
           name: Push package to NuGet
-          command: dotnet nuget push ./workspace/packages/KingpinNet.0.1.$CIRCLE_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
+          command: dotnet nuget push ./workspace/packages/KingpinNet.0.1.$CIRCLE_PREVIOUS_BUILD_NUM.nupkg -k oy2p2skw7v6pejpnxs2qis6mmd3a5zpubouqcb3uxan5pe -s https://api.nuget.org/v3/index.json
 
 workflows:
   version: 2
