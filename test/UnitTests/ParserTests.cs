@@ -44,7 +44,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["command"], "cmd1-cmd2");
+            Assert.AreEqual(result["command"], "cmd1:cmd2");
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Tests
 
             // Assert
             Assert.AreEqual(result["command"], "run");
-            Assert.AreEqual(result["argument"], "an_argument");
+            Assert.AreEqual(result["run:argument"], "an_argument");
         }
         [Test]
         public void ParseSimpleCommandWithFlag()
@@ -81,7 +81,7 @@ namespace Tests
 
             // Assert
             Assert.AreEqual(result["command"], "run");
-            Assert.AreEqual(result["myflag"], "danish");
+            Assert.AreEqual(result["run:myflag"], "danish");
         }
 
         [Test]

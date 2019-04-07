@@ -16,9 +16,19 @@ namespace KingpinNet
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
-        public static void ShowHelpOnException( )
+        public static void ShowHelpOnParsingErrors( )
         {
-            _application.ShowHelpOnException = true;
+            _application.ShowHelpOnParsingErrors = true;
+        }
+
+        public static void ExitOnParsingErrors()
+        {
+            _application.ExitOnParsingErrors = true;
+        }
+
+        public static void ExitOnHelp()
+        {
+            _application.ExitOnHelp = true;
         }
 
         public static void Author(string author)
@@ -35,6 +45,8 @@ namespace KingpinNet
         {
             var helpGenerator = new HelpGenerator(_application);
             helpGenerator.Generate(Console.Out);
+            if (_application.ExitOnHelp)
+                Environment.Exit(0);
         }
 
         public static CommandItem Command(string name, string help)
@@ -61,12 +73,12 @@ namespace KingpinNet
             }
             catch (ParseException exception)
             {
-                if (_application.ShowHelpOnException)
+                if (_application.ShowHelpOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
                     GenerateHelp("");
                 }
-                if (_application.ExitOnException)
+                if (_application.ExitOnParsingErrors)
                 {
                     Environment.Exit(1);
                 }
@@ -84,9 +96,5 @@ namespace KingpinNet
             return parser.Parse(args);
         }
 
-        public static void ExitOnException()
-        {
-            _application.ExitOnException = true;
-        }
     }
 }
