@@ -11,8 +11,10 @@ namespace KingpinNet
         public string Help;
         public string Version;
         public string Author;
-        public bool ShowHelpOnException;
-        public bool ExitOnException;
+        public bool ShowHelpOnParsingErrors;
+        public bool ExitOnParsingErrors;
+
+        public bool ExitOnHelp { get; internal set; }
 
         public CommandItem Command(string name, string help)
         {
