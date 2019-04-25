@@ -96,9 +96,9 @@ namespace KingpinNet
                     MergeCommand("command", commandFound);
                     CommandFound(commandFound);
                 } else if (IsFlag(_args[_currentItem], command.Flags, out CommandLineItem flagFound))
-                    Add(flagFound);
+                    Merge("command", flagFound);
                 else if (IsArgument(_args[_currentItem], command.Arguments, out CommandLineItem argumentFound))
-                    Add(argumentFound);
+                    Merge("command", argumentFound);
                 else
                     throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
             }
@@ -107,13 +107,21 @@ namespace KingpinNet
         private void MergeCommand(string name, CommandLineItem item)
         {
             item.IsSet = true;
-            _result[name] = _result[name] + "-" + item.Name;
+            _result[name] = _result[name] + ":" + item.Name;
             _currentItem++;
         }
+
         private void AddCommand(string name, CommandLineItem item)
         {
             item.IsSet = true;
             _result.Add(name, item.Name);
+            _currentItem++;
+        }
+
+        private void Merge(string name, CommandLineItem item)
+        {
+            item.IsSet = true;
+            _result.Add(_result[name] + ":" + item.Name, item.Value);
             _currentItem++;
         }
         private void Add(CommandLineItem item)
