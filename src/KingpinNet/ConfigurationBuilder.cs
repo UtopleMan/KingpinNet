@@ -152,15 +152,11 @@ namespace KingpinNet
                 ItemType = ItemType.Command,
             };
         }
-
-        public string Name => Item.Name;
-
         public CommandItem HintOptions(params string[] hints)
         {
             Item.HintOptions = hints;
             return this;
         }
-
         public FlagItem Flag(string name, string help)
         {
             var result = new FlagItem(name, help);
