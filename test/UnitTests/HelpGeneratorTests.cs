@@ -267,5 +267,25 @@ namespace Tests
             Assert.IsTrue(result.Contains($"Commands:{Nl}  cmd1 --flag=<Flag> {Nl}    command1 help{Nl}{Nl}"));
             Assert.IsTrue(result.Contains($"  cmd1 cmd2 {Nl}    command2 help{Nl}{Nl}"));
         }
+
+        [Test]
+        public void WriteHelpForNestedCommand()
+        {
+            // Arrange
+            var application = new KingpinApplication();
+            var command = new CommandItem("cmd1", "command1 help");
+            command.Command("cmd2", "command2 help");
+            application.Commands.Add(command);
+            // Act
+            var subject = new HelpGenerator(application);
+            var writer = new StringWriter();
+            subject.Generate(command, writer);
+            // Assert
+            var result = writer.ToString();
+            Assert.IsTrue(result.Contains($"usage: cmd1 {Nl}{Nl}"));
+            Assert.IsTrue(result.Contains($"command1 help{Nl}{Nl}"));
+            Assert.IsTrue(result.Contains($"Commands:{Nl}"));
+            Assert.IsTrue(result.Contains($"  cmd2 {Nl}    command2 help{Nl}{Nl}"));
+        }
     }
 }

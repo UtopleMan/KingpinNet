@@ -300,7 +300,7 @@ namespace KingpinNet
         {
             commandFound = null;
             foreach (var command in commands)
-                if (arg.ToLower() == command.Name.ToLower())
+                if (arg.ToLower() == command.Item.Name.ToLower())
                 {
                     commandFound = command.Item;
                     return true;

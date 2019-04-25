@@ -22,6 +22,16 @@ namespace KingpinNet
             GenerateCommands(output);
         }
 
+        public void Generate(CommandItem command, TextWriter output)
+        {
+            GenerateCommandUsage(command, output);
+            GenerateCommandDescription(command, output);
+            GenerateCommandFlags(command, output);
+            GenerateCommandArguments(command, output);
+            GenerateNestedCommands(command, output);
+        }
+
+
         private void GenerateCommands(TextWriter output)
         {
             if (_application.Commands.Count == 0)
@@ -36,6 +46,25 @@ namespace KingpinNet
             {
                 output.WriteLine($"  {command.Item1} " + CommandUsage(command.Item2));
                 output.WriteLine($"    {command.Item2.Help}");
+                output.WriteLine();
+            }
+
+        }
+
+        private void GenerateNestedCommands(CommandItem command, TextWriter output)
+        {
+            if (command.Item.Commands.Count == 0)
+                return;
+            output.WriteLine("Commands:");
+            var finalCommands = new List<Tuple<string, CommandLineItem>>();
+            RecurseCommands("", command.Item.Commands, finalCommands);
+
+            var commandNameLength = finalCommands.Max(c => c.Item1.Length);
+
+            foreach (var finalCommand in finalCommands)
+            {
+                output.WriteLine($"  {finalCommand.Item1} " + CommandUsage(finalCommand.Item2));
+                output.WriteLine($"    {finalCommand.Item2.Help}");
                 output.WriteLine();
             }
 
@@ -112,11 +141,56 @@ namespace KingpinNet
             }
         }
 
+        private void GenerateCommandArguments(CommandItem command, TextWriter output)
+        {
+            if (command.Item.Arguments == null || command.Item.Arguments.Count == 0)
+                return;
+            output.WriteLine("Args:");
+
+            var maxArgLength = command.Item.Arguments.Max(x => x.Item.Name.Length) + 9;
+
+            foreach (var arg in command.Item.Arguments)
+            {
+                var spacing = maxArgLength - arg.Item.Name.Length;
+                var finalString = $"  [<{arg.Item.Name}>]".PadRight(spacing);
+                output.WriteLine($"{finalString}   {arg.Item.Help}");
+            }
+        }
+
+        private void GenerateCommandFlags(CommandItem command, TextWriter output)
+        {
+            if (command.Item.Flags == null || command.Item.Flags.Count == 0)
+                return;
+            output.WriteLine("Flags:");
+
+            var maxFlagLength = command.Item.Flags.Max(x => x.Item.Name.Length) + 8;
+
+            foreach (var flag in command.Item.Flags)
+            {
+                var flagName = "";
+                if (flag.Item.ShortName != 0)
+                    flagName = $"  -{flag.Item.ShortName}, --{flag.Item.Name}";
+                else
+                    flagName = $"      --{flag.Item.Name}";
+
+                var finalString = flagName.PadRight(maxFlagLength);
+                output.WriteLine($"{finalString}   {flag.Item.Help}");
+            }
+        }
+
         private void GenerateDescription(TextWriter output)
         {
             if (string.IsNullOrWhiteSpace(_application.Help))
                 return;
             output.WriteLine(_application.Help);
+            output.WriteLine();
+        }
+
+        private void GenerateCommandDescription(CommandItem command, TextWriter output)
+        {
+            if (string.IsNullOrWhiteSpace(command.Item.Help))
+                return;
+            output.WriteLine(command.Item.Help);
             output.WriteLine();
         }
 
@@ -143,5 +217,28 @@ namespace KingpinNet
             output.WriteLine($"usage: {applicationText}{flagsText}{commandsText}{argsText}");
             output.WriteLine();
         }
+
+        public void GenerateCommandUsage(CommandItem command, TextWriter output)
+        {
+            var applicationText = "";
+            if (!String.IsNullOrWhiteSpace(_application.Name))
+                applicationText = _application.Name + " ";
+
+            var flagsText = "";
+            if (_application.Flags.Count > 0)
+                flagsText = "[<flags>] ";
+
+            var commandsText = command.Item.Name + " ";
+
+            var argsText = "";
+            if (_application.Arguments.Count > 1)
+                argsText = "[<args> ...]";
+            else if (_application.Arguments.Count == 1)
+                argsText = $"[<{_application.Arguments[0].Item.Name}>]";
+
+            output.WriteLine($"usage: {applicationText}{commandsText}{argsText}");
+            output.WriteLine();
+        }
+
     }
 }

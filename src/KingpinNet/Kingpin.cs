@@ -9,7 +9,7 @@ namespace KingpinNet
 
         static Kingpin()
         {
-            _application.Name = System.AppDomain.CurrentDomain.FriendlyName;
+            _application.Name = AppDomain.CurrentDomain.FriendlyName;
             _application.Help = "";
             Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
@@ -36,7 +36,11 @@ namespace KingpinNet
             var helpGenerator = new HelpGenerator(_application);
             helpGenerator.Generate(Console.Out);
         }
-
+        private static void GenerateCommandHelp(CommandItem command, string argument)
+        {
+            var helpGenerator = new HelpGenerator(_application);
+            helpGenerator.Generate(command, Console.Out);
+        }
         public static CommandItem Command(string name, string help)
         {
             return _application.Command(name, help);
@@ -55,6 +59,7 @@ namespace KingpinNet
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
             var parser = new Parser(_application);
+            AddCommandHelpOnAllCommands(_application.Commands);
             try
             {
                 return parser.Parse(args);
@@ -74,12 +79,20 @@ namespace KingpinNet
             }
         }
 
+        private static void AddCommandHelpOnAllCommands(List<CommandItem> commands)
+        {
+            foreach (var command in commands)
+            {
+                if (command.Item.Commands.Count > 0)
+                    AddCommandHelpOnAllCommands(command.Item.Commands);
+                else
+                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command, x));
+            }
+        }
 
         public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
             List<ArgumentItem> arguments, IEnumerable<string> args)
         {
-            var result = new Dictionary<string, string>();
-
             var parser = new Parser(_application);
             return parser.Parse(args);
         }
