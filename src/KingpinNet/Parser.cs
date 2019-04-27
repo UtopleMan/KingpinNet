@@ -295,7 +295,9 @@ namespace KingpinNet
                 var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg));
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name" + arg);
-                item = foundFlags.First().Item;
+                item = foundFlags.FirstOrDefault()?.Item;
+                if (item == null)
+                    throw new ParseException("Don't know the flag " + arg);
                 item.Value = GetValue(foundFlags.First().Item, arg);
                 return true;
             }

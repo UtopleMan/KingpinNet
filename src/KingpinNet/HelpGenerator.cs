@@ -103,14 +103,18 @@ namespace KingpinNet
 
         private void GenerateFlags(TextWriter output)
         {
-            if (_application.Flags == null || _application.Flags.Count == 0)
+            if (_application.Flags == null)
                 return;
+            var flags = _application.Flags.Where(x => !x.Item.IsHidden).ToList();
+
+            if (flags.Count == 0)
+                return;
+
             output.WriteLine("Flags:");
 
-            var flags = new List<string>();
-            var maxFlagLength = _application.Flags.Max(x => x.Item.Name.Length) + 8;
+            var maxFlagLength = flags.Max(x => x.Item.Name.Length) + 8;
 
-            foreach (var flag in _application.Flags)
+            foreach (var flag in flags)
             {
                 var flagName = "";
                 if (flag.Item.ShortName != 0)
@@ -159,7 +163,11 @@ namespace KingpinNet
 
         private void GenerateCommandFlags(CommandItem command, TextWriter output)
         {
-            if (command.Item.Flags == null || command.Item.Flags.Count == 0)
+            if (command.Item.Flags == null)
+                return;
+            var flags = command.Item.Flags.Where(x => !x.Item.IsHidden).ToList();
+
+            if (flags.Count == 0)
                 return;
             output.WriteLine("Flags:");
 
