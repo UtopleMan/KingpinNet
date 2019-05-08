@@ -8,6 +8,7 @@ namespace KingpinNet
     public class HelpGenerator
     {
         private KingpinApplication _application;
+        private static readonly string Nl = Environment.NewLine;
 
         public HelpGenerator(KingpinApplication application)
         {
@@ -19,7 +20,7 @@ namespace KingpinNet
             if (template == null)
                 template = new ApplicationHelp();
             template.Application = _application;
-            output.WriteLine(template.TransformText());
+            output.WriteLine(template.TransformText().Replace("\r\n", $"{Nl}"));
             //GenerateUsage(output);
             //GenerateDescription(output);
             //GenerateFlags(output);
@@ -33,7 +34,7 @@ namespace KingpinNet
                 template = new CommandHelp();
             template.Application = _application;
             template.Command = command;
-            output.WriteLine(template.TransformText());
+            output.WriteLine(template.TransformText().Replace("\r\n", $"{Nl}"));
             //GenerateCommandUsage(command, output);
             //GenerateCommandDescription(command, output);
             //GenerateCommandFlags(command, output);

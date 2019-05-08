@@ -12,8 +12,6 @@ namespace Tests
     }
     public class HelpGeneratorTests
     {
-        private static readonly string Nl = Environment.NewLine;
-
         [SetUp]
         public void Setup()
         {
