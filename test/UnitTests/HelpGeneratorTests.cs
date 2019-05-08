@@ -60,7 +60,7 @@ namespace Tests
             // Assert
             var result = writer.ToString();
             TestContext.Out.WriteLine(result);
-            Assert.IsTrue(result.Contains($"{Nl}{Nl}This is the glorious test app{Nl}{Nl}"));
+            Assert.IsTrue(result.Contains($"{Nl}{Nl}This is the glorious test app{Nl}{Nl}"), $"Expected: -->/r/n/r/nThis is the glorious test app/r/n/r/n<-- but was -->{result}<--");
         }
         [Test]
         public void WriteGlobalFlag()
