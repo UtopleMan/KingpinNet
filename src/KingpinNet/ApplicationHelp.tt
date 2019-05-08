@@ -1,8 +1,9 @@
-﻿<#@ template language="C#" #>
+﻿<#@ template language="C#" #> 
 <#@ template visibility="internal" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
-usage: <#= Application?.Name ?? ""#> <# if (Application.Flags.Count > 0) { #>[<flags>] <# } if (Application.Commands.Count > 0) { #><command> <# } if (Application.Arguments.Count > 1) { #>[<args> ...] <# } else if (Application.Arguments.Count == 1) { #>[<<#= Application.Arguments[0].Item.Name #>>]<# } #>
+usage:<#= " " + (Application?.Name ?? "")#><# if (Application.Flags.Count > 0) { #>[<flags>] <# } if (Application.Commands.Count > 0) { #><command> <# } if (Application.Arguments.Count > 1) { #>[<args> ...]<# } else if (Application.Arguments.Count == 1) { #>[<<#= Application.Arguments[0].Item.Name #>>]<# } #>
+
 
 <#= Application.Help ?? ""#>
 
@@ -12,7 +13,7 @@ usage: <#= Application?.Name ?? ""#> <# if (Application.Flags.Count > 0) { #>[<f
     if (flags.Count != 0) {
         var maxFlagLength = flags.Max(x => x.Item.Name.Length + x.Item.DefaultValue.Length) + 9;#>
 Flags:
-<#      foreach (var flag in flags)
+<#      foreach (var flag in flags) 
         {
             var defaultValue = "";
             if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
@@ -52,5 +53,8 @@ Commands:
     {#>
   <#=command.Item1#> <#=CommandUsage(command.Item2)#>
     <#=command.Item2.Help#> <#GenerateExamples(command.Item2.Examples);#>
-<#  }
-}#>
+
+
+<#  }#>
+
+<#}#>

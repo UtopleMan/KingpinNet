@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace KingpinNet
 {
-    public partial class DefaultHelp : IHelpTemplate
+    public partial class CommandHelp : IHelpTemplate
     {
         private string GenerateExamples(string[] examples)
         {
@@ -53,25 +53,7 @@ namespace KingpinNet
 
 
         public KingpinApplication Application { get; set; }
-    }
-
-    public interface IHelpTemplate
-    {
-        string TransformText();
-        KingpinApplication Application { get; set; }
+        public CommandItem Command { get; set; }
     }
 }
 
-namespace System.CodeDom.Compiler
-{
-    public class CompilerErrorCollection : List<CompilerError>
-    {
-    }
-
-    public class CompilerError
-    {
-        public string ErrorText { get; set; }
-
-        public bool IsWarning { get; set; }
-    }
-}

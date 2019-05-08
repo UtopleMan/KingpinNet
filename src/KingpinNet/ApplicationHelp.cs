@@ -17,9 +17,9 @@ namespace KingpinNet
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
-    public partial class DefaultHelp : DefaultHelpBase
+    public partial class ApplicationHelp : ApplicationHelpBase
     {
 #line hidden
         /// <summary>
@@ -27,65 +27,65 @@ namespace KingpinNet
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("usage: ");
+            this.Write(" \r\n");
+            this.Write("usage:");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Application?.Name ?? ""));
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(" " + (Application?.Name ?? "")));
             
             #line default
             #line hidden
-            this.Write(" ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  if (Application.Flags.Count > 0) { 
             
             #line default
             #line hidden
             this.Write("[<flags>] ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  } if (Application.Commands.Count > 0) { 
             
             #line default
             #line hidden
             this.Write("<command> ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  } if (Application.Arguments.Count > 1) { 
             
             #line default
             #line hidden
-            this.Write("[<args> ...] ");
+            this.Write("[<args> ...]");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  } else if (Application.Arguments.Count == 1) { 
             
             #line default
             #line hidden
             this.Write("[<");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Application.Arguments[0].Item.Name));
             
             #line default
             #line hidden
             this.Write(">]");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("\r\n");
+            this.Write("\r\n\r\n");
             
-            #line 7 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 8 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Application.Help ?? ""));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 9 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 10 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
  if (Application.Flags != null) {
     var flags = Application.Flags.Where(x => !x.Item.IsHidden).ToList();
 
@@ -96,8 +96,8 @@ namespace KingpinNet
             #line hidden
             this.Write("Flags:\r\n");
             
-            #line 15 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
-      foreach (var flag in flags)
+            #line 16 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+      foreach (var flag in flags) 
         {
             var defaultValue = "";
             if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
@@ -109,41 +109,41 @@ namespace KingpinNet
             #line hidden
             this.Write("  -");
             
-            #line 22 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Item.ShortName));
             
             #line default
             #line hidden
             this.Write(", --");
             
-            #line 22 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Item.Name));
             
             #line default
             #line hidden
             
-            #line 22 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
             
             #line default
             #line hidden
             this.Write("   ");
             
-            #line 22 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Item.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 22 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Item.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 23 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
           }
             else { 
             
@@ -151,34 +151,34 @@ namespace KingpinNet
             #line hidden
             this.Write("      --");
             
-            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Item.Name));
             
             #line default
             #line hidden
             
-            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
             
             #line default
             #line hidden
             this.Write("   ");
             
-            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Item.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Item.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 27 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
           }
         }
     }
@@ -187,14 +187,14 @@ namespace KingpinNet
             #line default
             #line hidden
             
-            #line 30 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 31 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 if (Application.Arguments != null && Application.Arguments.Count != 0) { 
             
             #line default
             #line hidden
             this.Write("Args:\r\n");
             
-            #line 32 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 33 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 
     var Arguments = new List<string>();
     var maxArgLength = Application.Arguments.Max(x => x.Item.Name.Length) + 9;
@@ -207,42 +207,42 @@ if (Application.Arguments != null && Application.Arguments.Count != 0) {
             #line default
             #line hidden
             
-            #line 40 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 41 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(finalString));
             
             #line default
             #line hidden
             this.Write("   ");
             
-            #line 40 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 41 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(arg.Item.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 40 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 41 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(arg.Item.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 41 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 42 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
   }
 }
             
             #line default
             #line hidden
             
-            #line 43 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 if (Application.Commands != null && Application.Commands.Count != 0) { 
             
             #line default
             #line hidden
             this.Write("Commands:\r\n");
             
-            #line 45 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 46 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 
     var finalCommands = new List<Tuple<string, CommandLineItem>>();
     RecurseCommands("", Application.Commands, finalCommands);
@@ -256,35 +256,42 @@ if (Application.Commands != null && Application.Commands.Count != 0) {
             #line hidden
             this.Write("  ");
             
-            #line 53 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 54 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(command.Item1));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 53 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 54 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CommandUsage(command.Item2)));
             
             #line default
             #line hidden
             this.Write("\r\n    ");
             
-            #line 54 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 55 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(command.Item2.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 54 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 55 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 GenerateExamples(command.Item2.Examples);
             
             #line default
             #line hidden
+            this.Write("\r\n\r\n");
             
-            #line 55 "C:\Sources\KingpinNet\src\KingpinNet\DefaultHelp.tt"
+            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
   }
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
+            
+            #line 60 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
 }
             
             #line default
@@ -300,7 +307,7 @@ GenerateExamples(command.Item2.Examples);
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
-    public class DefaultHelpBase
+    public class ApplicationHelpBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;
