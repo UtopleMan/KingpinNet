@@ -8,15 +8,20 @@ namespace KingpinNet
     public class HelpGenerator
     {
         private KingpinApplication _application;
+
         public HelpGenerator(KingpinApplication application)
         {
             _application = application;
         }
 
-        public void Generate(TextWriter output)
+        public void Generate(TextWriter output, IHelpTemplate template)
         {
-            var help = new DefaultHelp {Application = _application};
-            var content = help.TransformText();
+            if (template != null)
+            {
+                template.Application = _application;
+                output.WriteLine(template.TransformText());
+                return;
+            }
 
             GenerateUsage(output);
             GenerateDescription(output);
@@ -51,7 +56,6 @@ namespace KingpinNet
                 output.WriteLine($"    {command.Item2.Help} {GenerateExamples(command.Item2.Examples)}");
                 output.WriteLine();
             }
-
         }
 
         private void GenerateNestedCommands(CommandItem command, TextWriter output)
@@ -70,7 +74,6 @@ namespace KingpinNet
                 output.WriteLine($"    {finalCommand.Item2.Help} {GenerateExamples(finalCommand.Item2.Examples)}");
                 output.WriteLine();
             }
-
         }
 
         private string CommandUsage(CommandLineItem item)
@@ -98,14 +101,19 @@ namespace KingpinNet
             {
                 if (command.Item.Commands == null || command.Item.Commands.Count == 0)
                 {
-                    finalCommands.Add(new Tuple<string, CommandLineItem>((currentCommand + " " + command.Item.Name).Trim(), command.Item));
+                    finalCommands.Add(
+                        new Tuple<string, CommandLineItem>((currentCommand + " " + command.Item.Name).Trim(),
+                            command.Item));
                 }
                 else
                 {
                     if ((command.Item.Arguments != null && command.Item.Arguments.Count != 0) ||
                         (command.Item.Flags != null && command.Item.Flags.Count != 0))
-                        finalCommands.Add(new Tuple<string, CommandLineItem>((currentCommand + " " + command.Item.Name).Trim(), command.Item));
-                    RecurseCommands((currentCommand + " " + command.Item.Name).Trim(), command.Item.Commands, finalCommands);
+                        finalCommands.Add(
+                            new Tuple<string, CommandLineItem>((currentCommand + " " + command.Item.Name).Trim(),
+                                command.Item));
+                    RecurseCommands((currentCommand + " " + command.Item.Name).Trim(), command.Item.Commands,
+                        finalCommands);
                 }
             }
         }
@@ -270,6 +278,5 @@ namespace KingpinNet
             output.WriteLine($"usage: {applicationText}{commandsText}{argsText}{flagsText}");
             output.WriteLine();
         }
-
     }
 }

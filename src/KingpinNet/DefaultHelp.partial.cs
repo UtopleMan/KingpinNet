@@ -4,9 +4,8 @@ using System.Linq;
 
 namespace KingpinNet
 {
-    public partial class DefaultHelp
+    public partial class DefaultHelp : IHelpTemplate
     {
-        public KingpinApplication Application;
         private string GenerateExamples(string[] examples)
         {
             if (examples == null)
@@ -53,8 +52,14 @@ namespace KingpinNet
         }
 
 
+        public KingpinApplication Application { get; set; }
     }
 
+    public interface IHelpTemplate
+    {
+        string TransformText();
+        KingpinApplication Application { get; set; }
+    }
 }
 
 namespace System.CodeDom.Compiler
