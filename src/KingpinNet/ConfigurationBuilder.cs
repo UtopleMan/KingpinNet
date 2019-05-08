@@ -113,12 +113,21 @@ namespace KingpinNet
             return (T)obj;
         }
 
+        public T Examples(params string[] examples)
+        {
+            Item.Examples = examples;
+            var obj = (object)this;
+            return (T)obj;
+        }
+
         public T Default(string defaultValue)
         {
             Item.DefaultValue = defaultValue;
             var obj = (object)this;
             return (T)obj;
         }
+
+
 
         public override string ToString()
         {
@@ -218,7 +227,7 @@ namespace KingpinNet
         public bool FileShouldExist;
         public bool DirectoryShouldExist;
         public Type TypeOfEnum;
-        public string DefaultValue;
+        public string DefaultValue = "";
         public string Value;
         public string[] HintOptions;
         public bool IsDefault;
@@ -226,5 +235,6 @@ namespace KingpinNet
         public Action<string> Action;
         public bool IsHidden;
         public bool IsSet;
+        public string[] Examples;
     }
 }

@@ -1,0 +1,60 @@
+﻿<#@ template language="C#" #> 
+<#@ template visibility="internal" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+usage:<#= " " + (Application?.Name ?? "")#><# if (Application.Flags.Count > 0) { #>[<flags>] <# } if (Application.Commands.Count > 0) { #><command> <# } if (Application.Arguments.Count > 1) { #>[<args> ...]<# } else if (Application.Arguments.Count == 1) { #>[<<#= Application.Arguments[0].Item.Name #>>]<# } #>
+
+
+<#= Application.Help ?? ""#>
+
+<# if (Application.Flags != null) {
+    var flags = Application.Flags.Where(x => !x.Item.IsHidden).ToList();
+
+    if (flags.Count != 0) {
+        var maxFlagLength = flags.Max(x => x.Item.Name.Length + x.Item.DefaultValue.Length) + 9;#>
+Flags:
+<#      foreach (var flag in flags) 
+        {
+            var defaultValue = "";
+            if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
+                defaultValue = "=" + flag.Item.DefaultValue;
+
+            if (flag.Item.ShortName != 0) { #>
+  -<#=flag.Item.ShortName#>, --<#=flag.Item.Name#><#=defaultValue#>   <#=flag.Item.Help#> <#=GenerateExamples(flag.Item.Examples)#>
+<#          }
+            else { #>
+      --<#= flag.Item.Name#><#=defaultValue#>   <#=flag.Item.Help#> <#=GenerateExamples(flag.Item.Examples)#>
+<#          }
+        }
+    }
+}#>
+<#if (Application.Arguments != null && Application.Arguments.Count != 0) { #>
+Args:
+<#
+    var Arguments = new List<string>();
+    var maxArgLength = Application.Arguments.Max(x => x.Item.Name.Length) + 9;
+
+    foreach (var arg in Application.Arguments)
+    {
+        int spacing = maxArgLength - arg.Item.Name.Length;
+        string finalString = $"  [<{arg.Item.Name}>]".PadRight(spacing); #>
+<#=finalString#>   <#=arg.Item.Help#> <#=GenerateExamples(arg.Item.Examples)#>
+<#  }
+}#>
+<#if (Application.Commands != null && Application.Commands.Count != 0) { #>
+Commands:
+<#
+    var finalCommands = new List<Tuple<string, CommandLineItem>>();
+    RecurseCommands("", Application.Commands, finalCommands);
+
+    var commandNameLength = finalCommands.Max(c => c.Item1.Length);
+
+    foreach (var command in finalCommands)
+    {#>
+  <#=command.Item1#> <#=CommandUsage(command.Item2)#>
+    <#=command.Item2.Help#> <#GenerateExamples(command.Item2.Examples);#>
+
+
+<#  }#>
+
+<#}#>
