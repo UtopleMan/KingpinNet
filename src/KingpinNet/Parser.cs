@@ -35,21 +35,71 @@ namespace KingpinNet
 
         private void MainParse()
         {
-            while (_currentItem<_args.Count)
-            {
-                if (IsCommand(_args[_currentItem], _commands, out CommandLineItem commandFound))
+            SetDefaults();
+
+            if (_args.Count > 0)
+                while (_currentItem<_args.Count)
                 {
-                    AddCommand("command", commandFound);
-                    CommandFound(commandFound);
+                    if (IsCommand(_args[_currentItem], _commands, out CommandLineItem commandFound))
+                    {
+                        AddCommand("command", commandFound);
+                        _currentItem++;
+                        CommandFound(commandFound);
+                    }
+                    else if (IsFlag(_args[_currentItem], _globalFlags, out CommandLineItem flagFound))
+                    {
+                        Add(flagFound);
+                        _currentItem++;
+                    }
+                    else if (IsArgument(_args[_currentItem], _globalArguments, out CommandLineItem argumentFound))
+                    {
+                        Add(argumentFound);
+                        _currentItem++;
+                    }
+                    else
+                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
                 }
-                else if (IsFlag(_args[_currentItem], _globalFlags, out CommandLineItem flagFound))
-                    Add(flagFound);
-                else if (IsArgument(_args[_currentItem], _globalArguments, out CommandLineItem argumentFound))
-                    Add(argumentFound);
-                else
-                    throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
-            }
             CheckAllRequiredItemsIsSet();
+        }
+
+        private void SetDefaults()
+        {
+            SetCommandsToDefault(_commands);
+            SetFlagsToDefault(_globalFlags, true);
+            SetArgumentsToDefault(_globalArguments, true);
+        }
+
+        private void SetCommandsToDefault(List<CommandItem> commands)
+        {
+            foreach (var command in commands)
+            {
+                if (command.Item?.Commands != null && command.Item.Commands.Count > 0)
+                    SetCommandsToDefault(command.Item.Commands);
+                SetFlagsToDefault(command.Item?.Flags, false);
+                SetArgumentsToDefault(command.Item?.Arguments, false);
+            }
+        }
+
+        private void SetArgumentsToDefault(List<ArgumentItem> arguments, bool addToResult)
+        {
+            foreach (var argument in arguments)
+                if (!string.IsNullOrWhiteSpace(argument.Item.DefaultValue))
+                {
+                    argument.Item.IsSet = true;
+                    argument.Item.Value = argument.Item.DefaultValue;
+                    if (addToResult) Add(argument.Item);
+                }
+        }
+
+        private void SetFlagsToDefault(List<FlagItem> flags, bool addToResult)
+        {
+            foreach (var flag in flags)
+                if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
+                {
+                    flag.Item.IsSet = true;
+                    flag.Item.Value = flag.Item.DefaultValue;
+                    if (addToResult) Add(flag.Item);
+                }
         }
 
         private void CheckAllRequiredItemsIsSet()
@@ -66,7 +116,7 @@ namespace KingpinNet
                 if (command.Item.IsRequired && !command.Item.IsSet)
                     throw new ParseException($"Required command <{command.Item.Name}> not set");
 
-                if (command?.Item?.Commands != null && command.Item.Commands.Count > 0)
+                if (command.Item?.Commands != null && command.Item.Commands.Count > 0)
                     CheckCommands(command.Item.Commands);
                 CheckFlags(command.Item.Flags);
                 CheckArguments(command.Item.Arguments);
@@ -89,16 +139,24 @@ namespace KingpinNet
 
         private void CommandFound(CommandLineItem command)
         {
+            SetDefaults();
             while (_currentItem < _args.Count)
             {
                 if (IsCommand(_args[_currentItem], command.Commands, out CommandLineItem commandFound))
                 {
                     MergeCommand("command", commandFound);
+                    _currentItem++;
                     CommandFound(commandFound);
                 } else if (IsFlag(_args[_currentItem], command.Flags, out CommandLineItem flagFound))
+                {
                     Merge("command", flagFound);
+                    _currentItem++;
+                }
                 else if (IsArgument(_args[_currentItem], command.Arguments, out CommandLineItem argumentFound))
+                {
                     Merge("command", argumentFound);
+                    _currentItem++;
+                }
                 else
                     throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
             }
@@ -108,27 +166,43 @@ namespace KingpinNet
         {
             item.IsSet = true;
             _result[name] = _result[name] + ":" + item.Name;
-            _currentItem++;
+            CheckFlagsForDefaultValues(_result[name], item.Flags);
+            CheckArgumentsForDefaultValues(_result[name], item.Arguments);
+        }
+
+        private void CheckFlagsForDefaultValues(string name, List<FlagItem> items)
+        {
+            foreach (var item in items.Where(x => x.Item.IsSet))
+                _result[name + ":" + item.Item.Name] = item.Item.Value;
+        }
+
+        private void CheckArgumentsForDefaultValues(string name, List<ArgumentItem> items)
+        {
+            foreach (var item in items.Where(x => x.Item.IsSet))
+                _result[name + ":" + item.Item.Name] = item.Item.Value;
         }
 
         private void AddCommand(string name, CommandLineItem item)
         {
             item.IsSet = true;
             _result.Add(name, item.Name);
-            _currentItem++;
         }
 
         private void Merge(string name, CommandLineItem item)
         {
             item.IsSet = true;
-            _result.Add(_result[name] + ":" + item.Name, item.Value);
-            _currentItem++;
+            if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
+                _result.Add(_result[name] + ":" + item.Name, item.DefaultValue);
+            else
+                _result.Add(_result[name] + ":" + item.Name, item.Value);
         }
         private void Add(CommandLineItem item)
         {
             item.IsSet = true;
-            _result.Add(item.Name, item.Value);
-            _currentItem++;
+            if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
+                _result.Add(item.Name, item.DefaultValue);
+            else
+                _result.Add(item.Name, item.Value);
         }
 
         private bool IsArgument(string arg, List<ArgumentItem> arguments, out CommandLineItem item)
@@ -199,7 +273,7 @@ namespace KingpinNet
 
             if (item.ValueType == ValueType.Bool)
             {
-                if (bool.TryParse(argument, out bool result))
+                if (bool.TryParse(argument, out _))
                     return true;
             }
             else if (item.DirectoryShouldExist)
@@ -214,14 +288,14 @@ namespace KingpinNet
             }
             else if (item.ValueType == ValueType.Duration)
             {
-                if (TimeSpan.TryParse(argument, out TimeSpan result))
+                if (TimeSpan.TryParse(argument, out _))
                     return true;
             }
             else if (item.ValueType == ValueType.Enum)
             {
                 try
                 {
-                    var parse = Enum.Parse(item.TypeOfEnum, argument);
+                    Enum.Parse(item.TypeOfEnum, argument);
                     return true;
                 }
                 catch (ArgumentException)
@@ -230,12 +304,12 @@ namespace KingpinNet
             }
             else if (item.ValueType == ValueType.Float)
             {
-                if (float.TryParse(argument, out float result))
+                if (float.TryParse(argument, out _))
                     return true;
             }
             else if (item.ValueType == ValueType.Int)
             {
-                if (Int32.TryParse(argument, out Int32 result))
+                if (Int32.TryParse(argument, out _))
                     return true;
             }
             else if (item.ValueType == ValueType.Ip)
@@ -278,31 +352,30 @@ namespace KingpinNet
             if (arg.StartsWith("--"))
             {
                 var foundFlags = flags.Where(f => arg.Replace("--", "").ToLower().StartsWith(f.Item.Name.ToLower()) &&
-                    IsValidFlag(f, arg));
-                if (foundFlags.Count() == 0)
-                    throw new ParseException("Illegal argument: " + arg);
+                    IsValidFlag(f, arg)).ToArray();
+                if (!foundFlags.Any())
+                    throw new ParseException("Illegal flag " + arg);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name " + arg);
                 item = foundFlags.First().Item;
                 item.Value = GetValue(foundFlags.First().Item, arg);
                 return true;
             }
-            else if (arg.StartsWith("-"))
+            if (arg.StartsWith("-"))
             {
                 var parts = arg.Split('=');
                 if (parts[0].Length > 2)
                     throw new ParseException("Short name arguments are only one character " + parts[0]);
-                var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg));
+                var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg)).ToArray();
+                if (!foundFlags.Any())
+                    throw new ParseException("Illegal flag " + arg);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name" + arg);
-                item = foundFlags.FirstOrDefault()?.Item;
-                if (item == null)
-                    throw new ParseException("Don't know the flag " + arg);
+                item = foundFlags.First().Item;
                 item.Value = GetValue(foundFlags.First().Item, arg);
                 return true;
             }
-            else
-                return false;
+            return false;
         }
 
 
@@ -322,15 +395,12 @@ namespace KingpinNet
     [Serializable]
     public class ParseException : Exception
     {
-        private object p;
-
         public ParseException()
         {
         }
 
         public ParseException(object p)
         {
-            this.p = p;
         }
 
         public ParseException(string message) : base(message)

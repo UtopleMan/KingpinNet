@@ -15,6 +15,9 @@ namespace KingpinNet
 
         public void Generate(TextWriter output)
         {
+            var help = new DefaultHelp {Application = _application};
+            var content = help.TransformText();
+
             GenerateUsage(output);
             GenerateDescription(output);
             GenerateFlags(output);
@@ -45,7 +48,7 @@ namespace KingpinNet
             foreach (var command in finalCommands)
             {
                 output.WriteLine($"  {command.Item1} " + CommandUsage(command.Item2));
-                output.WriteLine($"    {command.Item2.Help}");
+                output.WriteLine($"    {command.Item2.Help} {GenerateExamples(command.Item2.Examples)}");
                 output.WriteLine();
             }
 
@@ -64,7 +67,7 @@ namespace KingpinNet
             foreach (var finalCommand in finalCommands)
             {
                 output.WriteLine($"  {finalCommand.Item1} " + CommandUsage(finalCommand.Item2));
-                output.WriteLine($"    {finalCommand.Item2.Help}");
+                output.WriteLine($"    {finalCommand.Item2.Help} {GenerateExamples(finalCommand.Item2.Examples)}");
                 output.WriteLine();
             }
 
@@ -74,7 +77,13 @@ namespace KingpinNet
         {
             var result = "";
             if (item.Flags.Count == 1)
-                result += "--" + item.Flags[0].Item.Name + "=<" + item.Flags[0].Item.ItemType + "> ";
+            {
+                if (string.IsNullOrWhiteSpace(item.Flags[0].Item.DefaultValue))
+                    result += "--" + item.Flags[0].Item.Name + "=<" + item.Flags[0].Item.ItemType + "> ";
+                else
+                    result += "--" + item.Flags[0].Item.Name + "=<" + item.Flags[0].Item.DefaultValue + "> ";
+            }
+
             if (item.Flags.Count > 1)
                 result += "[<flags>] ";
             foreach (var argument in item.Arguments)
@@ -112,7 +121,7 @@ namespace KingpinNet
 
             output.WriteLine("Flags:");
 
-            var maxFlagLength = flags.Max(x => x.Item.Name.Length) + 8;
+            var maxFlagLength = flags.Max(x => x.Item.Name.Length + x.Item.DefaultValue.Length) + 9;
 
             foreach (var flag in flags)
             {
@@ -122,9 +131,12 @@ namespace KingpinNet
                 else
                     flagName = $"      --{flag.Item.Name}";
 
+                if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
+                    flagName += "=" + flag.Item.DefaultValue;
+
                 var spacing = maxFlagLength - flagName.Length;
                 var finalString = flagName.PadRight(maxFlagLength);
-                output.WriteLine($"{finalString}   {flag.Item.Help}");
+                output.WriteLine($"{finalString}   {flag.Item.Help} {GenerateExamples(flag.Item.Examples)}");
             }
         }
 
@@ -141,7 +153,7 @@ namespace KingpinNet
             {
                 var spacing = maxArgLength - arg.Item.Name.Length;
                 var finalString = $"  [<{arg.Item.Name}>]".PadRight(spacing);
-                output.WriteLine($"{finalString}   {arg.Item.Help}");
+                output.WriteLine($"{finalString}   {arg.Item.Help} {GenerateExamples(arg.Item.Examples)}");
             }
         }
 
@@ -157,7 +169,7 @@ namespace KingpinNet
             {
                 var spacing = maxArgLength - arg.Item.Name.Length;
                 var finalString = $"  [<{arg.Item.Name}>]".PadRight(spacing);
-                output.WriteLine($"{finalString}   {arg.Item.Help}");
+                output.WriteLine($"{finalString}   {arg.Item.Help} {GenerateExamples(arg.Item.Examples)}");
             }
         }
 
@@ -171,7 +183,7 @@ namespace KingpinNet
                 return;
             output.WriteLine("Flags:");
 
-            var maxFlagLength = command.Item.Flags.Max(x => x.Item.Name.Length) + 8;
+            var maxFlagLength = flags.Max(x => x.Item.Name.Length + x.Item.DefaultValue.Length) + 9;
 
             foreach (var flag in command.Item.Flags)
             {
@@ -181,9 +193,20 @@ namespace KingpinNet
                 else
                     flagName = $"      --{flag.Item.Name}";
 
+                if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
+                    flagName += "=" + flag.Item.DefaultValue;
+
                 var finalString = flagName.PadRight(maxFlagLength);
-                output.WriteLine($"{finalString}   {flag.Item.Help}");
+                output.WriteLine($"{finalString}   {flag.Item.Help} {GenerateExamples(flag.Item.Examples)}");
             }
+        }
+
+        private string GenerateExamples(string[] examples)
+        {
+            if (examples == null)
+                return "";
+            var result = examples.Aggregate((current, example) => current + ", " + example);
+            return "(e.g. " + result + ")";
         }
 
         private void GenerateDescription(TextWriter output)
@@ -244,7 +267,7 @@ namespace KingpinNet
             else if (_application.Arguments.Count == 1)
                 argsText = $"[<{_application.Arguments[0].Item.Name}>]";
 
-            output.WriteLine($"usage: {applicationText}{commandsText}{argsText}");
+            output.WriteLine($"usage: {applicationText}{commandsText}{argsText}{flagsText}");
             output.WriteLine();
         }
 

@@ -424,6 +424,43 @@ namespace Tests
         }
 
         [Test]
+        public void ParseDefaultFlagSuccess()
+        {
+            // Arrange
+            string[] args = new string[0];
+
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("flag", "").IsTcp().Default("myfancyhostname123:1234");
+            application.Flags.Add(flag);
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual("myfancyhostname123:1234", result["flag"]);
+        }
+
+        [Test]
+        public void ParseNestedDefaultFlag()
+        {
+            // Arrange
+            string[] args = {"cmd1", "cmd2"};
+            var application = new KingpinApplication();
+            var command = new CommandItem("cmd1", "command1 help");
+            var cmd2 = command.Command("cmd2", "command2 help");
+            cmd2.Flag("flg", "").Default("1234");
+            application.Commands.Add(command);
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(result["cmd1:cmd2:flg"], "1234");
+        }
+
+        [Test]
         public void ParseTcpFail()
         {
             // Arrange
