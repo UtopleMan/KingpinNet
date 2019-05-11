@@ -116,6 +116,9 @@ namespace KingpinNet
                 if (command.Item.IsRequired && !command.Item.IsSet)
                     throw new ParseException($"Required command <{command.Item.Name}> not set");
 
+                if (!command.Item.IsSet)
+                    continue;
+
                 if (command.Item?.Commands != null && command.Item.Commands.Count > 0)
                     CheckCommands(command.Item.Commands);
                 CheckFlags(command.Item.Flags);
