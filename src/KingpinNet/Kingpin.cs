@@ -21,16 +21,6 @@ namespace KingpinNet
             _application.ShowHelpOnParsingErrors = true;
         }
 
-        public static void ExitOnParsingErrors()
-        {
-            _application.ExitOnParsingErrors = true;
-        }
-
-        public static void ExitOnHelp()
-        {
-            _application.ExitOnHelp = true;
-        }
-
         public static void Author(string author)
         {
             _application.Author = author;
@@ -45,8 +35,6 @@ namespace KingpinNet
         {
             var helpGenerator = new HelpGenerator(_application);
             helpGenerator.Generate(Console.Out);
-            if (_application.ExitOnHelp)
-                Environment.Exit(0);
         }
         private static void GenerateCommandHelp(CommandItem command, string argument)
         {
@@ -83,11 +71,7 @@ namespace KingpinNet
                     Console.WriteLine(exception.Message);
                     GenerateHelp("");
                 }
-                if (_application.ExitOnParsingErrors)
-                {
-                    Environment.Exit(1);
-                }
-                return new Dictionary<string, string>() { { "KingpinError", exception.Message } };
+                throw;
             }
         }
 
