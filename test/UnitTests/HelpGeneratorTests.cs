@@ -22,6 +22,7 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
+
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -30,6 +31,23 @@ namespace Tests
             var result = writer.ToString();
             Assert.IsTrue(result.Contains("usage:"));
         }
+        [Test]
+        public void ParseHelpFlag()
+        {
+            // Arrange
+            string[] args = new[] { "--help" };
+            var application = new KingpinApplication();
+            application.Initialize();
+            application.Commands.Add(new CommandItem("run", "This is a command"));
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(result["help"], "true");
+        }
+
 
         [Test]
         public void WriteApplictaionName()
