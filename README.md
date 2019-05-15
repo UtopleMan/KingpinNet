@@ -32,7 +32,7 @@ PM> Install-Package KingpinNet
 
 The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.Json)
 
-
+ 
 ## Features
 
 - Fluent style API
