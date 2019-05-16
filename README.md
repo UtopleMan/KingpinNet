@@ -37,7 +37,7 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 
 - Fluent style API
 - Rich support for commmands, sub-commands, arguments and flags
-- Deep integration into Microsoft.Extension.Settings
+- Deep integration into Microsoft.Extension.Configuration
 - Type safe arguments and flags
 - Beautiful console help
 - POSIX Style short flags
