@@ -8,7 +8,7 @@
 - [Features](#features)
 - [Usage](#usage)
   - [Bare-bone example](#bare-bone-example)
-  - [Example integrating into Microsoft.Extensions.Settings](#example-integrating-into-microsoft.extensions.settings)
+  - [Example integrating into Microsoft.Extensions.Configuration](#example-integrating-into-microsoft.extensions.configuration)
 - [Reference documentation](#reference-documentation)
   - [General configuration](#general-configuration)
   - [Commands](#commands)
