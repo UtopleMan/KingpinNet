@@ -53,10 +53,62 @@ Here is the two major ways to add rich support for command line aruments into yo
 In order just to get the simplest command line parsing up and running 
 
 ```csharp
-KingpinNet.Application = "hej med dig";
+class Program
+{
+    static void Main(string[] args)
+    {
+        Kingpin.Version("0.0.1");
+        Kingpin.Author("Joe Malone");
+        Kingpin.ExitOnHelp();
+        Kingpin.ShowHelpOnParsingErrors();
+
+        FlagItem debug = Kingpin.Flag("debug", "Enable debug mode.").IsBool();
+        FlagItem timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
+        ArgumentItem ip = Kingpin.Argument("ip", "IP address to ping.").IsRequired().IsIp();
+        ArgumentItem count = Kingpin.Argument("count", "Number of packets to send").IsInt();
+
+        var result = Kingpin.Parse(args);
+        Console.WriteLine($"Would ping: {ip} with timeout {timeout} and count {count} with debug set to {debug}");
+        Console.ReadLine();
+    }
+}
 ```
 
-### Example integrating into Microsoft.Extensions.Settings
+### Example integrating into Microsoft.Extensions.Configuration
+
+Integrating with the configuration system build into .NET Core is equally easy. Just add .AddKingpinNetCommandLine(args) to your configuration builder
+
+```csharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        Kingpin.Version("1.0").Author("Peter Andersen").ApplicationName("curl").ApplicationHelp("An example implementation of curl.");
+        Kingpin.ShowHelpOnParsingErrors();
+        var get = Kingpin.Command("get", "GET a resource.").IsDefault();
+        get.Command("url", "Retrieve a URL.").IsDefault();
+        var post = Kingpin.Command("post", "POST a resource.");
+        post.Argument("url", "URL to POST to.").IsRequired().IsUrl();
+
+
+        var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddKingpinNetCommandLine(args).Build();
+
+        switch (configuration["command"])
+        {
+            case "get:url":
+                Console.WriteLine($"Getting URL {configuration["get:url:url"]}");
+                break;
+
+            case "post":
+                Console.WriteLine($"Posting to URL {configuration["post:url"]}");
+                break;
+        }
+
+        Console.ReadLine();
+    }
+}
+```
+
 ## Reference documentation
 ### General configuration
 ### Commands
@@ -64,3 +116,8 @@ KingpinNet.Application = "hej med dig";
 ### Arguments
 ### Custom help
 ## Changelog
+ - 0.2
+   - Added help templates using T4 
+ - 0.1
+   - Initial project structure setup
+   - 
