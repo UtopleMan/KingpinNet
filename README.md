@@ -63,12 +63,13 @@ class Program
         Kingpin.ShowHelpOnParsingErrors();
 
         FlagItem debug = Kingpin.Flag("debug", "Enable debug mode.").IsBool();
-        FlagItem timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
+        FlagItem timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.")
+            .IsRequired().Short('t').IsDuration();
         ArgumentItem ip = Kingpin.Argument("ip", "IP address to ping.").IsRequired().IsIp();
         ArgumentItem count = Kingpin.Argument("count", "Number of packets to send").IsInt();
 
         var result = Kingpin.Parse(args);
-        Console.WriteLine($"Would ping: {ip} with timeout {timeout} and count {count} with debug set to {debug}");
+        Console.WriteLine($"Would ping: {ip} with timeout {timeout} and count {count} with debug = {debug}");
         Console.ReadLine();
     }
 }
@@ -83,7 +84,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        Kingpin.Version("1.0").Author("Peter Andersen").ApplicationName("curl").ApplicationHelp("An example implementation of curl.");
+        Kingpin.Version("1.0").Author("Peter Andersen").ApplicationName("curl")
+            .ApplicationHelp("An example implementation of curl.");
         Kingpin.ShowHelpOnParsingErrors();
         var get = Kingpin.Command("get", "GET a resource.").IsDefault();
         get.Command("url", "Retrieve a URL.").IsDefault();
@@ -91,7 +93,8 @@ class Program
         post.Argument("url", "URL to POST to.").IsRequired().IsUrl();
 
 
-        var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddKingpinNetCommandLine(args).Build();
+        var configuration = new ConfigurationBuilder().AddEnvironmentVariables()
+            .AddKingpinNetCommandLine(args).Build();
 
         switch (configuration["command"])
         {
