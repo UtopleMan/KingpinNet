@@ -114,10 +114,14 @@ class Program
 
 ## Changelog
  - 0.2
-   - Added help templates using T4 
+   - Added support for Linux newlines
+   - Added documentation
+   - Refactored the help flag code
  - 0.1
    - Initial project structure setup
-   - 
+   - Help on nested commands
+   - Added example applications
+   - Added template help using T4 templates
 
 ## Reference documentation (WIP)
 ### General configuration
