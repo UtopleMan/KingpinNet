@@ -112,15 +112,16 @@ class Program
 }
 ```
 
-## Reference documentation
-### General configuration
-### Commands
-### Flags
-### Arguments
-### Custom help
 ## Changelog
  - 0.2
    - Added help templates using T4 
  - 0.1
    - Initial project structure setup
    - 
+
+## Reference documentation (WIP)
+### General configuration
+### Commands
+### Flags
+### Arguments
+### Custom help
