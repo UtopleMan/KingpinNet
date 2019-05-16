@@ -221,7 +221,7 @@ namespace KingpinNet
         public void GenerateCommandUsage(CommandItem command, TextWriter output)
         {
             var applicationText = "";
-            if (!String.IsNullOrWhiteSpace(_application.Name))
+            if (!string.IsNullOrWhiteSpace(_application.Name))
                 applicationText = _application.Name + " ";
 
             var flagsText = "";
@@ -236,7 +236,7 @@ namespace KingpinNet
             else if (_application.Arguments.Count == 1)
                 argsText = $"[<{_application.Arguments[0].Item.Name}>]";
 
-            output.WriteLine($"usage: {applicationText}{commandsText}{argsText}");
+            output.WriteLine($"usage: {applicationText}{commandsText}{flagsText}{argsText}");
             output.WriteLine();
         }
 

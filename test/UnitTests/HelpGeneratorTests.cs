@@ -38,21 +38,21 @@ namespace Tests
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Name = "testapp.exe";
+            application.ApplicationHelp("testapp.exe");
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: testapp.exe"));
+            Assert.IsTrue(result.Contains("testapp.exe"));
         }
         [Test]
         public void WriteApplictaionHelp()
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Help = "This is the glorious test app";
+            application.ApplicationHelp("This is the glorious test app");
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();

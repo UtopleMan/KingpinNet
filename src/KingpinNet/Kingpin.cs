@@ -5,85 +5,85 @@ namespace KingpinNet
 {
     public class Kingpin
     {
-        private static KingpinApplication _application = new KingpinApplication();
+        private static readonly KingpinApplication Application = new KingpinApplication();
 
         static Kingpin()
         {
-            _application.Name = AppDomain.CurrentDomain.FriendlyName;
-            _application.Help = "";
+            Application.ApplicationName(AppDomain.CurrentDomain.FriendlyName);
+            Application.ApplicationHelp("");
             Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
-        public static void ShowHelpOnParsingErrors( )
+        public static KingpinApplication ShowHelpOnParsingErrors()
         {
-            _application.ShowHelpOnParsingErrors = true;
+            return Application.ShowHelpOnParsingErrors();
         }
 
-        public static void ExitOnParsingErrors()
+        public static KingpinApplication ExitOnParsingErrors()
         {
-            _application.ExitOnParsingErrors = true;
+            return Application.ExitOnParsingErrors();
         }
 
-        public static void ExitOnHelp()
+        public static KingpinApplication ExitOnHelp()
         {
-            _application.ExitOnHelp = true;
+            return Application.ExitOnHelp();
         }
 
-        public static void Author(string author)
+        public static KingpinApplication Author(string author)
         {
-            _application.Author = author;
+            return Application.Author(author);
         }
 
-        public static void Version(string version)
+        public static KingpinApplication Version(string version)
         {
-            _application.Version = version;
+            return Application.Version(version);
         }
 
         private static void GenerateHelp(string argument)
         {
-            var helpGenerator = new HelpGenerator(_application);
+            var helpGenerator = new HelpGenerator(Application);
             helpGenerator.Generate(Console.Out);
-            if (_application.ExitOnHelp)
+            if (Application.ExitWhenHelpIsShown)
                 Environment.Exit(0);
         }
         private static void GenerateCommandHelp(CommandItem command, string argument)
         {
-            var helpGenerator = new HelpGenerator(_application);
+            var helpGenerator = new HelpGenerator(Application);
             helpGenerator.Generate(command, Console.Out);
         }
         public static CommandItem Command(string name, string help)
         {
-            return _application.Command(name, help);
+            return Application.Command(name, help);
         }
 
         public static FlagItem Flag(string name, string help)
         {
-            return _application.Flag(name, help);
+            return Application.Flag(name, help);
         }
 
         public static ArgumentItem Argument(string name, string help)
         {
-            return _application.Argument(name, help);
+            return Application.Argument(name, help);
         }
 
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
-            var parser = new Parser(_application);
-            AddCommandHelpOnAllCommands(_application.Commands);
+            var parser = new Parser(Application);
+            AddCommandHelpOnAllCommands(Application.Commands);
             try
             {
                 return parser.Parse(args);
             }
             catch (ParseException exception)
             {
-                if (_application.ShowHelpOnParsingErrors)
+                if (Application.HelpShownOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
                     GenerateHelp("");
                 }
-                if (_application.ExitOnParsingErrors)
+                if (Application.ExitOnParseErrors)
                 {
                     Environment.Exit(1);
                 }
@@ -105,7 +105,7 @@ namespace KingpinNet
         public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
             List<ArgumentItem> arguments, IEnumerable<string> args)
         {
-            var parser = new Parser(_application);
+            var parser = new Parser(Application);
             return parser.Parse(args);
         }
 
