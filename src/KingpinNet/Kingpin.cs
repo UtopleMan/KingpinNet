@@ -11,7 +11,7 @@ namespace KingpinNet
         {
             Application.ApplicationName(AppDomain.CurrentDomain.FriendlyName);
             Application.ApplicationHelp("");
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
+            _application.Initialize();
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
@@ -41,18 +41,6 @@ namespace KingpinNet
             return Application.Version(version);
         }
 
-        private static void GenerateHelp(string argument)
-        {
-            var helpGenerator = new HelpGenerator(Application);
-            helpGenerator.Generate(Console.Out);
-            if (Application.ExitWhenHelpIsShown)
-                Environment.Exit(0);
-        }
-        private static void GenerateCommandHelp(CommandItem command, string argument)
-        {
-            var helpGenerator = new HelpGenerator(Application);
-            helpGenerator.Generate(command, Console.Out);
-        }
         public static CommandItem Command(string name, string help)
         {
             return Application.Command(name, help);
@@ -81,24 +69,9 @@ namespace KingpinNet
                 if (Application.HelpShownOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
-                    GenerateHelp("");
+                    _application.GenerateHelp("");
                 }
-                if (Application.ExitOnParseErrors)
-                {
-                    Environment.Exit(1);
-                }
-                return new Dictionary<string, string>() { { "KingpinError", exception.Message } };
-            }
-        }
-
-        private static void AddCommandHelpOnAllCommands(List<CommandItem> commands)
-        {
-            foreach (var command in commands)
-            {
-                if (command.Item.Commands.Count > 0)
-                    AddCommandHelpOnAllCommands(command.Item.Commands);
-                else
-                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command, x));
+                throw;
             }
         }
 

@@ -14,8 +14,21 @@ namespace KingpinNet
         public string AuthorName { get; private set; }
         public bool HelpShownOnParsingErrors { get; private set; }
         public bool ExitOnParseErrors { get; private set; }
-
         public bool ExitWhenHelpIsShown { get; internal set; }
+        public void Initialize()
+        {
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
+        }
+        public void GenerateHelp(string argument)
+        {
+            var helpGenerator = new HelpGenerator(this);
+            helpGenerator.Generate(Console.Out);
+        }
+        private void GenerateCommandHelp(CommandItem command, string argument)
+        {
+            var helpGenerator = new HelpGenerator(this);
+            helpGenerator.Generate(command, Console.Out);
+        }
 
         public CommandItem Command(string name, string help)
         {
@@ -54,6 +67,17 @@ namespace KingpinNet
             var result = new ArgumentItem(name, help);
             Arguments.Add(result);
             return result;
+        }
+
+        public void AddCommandHelpOnAllCommands(List<CommandItem> commands)
+        {
+            foreach (var command in commands)
+            {
+                if (command.Item.Commands.Count > 0)
+                    AddCommandHelpOnAllCommands(command.Item.Commands);
+                else
+                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command, x));
+            }
         }
 
         public KingpinApplication Author(string author)

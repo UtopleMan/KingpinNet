@@ -3,12 +3,37 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Peter Andersen</Authors>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <NuspecFile>KingpinNet.final.nuspec</NuspecFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="CommandHelp.tt">
+      <LastGenOutput>CommandHelp.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="ApplicationHelp.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ApplicationHelp.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="ApplicationHelp.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ApplicationHelp.tt</DependentUpon>
+    </Compile>
+    <Compile Update="CommandHelp.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommandHelp.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
