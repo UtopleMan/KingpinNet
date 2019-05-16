@@ -69,7 +69,7 @@ namespace KingpinNet
                 if (Application.HelpShownOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
-                    Application.GenerateHelp("");
+                    Application.GenerateHelp();
                 }
                 throw;
             }

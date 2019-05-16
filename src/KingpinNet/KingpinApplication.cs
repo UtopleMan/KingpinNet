@@ -8,6 +8,8 @@ namespace KingpinNet
         public readonly List<CommandItem> Commands = new List<CommandItem>();
         public readonly List<FlagItem> Flags = new List<FlagItem>();
         public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
+        private IHelpTemplate _applicationHelp;
+        private IHelpTemplate _commandHelp;
         public string Name { get; internal set; }
         public string Help { get; internal set; }
         public string VersionString { get; private set; }
@@ -17,17 +19,19 @@ namespace KingpinNet
         public bool ExitWhenHelpIsShown { get; internal set; }
         public void Initialize()
         {
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(GenerateHelp);
+            _applicationHelp = new ApplicationHelp();
+            _commandHelp = new CommandHelp();
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp());
         }
-        public void GenerateHelp(string argument)
+        public void GenerateHelp()
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(Console.Out);
+            helpGenerator.Generate(Console.Out, _applicationHelp);
         }
-        private void GenerateCommandHelp(CommandItem command, string argument)
+        private void GenerateCommandHelp(CommandItem command)
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(command, Console.Out);
+            helpGenerator.Generate(command, Console.Out, _commandHelp);
         }
 
         public CommandItem Command(string name, string help)
@@ -76,7 +80,7 @@ namespace KingpinNet
                 if (command.Item.Commands.Count > 0)
                     AddCommandHelpOnAllCommands(command.Item.Commands);
                 else
-                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command, x));
+                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
             }
         }
 
@@ -101,6 +105,13 @@ namespace KingpinNet
         public KingpinApplication ApplicationName(string name)
         {
             Name = name;
+            return this;
+        }
+
+        public KingpinApplication Template(IHelpTemplate applicationHelp, IHelpTemplate commandHelp)
+        {
+            _applicationHelp = applicationHelp;
+            _commandHelp = commandHelp;
             return this;
         }
     }
