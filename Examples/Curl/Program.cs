@@ -29,11 +29,11 @@ namespace Curl
             switch (configuration["command"])
             {
                 case "get:url":
-                    Console.WriteLine($"Getting URL {getUrlUrl}");
+                    Console.WriteLine($"Getting URL {configuration["get:url:url"]}");
                     break;
 
                 case "post":
-                    Console.WriteLine($"Posting to URL {postUrl}");
+                    Console.WriteLine($"Posting to URL {configuration["post:url"]}");
                     break;
             }
 

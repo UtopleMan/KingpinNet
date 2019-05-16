@@ -5,7 +5,7 @@ namespace KingpinNet
 {
     public class HelpGenerator
     {
-        private KingpinApplication _application;
+        private readonly KingpinApplication _application;
         private static readonly string Nl = Environment.NewLine;
 
         public HelpGenerator(KingpinApplication application)

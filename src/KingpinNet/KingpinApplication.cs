@@ -17,7 +17,7 @@ namespace KingpinNet
         public bool ExitWhenHelpIsShown { get; internal set; }
         public void Initialize()
         {
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(GenerateHelp);
         }
         public void GenerateHelp(string argument)
         {

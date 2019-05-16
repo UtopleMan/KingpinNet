@@ -11,7 +11,7 @@ namespace KingpinNet
         {
             Application.ApplicationName(AppDomain.CurrentDomain.FriendlyName);
             Application.ApplicationHelp("");
-            _application.Initialize();
+            Application.Initialize();
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
@@ -59,7 +59,7 @@ namespace KingpinNet
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
             var parser = new Parser(Application);
-            AddCommandHelpOnAllCommands(Application.Commands);
+            Application.AddCommandHelpOnAllCommands(Application.Commands);
             try
             {
                 return parser.Parse(args);
@@ -69,7 +69,7 @@ namespace KingpinNet
                 if (Application.HelpShownOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
-                    _application.GenerateHelp("");
+                    Application.GenerateHelp("");
                 }
                 throw;
             }
