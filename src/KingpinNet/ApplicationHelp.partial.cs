@@ -38,10 +38,16 @@ namespace KingpinNet
             var result = "";
             if (item.Flags.Count == 1)
             {
+                var defaultValue = "";
                 if (string.IsNullOrWhiteSpace(item.Flags[0].Item.DefaultValue))
-                    result += "--" + item.Flags[0].Item.Name + "=<" + item.Flags[0].Item.ItemType + "> ";
+                    defaultValue += "=<" + item.Flags[0].Item.ItemType + "> ";
                 else
-                    result += "--" + item.Flags[0].Item.Name + "=<" + item.Flags[0].Item.DefaultValue + "> ";
+                    defaultValue += "=<" + item.Flags[0].Item.DefaultValue + "> ";
+
+                if (!string.IsNullOrWhiteSpace(item.Flags[0].Item.ValueName))
+                    defaultValue = "=" + item.Flags[0].Item.ValueName;
+
+                result += "--" + item.Flags[0].Item.Name + defaultValue;
             }
 
             if (item.Flags.Count > 1)
