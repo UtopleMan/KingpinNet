@@ -364,6 +364,29 @@ namespace Tests
         }
 
         [Test]
+        public void ParseIntReturnsRichErrorMessage()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=x1x" };
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("flag", "").IsInt();
+            application.Flags.Add(flag);
+
+            // Act
+            var subject = new Parser(application);
+
+            try
+            {
+                subject.Parse(args);
+            }
+            catch (ParseException exception)
+            {
+                Assert.IsTrue(exception.Errors.Count == 1);
+                Assert.AreEqual("'x1x' is not an integer", exception.Errors[0]);
+            }
+        }
+
+        [Test]
         public void ParseUrlSuccess()
         {
             // Arrange

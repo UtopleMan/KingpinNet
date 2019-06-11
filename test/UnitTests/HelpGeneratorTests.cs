@@ -48,6 +48,32 @@ namespace Tests
             Assert.AreEqual(result["help"], "true");
         }
 
+        [Test]
+        public void ShowDetailedError()
+        {
+            // Arrange
+            string[] args = new[] { "--integer=x1x" };
+            Kingpin.ShowHelpOnParsingErrors();
+
+            Kingpin.Command("integer", "This is an int").IsInt();
+
+            StringWriter sw = new StringWriter();
+            Console.SetOut(sw);
+            // Act
+            try
+            {
+                Kingpin.Parse(args);
+            }
+            catch { }
+            finally
+            {
+                Console.Out.Close();
+            }
+
+            // Assert
+            Assert.IsTrue(sw.ToString().Contains("Illegal flag"));
+        }
+
 
         [Test]
         public void WriteApplictaionName()

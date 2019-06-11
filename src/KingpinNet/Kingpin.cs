@@ -69,6 +69,8 @@ namespace KingpinNet
                 if (Application.HelpShownOnParsingErrors)
                 {
                     Console.WriteLine(exception.Message);
+                    foreach (var error in exception.Errors)
+                        Console.WriteLine($"   {error}");
                     Application.GenerateHelp();
                 }
                 throw;
