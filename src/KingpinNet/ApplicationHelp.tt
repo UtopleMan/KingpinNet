@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #> 
+﻿<#@ template language="C#" #>   
 <#@ template visibility="internal" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
@@ -18,6 +18,9 @@ Flags:
             var defaultValue = "";
             if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
                 defaultValue = "=" + flag.Item.DefaultValue;
+
+            if (!string.IsNullOrWhiteSpace(flag.Item.ValueName))
+                defaultValue = "=" + flag.Item.ValueName;
 
             if (flag.Item.ShortName != 0) { #>
   -<#=flag.Item.ShortName#>, --<#=flag.Item.Name#><#=defaultValue#>   <#=flag.Item.Help#> <#=GenerateExamples(flag.Item.Examples)#>

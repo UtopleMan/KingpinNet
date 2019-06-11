@@ -211,9 +211,10 @@ namespace KingpinNet
         private bool IsArgument(string arg, List<ArgumentItem> arguments, out CommandLineItem item)
         {
             item = null;
+            var errors = new List<string>();
 
             if (arguments.Any()) {
-                var argumentsFound = arguments.Where(a => IsValidArgument(a, arg)).ToList();
+                var argumentsFound = arguments.Where(a => IsValidArgument(a, arg, errors)).ToList();
                 if (argumentsFound.Count > 1)
                     throw new ParseException("Found multiple arguments");
                 if (argumentsFound.Count == 0)
@@ -247,12 +248,15 @@ namespace KingpinNet
             throw new ParseException("Found too many = signs" + arg);
         }
 
-        private bool IsValidArgument(ArgumentItem argument, string arg)
+        private bool IsValidArgument(ArgumentItem argument, string arg, List<string> listOfErrors)
         {
-            return IsValidItem(argument.Item, arg);
+            var result = IsValidItem(argument.Item, arg);
+            if (!result.success)
+                listOfErrors.Add(result.errorMessage);
+            return result.success;
         }
 
-        private bool IsValidFlag(FlagItem flag, string arg)
+        private bool IsValidFlag(FlagItem flag, string arg, List<string> listOfErrors)
         {
             var parts = arg.Split('=');
 
@@ -262,80 +266,117 @@ namespace KingpinNet
                     return true;
                 }
                 else
+                {
+                    listOfErrors.Add($"--{flag.Item.Name} need a value");
                     return false;
+                }
 
             if (parts.Length == 2)
-                return IsValidItem(flag.Item, parts[1]);
+            {
+                var result = IsValidItem(flag.Item, parts[1]);
+                if (!result.success)
+                    listOfErrors.Add(result.errorMessage);
+                return result.success;
+            }
 
             return false;
         }
 
 
-        private bool IsValidItem(CommandLineItem item, string argument)
+        private (bool success, string errorMessage) IsValidItem(CommandLineItem item, string argument)
         {
 
             if (item.ValueType == ValueType.Bool)
             {
                 if (bool.TryParse(argument, out _))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a boolean (true/false)");
             }
             else if (item.DirectoryShouldExist)
             {
                 if (Directory.Exists(argument))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"directory '{argument}' does not exist");
             }
             else if (item.FileShouldExist)
             {
                 if (File.Exists(argument))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"file '{argument}' does not exist");
             }
             else if (item.ValueType == ValueType.Duration)
             {
                 if (TimeSpan.TryParse(argument, out _))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a duration (Days.Hours:Minutes:Seconds.Milli)");
             }
             else if (item.ValueType == ValueType.Enum)
             {
                 try
                 {
                     Enum.Parse(item.TypeOfEnum, argument);
-                    return true;
+                    return (true, "");
                 }
                 catch (ArgumentException)
                 {
+                    var values = string.Join(",", Enum.GetNames(item.TypeOfEnum));
+                    return (false, $"'{argument}' is not any for the values {values}");
                 }
             }
             else if (item.ValueType == ValueType.Float)
             {
                 if (float.TryParse(argument, out _))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a float");
             }
             else if (item.ValueType == ValueType.Int)
             {
                 if (Int32.TryParse(argument, out _))
-                    return true;
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not an integer");
             }
             else if (item.ValueType == ValueType.Ip)
             {
-                return Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument);
+                var result = Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument);
+                if (result)
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not an IP address");
             }
             else if (item.ValueType == ValueType.Tcp)
             {
-                return Regex(@"(([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})|(\w*.\w*.\w*)):[0-9]{1,5}", argument);
+                var result = Regex(@"(([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})|(\w*.\w*.\w*)):[0-9]{1,5}", argument);
+                if (result)
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a hostname");
             }
             else if (item.ValueType == ValueType.Url)
             {
-                return Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute);
+                var result = Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute);
+                if (result)
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a well formed URL");
             }
             else if (item.ValueType == ValueType.Date)
             {
-                return DateTime.TryParseExact(argument, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
+                if (DateTime.TryParseExact(argument, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a date");
             }
             else if (item.ValueType == ValueType.String)
             {
-                return true;
+                return (true, "");
             }
-            return false;
+            return (false, "Unknown error");
         }
 
         private bool Regex(string regex, string input)
@@ -352,12 +393,14 @@ namespace KingpinNet
             if (flags == null || flags.Count == 0)
                 return false;
 
+            var errors = new List<string>();
+
             if (arg.StartsWith("--"))
             {
                 var foundFlags = flags.Where(f => arg.Replace("--", "").ToLower().StartsWith(f.Item.Name.ToLower()) &&
-                    IsValidFlag(f, arg)).ToArray();
+                    IsValidFlag(f, arg, errors)).ToArray();
                 if (!foundFlags.Any())
-                    throw new ParseException("Illegal flag " + arg);
+                    throw new ParseException("Illegal flag " + arg, errors);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name " + arg);
                 item = foundFlags.First().Item;
@@ -369,7 +412,7 @@ namespace KingpinNet
                 var parts = arg.Split('=');
                 if (parts[0].Length > 2)
                     throw new ParseException("Short name arguments are only one character " + parts[0]);
-                var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg)).ToArray();
+                var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg, errors)).ToArray();
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg);
                 if (foundFlags.Count() > 1)
@@ -398,6 +441,8 @@ namespace KingpinNet
     [Serializable]
     public class ParseException : Exception
     {
+        private List<string> _errors = new List<string>();
+        public List<string> Errors => _errors;
         public ParseException()
         {
         }
@@ -408,6 +453,11 @@ namespace KingpinNet
 
         public ParseException(string message) : base(message)
         {
+        }
+
+        public ParseException(string message, List<string> errors) : base(message)
+        {
+            _errors.AddRange(errors);
         }
 
         public ParseException(string message, Exception innerException) : base(message, innerException)

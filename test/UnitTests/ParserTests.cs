@@ -233,6 +233,24 @@ namespace Tests
         }
 
         [Test]
+        public void ParseDurationSuccessWithDays()
+        {
+            // Arrange
+            string[] args = new[] { "--time=1.1:00:00" };
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("time", "").IsDuration();
+            application.Flags.Add(flag);
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual("1.1:00:00", result["time"]);
+        }
+
+
+        [Test]
         public void ParseDurationFail()
         {
             // Arrange
@@ -346,6 +364,29 @@ namespace Tests
         }
 
         [Test]
+        public void ParseIntReturnsRichErrorMessage()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=x1x" };
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("flag", "").IsInt();
+            application.Flags.Add(flag);
+
+            // Act
+            var subject = new Parser(application);
+
+            try
+            {
+                subject.Parse(args);
+            }
+            catch (ParseException exception)
+            {
+                Assert.IsTrue(exception.Errors.Count == 1);
+                Assert.AreEqual("'x1x' is not an integer", exception.Errors[0]);
+            }
+        }
+
+        [Test]
         public void ParseUrlSuccess()
         {
             // Arrange
@@ -422,7 +463,19 @@ namespace Tests
             // Assert
             Assert.AreEqual("myfancyhostname123:1234", result["flag"]);
         }
+        [Test]
+        public void ParseTcpFail()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=xyz:" };
+            var application = new KingpinApplication();
+            var flag = Kingpin.Flag("flag", "").IsTcp();
+            application.Flags.Add(flag);
 
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
         [Test]
         public void ParseDefaultFlagSuccess()
         {
@@ -460,19 +513,7 @@ namespace Tests
             Assert.AreEqual(result["cmd1:cmd2:flg"], "1234");
         }
 
-        [Test]
-        public void ParseTcpFail()
-        {
-            // Arrange
-            string[] args = new[] { "--flag=xyz:" };
-            var application = new KingpinApplication();
-            var flag = Kingpin.Flag("flag", "").IsTcp();
-            application.Flags.Add(flag);
 
-            // Act
-            var subject = new Parser(application);
-            Assert.Throws<ParseException>(() => subject.Parse(args));
-        }
         
         [Test]
         public void ParseDirectoryShouldExistSuccess()
