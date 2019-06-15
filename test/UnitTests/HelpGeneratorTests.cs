@@ -48,27 +48,53 @@ namespace Tests
             Assert.AreEqual(result["help"], "true");
         }
 
+        [Test]
+        public void ShowDetailedError()
+        {
+            // Arrange
+            string[] args = new[] { "--integer=x1x" };
+            Kingpin.ShowHelpOnParsingErrors();
+
+            Kingpin.Command("integer", "This is an int").IsInt();
+
+            StringWriter sw = new StringWriter();
+            Console.SetOut(sw);
+            // Act
+            try
+            {
+                Kingpin.Parse(args);
+            }
+            catch { }
+            finally
+            {
+                Console.Out.Close();
+            }
+
+            // Assert
+            Assert.IsTrue(sw.ToString().Contains("Illegal flag"));
+        }
+
 
         [Test]
         public void WriteApplictaionName()
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Name = "testapp.exe";
+            application.ApplicationHelp("testapp.exe");
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
             subject.Generate(writer);
             // Assert
             var result = writer.ToString();
-            Assert.IsTrue(result.Contains("usage: testapp.exe"));
+            Assert.IsTrue(result.Contains("testapp.exe"));
         }
         [Test]
         public void WriteApplictaionHelp()
         {
             // Arrange
             var application = new KingpinApplication();
-            application.Help = "This is the glorious test app";
+            application.ApplicationHelp("This is the glorious test app");
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
@@ -365,6 +391,26 @@ namespace Tests
             Assert.IsTrue(result.Contains($"usage: <command>"));
             Assert.IsTrue(result.Contains($"Commands:"));
             Assert.IsTrue(result.Contains($"  cmd --flag=<1234.5678>"));
+            Assert.IsTrue(result.Contains($"    command help"));
+        }
+
+        [Test]
+        public void WriteFlagWithValueName()
+        {
+            // Arrange
+            var application = new KingpinApplication();
+            var command = new CommandItem("cmd", "command help");
+            command.Flag("flag", "flag help").ValueName("!name!");
+            application.Commands.Add(command);
+            // Act
+            var subject = new HelpGenerator(application);
+            var writer = new StringWriter();
+            subject.Generate(writer);
+            // Assert
+            var result = writer.ToString();
+            Assert.IsTrue(result.Contains($"usage: <command>"));
+            Assert.IsTrue(result.Contains($"Commands:"));
+            Assert.IsTrue(result.Contains($"  cmd --flag=!name!"));
             Assert.IsTrue(result.Contains($"    command help"));
         }
     }

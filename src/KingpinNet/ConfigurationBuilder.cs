@@ -127,8 +127,6 @@ namespace KingpinNet
             return (T)obj;
         }
 
-
-
         public override string ToString()
         {
             return Item?.Value;
@@ -147,6 +145,11 @@ namespace KingpinNet
         public FlagItem(string name, string help)
         {
             Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Flag };
+        }
+        public FlagItem ValueName(string valueName)
+        {
+            Item.ValueName = valueName;
+            return this;
         }
     }
 
@@ -236,5 +239,6 @@ namespace KingpinNet
         public bool IsHidden;
         public bool IsSet;
         public string[] Examples;
+        public string ValueName;
     }
 }
