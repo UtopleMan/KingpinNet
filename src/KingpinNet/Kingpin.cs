@@ -31,32 +31,25 @@ namespace KingpinNet
             _application.Version = version;
         }
 
-        public static CommandBuilder Command(string name, string help)
+        public static CommandItem Command(string name, string help)
         {
             return _application.Command(name, help);
         }
 
-        public static CommandLineItemBuilder<string> Flag(string name, string help)
+        public static FlagItem Flag(string name, string help)
         {
             return _application.Flag(name, help);
         }
-        public static CommandLineItemBuilder<string> Flag<T>(string name, string help)
-        {
-            return _application.Flag<T>(name, help);
-        }
 
-        public static CommandLineItemBuilder<string> Argument(string name, string help)
+        public static ArgumentItem Argument(string name, string help)
         {
             return _application.Argument(name, help);
         }
-        public static CommandLineItemBuilder<string> Argument<T>(string name, string help)
-        {
-            return _application.Argument<T>(name, help);
-        }
+
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
             var parser = new Parser(_application);
-            _application.AddCommandHelpOnAllCommands();
+            _application.AddCommandHelpOnAllCommands(_application.Commands);
             try
             {
                 return parser.Parse(args);
@@ -72,8 +65,8 @@ namespace KingpinNet
             }
         }
 
-        public static IDictionary<string, string> Parse(List<CommandBuilder> commands, List<CommandLineItemBuilder<string>> flags,
-            List<CommandLineItemBuilder<string>> arguments, IEnumerable<string> args)
+        public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
+            List<ArgumentItem> arguments, IEnumerable<string> args)
         {
             var parser = new Parser(_application);
             return parser.Parse(args);

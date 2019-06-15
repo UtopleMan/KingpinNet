@@ -7,10 +7,10 @@ namespace Ping
     {
         static void Main(string[] args)
         {
-            var debug = Kingpin.Flag("debug", "Enable debug mode.").IsBool();
-            var timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
-            var ip = Kingpin.Argument("ip", "IP address to ping.").IsRequired().IsIp();
-            var count = Kingpin.Argument("count", "Number of packets to send").IsInt();
+            FlagItem debug = Kingpin.Flag("debug", "Enable debug mode.").IsBool();
+            FlagItem timeout = Kingpin.Flag("timeout", "Timeout waiting for ping.").IsRequired().Short('t').IsDuration();
+            ArgumentItem ip = Kingpin.Argument("ip", "IP address to ping.").IsRequired().IsIp();
+            ArgumentItem count = Kingpin.Argument("count", "Number of packets to send").IsInt();
 
             Kingpin.Version("0.0.1");
             Kingpin.Author("Joe Malone");
