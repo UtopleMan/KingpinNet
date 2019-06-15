@@ -21,7 +21,7 @@ namespace KingpinNet
             output.WriteLine(template.TransformText().Replace("\r\n", $"{Nl}"));
         }
 
-        public void Generate(CommandItem command, TextWriter output, IHelpTemplate template = default(CommandHelp))
+        public void Generate(CommandBuilder command, TextWriter output, IHelpTemplate template = default(CommandHelp))
         {
             if (template == null)
                 template = new CommandHelp();

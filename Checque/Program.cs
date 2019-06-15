@@ -23,8 +23,8 @@ namespace Checque
 
             var quoteCmd = Kingpin.Command("checque", "checque data commands");
             var quoteGetCmd = quoteCmd.Command("get", "Get checque data for registry(s)");
-            quoteGetCmd.Flag("from", "From date").IsDate();
-            quoteGetCmd.Flag("to", "From date").IsDate();
+            quoteGetCmd.Flag<DateTime>("from", "From date");
+            quoteGetCmd.Flag<DateTime>("to", "From date");
 
             var normalizeCmd = Kingpin.Command("normalize", "Normalize checque data");
             normalizeCmd.Flag("symbol", "The symbol to normalize");
