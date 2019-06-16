@@ -2,7 +2,7 @@
 <#@ template visibility="internal" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
-usage: <#if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name + " "); }#><#=Command.Item.Name#> <# if (Command.Item.Flags.Count > 0) { #>[<flags>] <# } if (Command.Item.Commands.Count > 0) { #><command> <# } if (Command.Item.Arguments.Count > 1) { #>[<args> ...] <# } else if (Command.Item.Arguments.Count == 1) { #>[<<#= Command.Item.Arguments[0].Item.Name #>>]<# } #>
+usage: <#if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name + " "); }#><#=Command.Item.Name#> <# if (Command.Item.Flags.Count() > 0) { #>[<flags>] <# } if (Command.Item.Commands.Count() > 0) { #><command> <# } if (Command.Item.Arguments.Count() > 1) { #>[<args> ...] <# } else if (Command.Item.Arguments.Count() == 1) { #>[<<#= Command.Item.Arguments.First().Item.Name #>>]<# } #>
 
 
 <#= Command.Item.Help ?? ""#>
@@ -31,7 +31,7 @@ Flags:
         }
     }
 }#>
-<#if (Command.Item.Arguments != null && Command.Item.Arguments.Count != 0) { #>
+<#if (Command.Item.Arguments != null && Command.Item.Arguments.Count() != 0) { #>
 Args:
 <#
     var Arguments = new List<string>();
@@ -44,10 +44,10 @@ Args:
 <#=finalString#>   <#=arg.Item.Help#> <#=GenerateExamples(arg.Item.Examples)#>
 <#  }
 }#>
-<#if (Command.Item.Commands != null && Command.Item.Commands.Count != 0) { #>
+<#if (Command.Item.Commands != null && Command.Item.Commands.Count() != 0) { #>
 Commands:
 <#
-    var finalCommands = new List<Tuple<string, CommandLineItem>>();
+    var finalCommands = new List<Tuple<string, CommandLineItem<string>>>();
     RecurseCommands("", Command.Item.Commands, finalCommands);
 
     var commandNameLength = finalCommands.Max(c => c.Item1.Length);

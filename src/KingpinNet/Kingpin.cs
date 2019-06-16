@@ -41,25 +41,35 @@ namespace KingpinNet
             return Application.Version(version);
         }
 
-        public static CommandItem Command(string name, string help)
+        public static CommandBuilder Command(string name, string help)
         {
             return Application.Command(name, help);
         }
 
-        public static FlagItem Flag(string name, string help)
+        public static CommandLineItemBuilder<string> Flag(string name, string help)
         {
             return Application.Flag(name, help);
         }
 
-        public static ArgumentItem Argument(string name, string help)
+        public static CommandLineItemBuilder<string> Argument(string name, string help)
         {
             return Application.Argument(name, help);
+        }
+
+        public static CommandLineItemBuilder<string> Flag<T>(string name, string help)
+        {
+            return Application.Flag<T>(name, help);
+        }
+
+        public static CommandLineItemBuilder<string> Argument<T>(string name, string help)
+        {
+            return Application.Argument<T>(name, help);
         }
 
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
             var parser = new Parser(Application);
-            Application.AddCommandHelpOnAllCommands(Application.Commands);
+            Application.AddCommandHelpOnAllCommands();
             try
             {
                 return parser.Parse(args);
@@ -77,12 +87,12 @@ namespace KingpinNet
             }
         }
 
-        public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
-            List<ArgumentItem> arguments, IEnumerable<string> args)
-        {
-            var parser = new Parser(Application);
-            return parser.Parse(args);
-        }
+        //public static IDictionary<string, string> Parse(List<CommandBuilder> commands, List<FlagItemBuilder> flags,
+        //    List<ArgumentItemBuilder> arguments, IEnumerable<string> args)
+        //{
+        //    var parser = new Parser(Application);
+        //    return parser.Parse(args);
+        //}
 
     }
 }

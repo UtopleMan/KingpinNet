@@ -4,7 +4,7 @@
     {
         string TransformText();
         KingpinApplication Application { get; set; }
-        CommandItem Command { get; set; }
+        CommandBuilder Command { get; set; }
     }
 }
 

@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KingpinNet
 {
     public class KingpinApplication
     {
-        public readonly List<CommandItem> Commands = new List<CommandItem>();
-        public readonly List<FlagItem> Flags = new List<FlagItem>();
-        public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
+        private List<CommandBuilder> _commands = new List<CommandBuilder>();
+        private List<CommandLineItemBuilder<string>> _flags = new List<CommandLineItemBuilder<string>>();
+        private List<CommandLineItemBuilder<string>> _arguments = new List<CommandLineItemBuilder<string>>();
+
+        public IEnumerable<CommandBuilder> Commands => _commands;
+        public IEnumerable<CommandLineItemBuilder<string>> Flags => _flags;
+        public IEnumerable<CommandLineItemBuilder<string>> Arguments => _arguments;
+
         private IHelpTemplate _applicationHelp;
         private IHelpTemplate _commandHelp;
         public string Name { get; internal set; }
@@ -28,23 +34,44 @@ namespace KingpinNet
             var helpGenerator = new HelpGenerator(this);
             helpGenerator.Generate(Console.Out, _applicationHelp);
         }
-        private void GenerateCommandHelp(CommandItem command)
+        private void GenerateCommandHelp(CommandBuilder command)
         {
             var helpGenerator = new HelpGenerator(this);
             helpGenerator.Generate(command, Console.Out, _commandHelp);
         }
 
-        public CommandItem Command(string name, string help)
+        public CommandBuilder Command(string name, string help)
         {
-            var result = new CommandItem(name, help);
-            Commands.Add(result);
+            var result = new CommandBuilder(name, help);
+            _commands.Add(result);
             return result;
         }
 
-        public FlagItem Flag(string name, string help)
+        public CommandLineItemBuilder<string> Flag(string name, string help)
         {
-            var result = new FlagItem(name, help);
-            Flags.Add(result);
+            var result = new CommandLineItemBuilder<string>(name, help, ItemType.Flag);
+            _flags.Add(result);
+            return result;
+        }
+        public CommandLineItemBuilder<string> Argument(string name, string help)
+        {
+            var result = new CommandLineItemBuilder<string>(name, help, ItemType.Argument);
+            _arguments.Add(result);
+            return result;
+        }
+
+        public CommandLineItemBuilder<string> Flag<T>(string name, string help)
+        {
+            var result = new CommandLineItemBuilder<string>(name, help, ItemType.Flag,
+                ValueTypeConverter.Convert(typeof(T)));
+            _flags.Add(result);
+            return result;
+        }
+        public CommandLineItemBuilder<string> Argument<T>(string name, string help)
+        {
+            var result = new CommandLineItemBuilder<string>(name, help, ItemType.Argument,
+                ValueTypeConverter.Convert(typeof(T)));
+            _arguments.Add(result);
             return result;
         }
 
@@ -66,18 +93,18 @@ namespace KingpinNet
             return this;
         }
 
-        public ArgumentItem Argument(string name, string help)
+
+
+        public void AddCommandHelpOnAllCommands()
         {
-            var result = new ArgumentItem(name, help);
-            Arguments.Add(result);
-            return result;
+            AddCommandHelpOnAllCommands(_commands);
         }
 
-        public void AddCommandHelpOnAllCommands(List<CommandItem> commands)
+        private void AddCommandHelpOnAllCommands(IEnumerable<CommandBuilder> commands)
         {
             foreach (var command in commands)
             {
-                if (command.Item.Commands.Count > 0)
+                if (command.Item.Commands.Count() > 0)
                     AddCommandHelpOnAllCommands(command.Item.Commands);
                 else
                     Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
