@@ -176,6 +176,22 @@ namespace Tests
         }
 
         [Test]
+        public void ParseStrongTypedBoolSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--bool=true" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<bool>("bool", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(flag.Value, true);
+        }
+
+        [Test]
         public void ParseBoolSuccess()
         {
             // Arrange
@@ -202,6 +218,22 @@ namespace Tests
             // Act
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Test]
+        public void ParseStrongTypedDurationSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--time=1:00:00" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<TimeSpan>("time", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(TimeSpan.FromHours(1), flag.Value);
         }
 
         [Test]
@@ -255,7 +287,21 @@ namespace Tests
             Checked,
             NotSoChecked
         }
+        [Test]
+        public void ParseStrongTypedEnumSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=NotSoChecked" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<CheckMe>("flag", "");
 
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(CheckMe.NotSoChecked, flag.Value);
+        }
         [Test]
         public void ParseEnumSuccess()
         {
@@ -286,6 +332,22 @@ namespace Tests
         }
 
         [Test]
+        public void ParseStrongTypedFloatSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=1.000" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<float>("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(1.000f, flag.Value);
+        }
+
+        [Test]
         public void ParseFloatSuccess()
         {
             // Arrange
@@ -312,6 +374,22 @@ namespace Tests
             // Act
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Test]
+        public void ParseStrongTypedIntSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=1" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<int>("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(1, flag.Value);
         }
 
         [Test]
@@ -363,6 +441,23 @@ namespace Tests
                 Assert.IsTrue(exception.Errors.Count == 1);
                 Assert.AreEqual("'x1x' is not an integer", exception.Errors[0]);
             }
+        }
+
+        [Test]
+        public void ParseStrongTypedUriSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=http://www.google.com" };
+            var application = new KingpinApplication();
+            var flag = application.Flag<Uri>("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.AreEqual(new Uri("http://www.google.com", UriKind.RelativeOrAbsolute).AbsolutePath,
+                flag.Value.AbsolutePath);
         }
 
         [Test]

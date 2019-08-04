@@ -10,9 +10,9 @@ namespace KingpinNet
 {
     public class Parser
     {
-        private readonly List<CommandBuilder> _commands;
-        private readonly List<CommandLineItemBuilder<string>> _globalFlags;
-        private readonly List<CommandLineItemBuilder<string>> _globalArguments;
+        private readonly List<CommandItem> _commands;
+        private readonly List<IItem> _globalFlags;
+        private readonly List<IItem> _globalArguments;
         private Dictionary<string, string> _result;
         private List<string> _args;
         private int _currentItem;
@@ -40,18 +40,18 @@ namespace KingpinNet
             if (_args.Count > 0)
                 while (_currentItem<_args.Count)
                 {
-                    if (IsCommand(_args[_currentItem], _commands, out CommandLineItem<string> commandFound))
+                    if (IsCommand(_args[_currentItem], _commands, out CommandItem commandFound))
                     {
                         AddCommand("command", commandFound);
                         _currentItem++;
                         CommandFound(commandFound);
                     }
-                    else if (IsFlag(_args[_currentItem], _globalFlags, out CommandLineItem<string> flagFound))
+                    else if (IsFlag(_args[_currentItem], _globalFlags, out IItem flagFound))
                     {
                         Add(flagFound);
                         _currentItem++;
                     }
-                    else if (IsArgument(_args[_currentItem], _globalArguments, out CommandLineItem<string> argumentFound))
+                    else if (IsArgument(_args[_currentItem], _globalArguments, out IItem argumentFound))
                     {
                         Add(argumentFound);
                         _currentItem++;
@@ -65,40 +65,29 @@ namespace KingpinNet
         private void SetDefaults()
         {
             SetCommandsToDefault(_commands);
-            SetFlagsToDefault(_globalFlags, true);
-            SetArgumentsToDefault(_globalArguments, true);
+            SetToDefault(_globalFlags, true);
+            SetToDefault(_globalArguments, true);
         }
 
-        private void SetCommandsToDefault(IEnumerable<CommandBuilder> commands)
+        private void SetCommandsToDefault(IEnumerable<CommandItem> commands)
         {
             foreach (var command in commands)
             {
-                if (command.Item?.Commands != null && command.Item.Commands.Count() > 0)
-                    SetCommandsToDefault(command.Item.Commands);
-                SetFlagsToDefault(command.Item?.Flags, false);
-                SetArgumentsToDefault(command.Item?.Arguments, false);
+                if (command.Commands != null && command.Commands.Count() > 0)
+                    SetCommandsToDefault(command.Commands);
+                SetToDefault(command.Flags, false);
+                SetToDefault(command.Arguments, false);
             }
         }
 
-        private void SetArgumentsToDefault(IEnumerable<CommandLineItemBuilder<string>> arguments, bool addToResult)
+        private void SetToDefault(IEnumerable<IItem> items, bool addToResult)
         {
-            foreach (var argument in arguments)
-                if (!string.IsNullOrWhiteSpace(argument.Item.DefaultValue))
+            foreach (var item in items)
+                if (!string.IsNullOrWhiteSpace(item.DefaultValue))
                 {
-                    argument.Item.IsSet = true;
-                    argument.Item.Value = argument.Item.DefaultValue;
-                    if (addToResult) Add(argument.Item);
-                }
-        }
-
-        private void SetFlagsToDefault(IEnumerable<CommandLineItemBuilder<string>> flags, bool addToResult)
-        {
-            foreach (var flag in flags)
-                if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
-                {
-                    flag.Item.IsSet = true;
-                    flag.Item.Value = flag.Item.DefaultValue;
-                    if (addToResult) Add(flag.Item);
+                    item.IsSet = true;
+                    item.StringValue = item.DefaultValue;
+                    if (addToResult) Add(item);
                 }
         }
 
@@ -109,53 +98,53 @@ namespace KingpinNet
             CheckArguments(_globalArguments);
         }
 
-        private void CheckCommands(IEnumerable<CommandBuilder> commands)
+        private void CheckCommands(IEnumerable<CommandItem> commands)
         {
             foreach (var command in commands)
             {
-                if (command.Item.IsRequired && !command.Item.IsSet)
-                    throw new ParseException($"Required command <{command.Item.Name}> not set");
+                if (command.Required && !command.IsSet)
+                    throw new ParseException($"Required command <{command.Name}> not set");
 
-                if (!command.Item.IsSet)
+                if (!command.IsSet)
                     continue;
 
-                if (command.Item?.Commands != null && command.Item.Commands.Count() > 0)
-                    CheckCommands(command.Item.Commands);
-                CheckFlags(command.Item.Flags);
-                CheckArguments(command.Item.Arguments);
+                if (command.Commands != null && command.Commands.Count() > 0)
+                    CheckCommands(command.Commands);
+                CheckFlags(command.Flags);
+                CheckArguments(command.Arguments);
             }
         }
 
-        private void CheckArguments(IEnumerable<CommandLineItemBuilder<string>> arguments)
+        private void CheckArguments(IEnumerable<IItem> arguments)
         {
             foreach (var argument in arguments)
-                if (argument.Item.IsRequired && !argument.Item.IsSet)
-                    throw new ParseException($"Required argument <{argument.Item.Name}> not set");
+                if (argument.Required && !argument.IsSet)
+                    throw new ParseException($"Required argument <{argument.Name}> not set");
         }
 
-        private void CheckFlags(IEnumerable<CommandLineItemBuilder<string>> flags)
+        private void CheckFlags(IEnumerable<IItem> flags)
         {
             foreach (var flag in flags)
-                if (flag.Item.IsRequired && !flag.Item.IsSet)
-                    throw new ParseException($"Required flag --{flag.Item.Name} not set");
+                if (flag.Required && !flag.IsSet)
+                    throw new ParseException($"Required flag --{flag.Name} not set");
         }
 
-        private void CommandFound(CommandLineItem<string> command)
+        private void CommandFound(CommandItem command)
         {
             SetDefaults();
             while (_currentItem < _args.Count)
             {
-                if (IsCommand(_args[_currentItem], command.Commands, out CommandLineItem<string> commandFound))
+                if (IsCommand(_args[_currentItem], command.Commands, out CommandItem commandFound))
                 {
                     MergeCommand("command", commandFound);
                     _currentItem++;
                     CommandFound(commandFound);
-                } else if (IsFlag(_args[_currentItem], command.Flags, out CommandLineItem<string> flagFound))
+                } else if (IsFlag(_args[_currentItem], command.Flags, out IItem flagFound))
                 {
                     Merge("command", flagFound);
                     _currentItem++;
                 }
-                else if (IsArgument(_args[_currentItem], command.Arguments, out CommandLineItem<string> argumentFound))
+                else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound))
                 {
                     Merge("command", argumentFound);
                     _currentItem++;
@@ -165,51 +154,46 @@ namespace KingpinNet
             }
         }
 
-        private void MergeCommand(string name, CommandLineItem<string> item)
+        private void MergeCommand(string name, CommandItem item)
         {
             item.IsSet = true;
             _result[name] = _result[name] + ":" + item.Name;
-            CheckFlagsForDefaultValues(_result[name], item.Flags);
-            CheckArgumentsForDefaultValues(_result[name], item.Arguments);
+            CheckForDefaultValues(_result[name], item.Flags);
+            CheckForDefaultValues(_result[name], item.Arguments);
         }
 
-        private void CheckFlagsForDefaultValues(string name, IEnumerable<CommandLineItemBuilder<string>> items)
+        private void CheckForDefaultValues(string name, IEnumerable<IItem> items)
         {
-            foreach (var item in items.Where(x => x.Item.IsSet))
-                _result[name + ":" + item.Item.Name] = item.Item.Value;
+            foreach (var item in items.Where(x => x.IsSet))
+                _result[name + ":" + item.Name] = item.StringValue;
         }
 
-        private void CheckArgumentsForDefaultValues(string name, IEnumerable<CommandLineItemBuilder<string>> items)
-        {
-            foreach (var item in items.Where(x => x.Item.IsSet))
-                _result[name + ":" + item.Item.Name] = item.Item.Value;
-        }
-
-        private void AddCommand(string name, CommandLineItem<string> item)
+        private void AddCommand(string name, IItem item)
         {
             item.IsSet = true;
             _result.Add(name, item.Name);
         }
 
-        private void Merge(string name, CommandLineItem<string> item)
+        private void Merge(string name, IItem item)
         {
             item.IsSet = true;
-            if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
+            if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 _result.Add(_result[name] + ":" + item.Name, item.DefaultValue);
             else
-                _result.Add(_result[name] + ":" + item.Name, item.Value);
-        }
-        private void Add(CommandLineItem<string> item)
-        {
-            item.IsSet = true;
-            if (string.IsNullOrWhiteSpace(item.Value) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-                _result.Add(item.Name, item.DefaultValue);
-            else
-                _result.Add(item.Name, item.Value);
+                _result.Add(_result[name] + ":" + item.Name, item.StringValue);
         }
 
-        private bool IsArgument(string arg, IEnumerable<CommandLineItemBuilder<string>> arguments,
-            out CommandLineItem<string> item)
+        private void Add(IItem item)
+        {
+            item.IsSet = true;
+            if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
+                _result.Add(item.Name, item.DefaultValue);
+            else
+                _result.Add(item.Name, item.StringValue);
+        }
+
+        private bool IsArgument(string arg, IEnumerable<IItem> arguments,
+            out IItem item)
         {
             item = null;
             var errors = new List<string>();
@@ -220,14 +204,14 @@ namespace KingpinNet
                     throw new ParseException("Found multiple arguments");
                 if (argumentsFound.Count() == 0)
                     return false;
-                item = argumentsFound.First().Item;
-                item.Value = arg;
+                item = argumentsFound.First();
+                item.StringValue = arg;
                 return true;
             }
             return false;
         }
 
-        private string GetValue(CommandLineItem<string> item, string arg)
+        private string GetValue(IItem item, string arg)
         {
             var parts = arg.Split('=');
 
@@ -249,32 +233,32 @@ namespace KingpinNet
             throw new ParseException("Found too many = signs" + arg);
         }
 
-        private bool IsValidArgument(CommandLineItemBuilder<string> argument, string arg, List<string> listOfErrors)
+        private bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
         {
-            var result = IsValidItem(argument.Item, arg);
+            var result = IsValidItem(argument, arg);
             if (!result.success)
                 listOfErrors.Add(result.errorMessage);
             return result.success;
         }
 
-        private bool IsValidFlag(CommandLineItemBuilder<string> flag, string arg, List<string> listOfErrors)
+        private bool IsValidFlag(IItem flag, string arg, List<string> listOfErrors)
         {
             var parts = arg.Split('=');
 
             if (parts.Length == 1)
-                if (flag.Item.ValueType == ValueType.Bool)
+                if (flag.ValueType == ValueType.Bool)
                 {
                     return true;
                 }
                 else
                 {
-                    listOfErrors.Add($"--{flag.Item.Name} need a value");
+                    listOfErrors.Add($"--{flag.Name} need a value");
                     return false;
                 }
 
             if (parts.Length == 2)
             {
-                var result = IsValidItem(flag.Item, parts[1]);
+                var result = IsValidItem(flag, parts[1]);
                 if (!result.success)
                     listOfErrors.Add(result.errorMessage);
                 return result.success;
@@ -284,7 +268,7 @@ namespace KingpinNet
         }
 
 
-        private (bool success, string errorMessage) IsValidItem(CommandLineItem<string> item, string argument)
+        private (bool success, string errorMessage) IsValidItem(IItem item, string argument)
         {
 
             if (item.ValueType == ValueType.Bool)
@@ -310,7 +294,7 @@ namespace KingpinNet
             }
             else if (item.ValueType == ValueType.Duration)
             {
-                if (TimeSpan.TryParse(argument, out _))
+                if (TimeSpan.TryParse(argument, CultureInfo.InvariantCulture, out _))
                     return (true, "");
                 else
                     return (false, $"'{argument}' is not a duration (Days.Hours:Minutes:Seconds.Milli)");
@@ -330,14 +314,14 @@ namespace KingpinNet
             }
             else if (item.ValueType == ValueType.Float)
             {
-                if (float.TryParse(argument, out _))
+                if (float.TryParse(argument, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
                     return (true, "");
                 else
                     return (false, $"'{argument}' is not a float");
             }
             else if (item.ValueType == ValueType.Int)
             {
-                if (Int32.TryParse(argument, out _))
+                if (Int32.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                     return (true, "");
                 else
                     return (false, $"'{argument}' is not an integer");
@@ -387,7 +371,7 @@ namespace KingpinNet
             return match.Success;
         }
 
-        private bool IsFlag(string arg, IEnumerable<CommandLineItemBuilder<string>> flags, out CommandLineItem<string> item)
+        private bool IsFlag(string arg, IEnumerable<IItem> flags, out IItem item)
         {
             item = null;
 
@@ -398,14 +382,14 @@ namespace KingpinNet
 
             if (arg.StartsWith("--"))
             {
-                var foundFlags = flags.Where(f => arg.Replace("--", "").ToLower().StartsWith(f.Item.Name.ToLower()) &&
+                var foundFlags = flags.Where(f => arg.Replace("--", "").ToLower().StartsWith(f.Name.ToLower()) &&
                     IsValidFlag(f, arg, errors)).ToArray();
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg, errors);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name " + arg);
-                item = foundFlags.First().Item;
-                item.Value = GetValue(foundFlags.First().Item, arg);
+                item = foundFlags.First();
+                item.StringValue = GetValue(foundFlags.First(), arg);
                 return true;
             }
             if (arg.StartsWith("-"))
@@ -413,26 +397,26 @@ namespace KingpinNet
                 var parts = arg.Split('=');
                 if (parts[0].Length > 2)
                     throw new ParseException("Short name arguments are only one character " + parts[0]);
-                var foundFlags = flags.Where(f => f.Item.ShortName == parts[0][1] && IsValidFlag(f, arg, errors)).ToArray();
+                var foundFlags = flags.Where(f => f.ShortName == parts[0][1] && IsValidFlag(f, arg, errors)).ToArray();
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name" + arg);
-                item = foundFlags.First().Item;
-                item.Value = GetValue(foundFlags.First().Item, arg);
+                item = foundFlags.First();
+                item.StringValue = GetValue(foundFlags.First(), arg);
                 return true;
             }
             return false;
         }
 
 
-        private bool IsCommand(string arg, IEnumerable<CommandBuilder> commands, out CommandLineItem<string> commandFound)
+        private bool IsCommand(string arg, IEnumerable<CommandItem> commands, out CommandItem commandFound)
         {
             commandFound = null;
             foreach (var command in commands)
-                if (arg.ToLower() == command.Item.Name.ToLower())
+                if (arg.ToLower() == command.Name.ToLower())
                 {
-                    commandFound = command.Item;
+                    commandFound = command;
                     return true;
                 }
             return false;

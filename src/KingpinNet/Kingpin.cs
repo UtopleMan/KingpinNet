@@ -41,27 +41,27 @@ namespace KingpinNet
             return Application.Version(version);
         }
 
-        public static CommandBuilder Command(string name, string help)
+        public static CommandItem Command(string name, string help)
         {
             return Application.Command(name, help);
         }
 
-        public static CommandLineItemBuilder<string> Flag(string name, string help)
+        public static FlagItem<string> Flag(string name, string help)
         {
             return Application.Flag(name, help);
         }
 
-        public static CommandLineItemBuilder<string> Argument(string name, string help)
+        public static ArgumentItem<string> Argument(string name, string help)
         {
             return Application.Argument(name, help);
         }
 
-        public static CommandLineItemBuilder<string> Flag<T>(string name, string help)
+        public static FlagItem<T> Flag<T>(string name, string help)
         {
             return Application.Flag<T>(name, help);
         }
 
-        public static CommandLineItemBuilder<string> Argument<T>(string name, string help)
+        public static ArgumentItem<T> Argument<T>(string name, string help)
         {
             return Application.Argument<T>(name, help);
         }

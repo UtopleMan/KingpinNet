@@ -45,7 +45,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["help"], "true");
+            Assert.AreEqual("true", result["help"]);
         }
 
         [Test]
@@ -354,7 +354,7 @@ namespace Tests
             // Arrange
             var application = new KingpinApplication();
             var command = application.Command("cmd", "command help");
-            command.Flag("flag", "flag help").Examples("1", "2");
+            command.Flag("flag", "flag help").SetExamples("1", "2");
             // Act
             var subject = new HelpGenerator(application);
             var writer = new StringWriter();
