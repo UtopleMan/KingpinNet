@@ -46,20 +46,30 @@ namespace KingpinNet
             return Application.Command(name, help);
         }
 
-        public static FlagItem Flag(string name, string help)
+        public static FlagItem<string> Flag(string name, string help)
         {
             return Application.Flag(name, help);
         }
 
-        public static ArgumentItem Argument(string name, string help)
+        public static ArgumentItem<string> Argument(string name, string help)
         {
             return Application.Argument(name, help);
+        }
+
+        public static FlagItem<T> Flag<T>(string name, string help)
+        {
+            return Application.Flag<T>(name, help);
+        }
+
+        public static ArgumentItem<T> Argument<T>(string name, string help)
+        {
+            return Application.Argument<T>(name, help);
         }
 
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
             var parser = new Parser(Application);
-            Application.AddCommandHelpOnAllCommands(Application.Commands);
+            Application.AddCommandHelpOnAllCommands();
             try
             {
                 return parser.Parse(args);
@@ -77,12 +87,12 @@ namespace KingpinNet
             }
         }
 
-        public static IDictionary<string, string> Parse(List<CommandItem> commands, List<FlagItem> flags,
-            List<ArgumentItem> arguments, IEnumerable<string> args)
-        {
-            var parser = new Parser(Application);
-            return parser.Parse(args);
-        }
+        //public static IDictionary<string, string> Parse(List<CommandBuilder> commands, List<FlagItemBuilder> flags,
+        //    List<ArgumentItemBuilder> arguments, IEnumerable<string> args)
+        //{
+        //    var parser = new Parser(Application);
+        //    return parser.Parse(args);
+        //}
 
     }
 }

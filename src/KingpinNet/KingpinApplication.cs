@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KingpinNet
 {
     public class KingpinApplication
     {
-        public readonly List<CommandItem> Commands = new List<CommandItem>();
-        public readonly List<FlagItem> Flags = new List<FlagItem>();
-        public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
+        private List<CommandItem> _commands = new List<CommandItem>();
+        private List<IItem> _flags = new List<IItem>();
+        private List<IItem> _arguments = new List<IItem>();
+
+        public IEnumerable<CommandItem> Commands => _commands;
+        public IEnumerable<IItem> Flags => _flags;
+        public IEnumerable<IItem> Arguments => _arguments;
+
         private IHelpTemplate _applicationHelp;
         private IHelpTemplate _commandHelp;
         public string Name { get; internal set; }
@@ -36,15 +42,36 @@ namespace KingpinNet
 
         public CommandItem Command(string name, string help)
         {
-            var result = new CommandItem(name, help);
-            Commands.Add(result);
+            var result = new CommandItem(name, name, help);
+            _commands.Add(result);
             return result;
         }
 
-        public FlagItem Flag(string name, string help)
+        public FlagItem<string> Flag(string name, string help)
         {
-            var result = new FlagItem(name, help);
-            Flags.Add(result);
+            var result = new FlagItem<string>(name, name, help);
+            _flags.Add(result);
+            return result;
+        }
+        public ArgumentItem<string> Argument(string name, string help)
+        {
+            var result = new ArgumentItem<string>(name, name, help);
+            _arguments.Add(result);
+            return result;
+        }
+
+        public FlagItem<T> Flag<T>(string name, string help)
+        {
+            var result = new FlagItem<T>(name, name, help,
+                ValueTypeConverter.Convert(typeof(T)));
+            _flags.Add(result);
+            return result;
+        }
+        public ArgumentItem<T> Argument<T>(string name, string help)
+        {
+            var result = new ArgumentItem<T>(name, name, help,
+                ValueTypeConverter.Convert(typeof(T)));
+            _arguments.Add(result);
             return result;
         }
 
@@ -66,21 +93,21 @@ namespace KingpinNet
             return this;
         }
 
-        public ArgumentItem Argument(string name, string help)
+
+
+        public void AddCommandHelpOnAllCommands()
         {
-            var result = new ArgumentItem(name, help);
-            Arguments.Add(result);
-            return result;
+            AddCommandHelpOnAllCommands(_commands);
         }
 
-        public void AddCommandHelpOnAllCommands(List<CommandItem> commands)
+        private void AddCommandHelpOnAllCommands(IEnumerable<CommandItem> commands)
         {
             foreach (var command in commands)
             {
-                if (command.Item.Commands.Count > 0)
-                    AddCommandHelpOnAllCommands(command.Item.Commands);
+                if (command.Commands.Count() > 0)
+                    AddCommandHelpOnAllCommands(command.Commands);
                 else
-                    Flag("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
+                    Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
             }
         }
 
