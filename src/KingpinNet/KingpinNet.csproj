@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.1.0</Version>
     <Authors>Peter Andersen</Authors>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <NuspecFile>KingpinNet.final.nuspec</NuspecFile>
