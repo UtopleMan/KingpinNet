@@ -5,7 +5,7 @@ namespace KingpinNet
 {
     public class Kingpin
     {
-        private static readonly KingpinApplication Application = new KingpinApplication();
+        private static KingpinApplication _application = new KingpinApplication();
 
         static Kingpin()
         {
@@ -17,54 +17,44 @@ namespace KingpinNet
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
-        public static KingpinApplication ShowHelpOnParsingErrors()
+        public static void ShowHelpOnParsingErrors( )
         {
-            return Application.ShowHelpOnParsingErrors();
+            _application.ShowHelpOnParsingErrors = true;
         }
 
-        public static KingpinApplication ExitOnParsingErrors()
+        public static void ExitOnParsingErrors()
         {
-            return Application.ExitOnParsingErrors();
+            _application.ExitOnParsingErrors = true;
         }
 
-        public static KingpinApplication ExitOnHelp()
+        public static void ExitOnHelp()
         {
-            return Application.ExitOnHelp();
+            _application.ExitOnHelp = true;
         }
 
-        public static KingpinApplication Author(string author)
+        public static void Author(string author)
         {
-            return Application.Author(author);
+            _application.Author = author;
         }
 
-        public static KingpinApplication Version(string version)
+        public static void Version(string version)
         {
-            return Application.Version(version);
+            _application.Version = version;
         }
 
         public static CommandItem Command(string name, string help)
         {
-            return Application.Command(name, help);
+            return _application.Command(name, help);
         }
 
-        public static FlagItem<string> Flag(string name, string help)
+        public static FlagItem Flag(string name, string help)
         {
-            return Application.Flag(name, help);
+            return _application.Flag(name, help);
         }
 
-        public static ArgumentItem<string> Argument(string name, string help)
+        public static ArgumentItem Argument(string name, string help)
         {
-            return Application.Argument(name, help);
-        }
-
-        public static FlagItem<T> Flag<T>(string name, string help)
-        {
-            return Application.Flag<T>(name, help);
-        }
-
-        public static ArgumentItem<T> Argument<T>(string name, string help)
-        {
-            return Application.Argument<T>(name, help);
+            return _application.Argument(name, help);
         }
 
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
