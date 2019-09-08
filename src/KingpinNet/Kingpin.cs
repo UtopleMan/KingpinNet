@@ -11,6 +11,8 @@ namespace KingpinNet
         {
             _application.Name = AppDomain.CurrentDomain.FriendlyName;
             _application.Help = "";
+            _application.EnableHelp();
+
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }

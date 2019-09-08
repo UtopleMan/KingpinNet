@@ -16,7 +16,7 @@ namespace KingpinNet
         public bool ExitOnParsingErrors { get; internal set; }
         public bool ExitOnHelp { get; internal set; }
 
-        public KingpinApplication()
+        public void EnableHelp()
         {
             Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp(x));
         }
