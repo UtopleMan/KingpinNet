@@ -5,61 +5,71 @@ namespace KingpinNet
 {
     public class Kingpin
     {
-        private static KingpinApplication _application = new KingpinApplication();
+        private static readonly KingpinApplication Application = new KingpinApplication();
 
         static Kingpin()
         {
-            _application.Name = AppDomain.CurrentDomain.FriendlyName;
-            _application.Help = "";
-            _application.EnableHelp();
+            Application.ApplicationName(AppDomain.CurrentDomain.FriendlyName);
+            Application.ApplicationHelp("");
+            Application.Initialize();
 
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
 
-        public static void ShowHelpOnParsingErrors( )
+        public static KingpinApplication ShowHelpOnParsingErrors()
         {
-            _application.ShowHelpOnParsingErrors = true;
+            return Application.ShowHelpOnParsingErrors();
         }
 
-        public static void ExitOnParsingErrors()
+        public static KingpinApplication ExitOnParsingErrors()
         {
-            _application.ExitOnParsingErrors = true;
+            return Application.ExitOnParsingErrors();
         }
 
-        public static void ExitOnHelp()
+        public static KingpinApplication ExitOnHelp()
         {
-            _application.ExitOnHelp = true;
+            return Application.ExitOnHelp();
         }
 
-        public static void Author(string author)
+        public static KingpinApplication Author(string author)
         {
-            _application.Author = author;
+            return Application.Author(author);
         }
 
-        public static void Version(string version)
+        public static KingpinApplication Version(string version)
         {
-            _application.Version = version;
+            return Application.Version(version);
         }
 
         public static CommandItem Command(string name, string help)
         {
-            return _application.Command(name, help);
+            return Application.Command(name, help);
         }
 
-        public static FlagItem Flag(string name, string help)
+        public static FlagItem<string> Flag(string name, string help)
         {
-            return _application.Flag(name, help);
+            return Application.Flag(name, help);
         }
 
-        public static ArgumentItem Argument(string name, string help)
+        public static ArgumentItem<string> Argument(string name, string help)
         {
-            return _application.Argument(name, help);
+            return Application.Argument(name, help);
+        }
+
+        public static FlagItem<T> Flag<T>(string name, string help)
+        {
+            return Application.Flag<T>(name, help);
+        }
+
+        public static ArgumentItem<T> Argument<T>(string name, string help)
+        {
+            return Application.Argument<T>(name, help);
         }
 
         public static IDictionary<string, string> Parse(IEnumerable<string> args)
         {
-            return _application.Parse(args);
+            return Application.Parse(args);
         }
     }
 }
