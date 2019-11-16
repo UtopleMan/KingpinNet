@@ -124,6 +124,7 @@ namespace KingpinNet
                 else
                     throw new ArgumentException($"'{value}' is not a date", nameof(value));
             }
+            Action?.Invoke(Value);
         }
     }
 }

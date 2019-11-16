@@ -177,19 +177,20 @@ namespace KingpinNet
         private void Merge(string name, IItem item)
         {
             item.IsSet = true;
+            var value = item.StringValue;
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-                _result.Add(_result[name] + ":" + item.Name, item.DefaultValue);
-            else
-                _result.Add(_result[name] + ":" + item.Name, item.StringValue);
+                value = item.DefaultValue;
+
+            _result.Add(_result[name] + ":" + item.Name, value);
         }
 
         private void Add(IItem item)
         {
             item.IsSet = true;
+            var value = item.StringValue;
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-                _result.Add(item.Name, item.DefaultValue);
-            else
-                _result.Add(item.Name, item.StringValue);
+                value = item.DefaultValue;
+            _result.Add(item.Name, value);
         }
 
         private bool IsArgument(string arg, IEnumerable<IItem> arguments,
@@ -211,9 +212,11 @@ namespace KingpinNet
             return false;
         }
 
+
+
         private string GetValue(IItem item, string arg)
         {
-            var parts = arg.Split('=');
+            var parts = arg.SplitFirst('=');
 
             if (parts.Length == 1)
                 if (item.ValueType == ValueType.Bool)
@@ -224,13 +227,8 @@ namespace KingpinNet
                 else
                     throw new ParseException("Not a boolean " + arg);
 
-            if (parts.Length == 2)
-            {
-                item.Action?.Invoke(arg);
-                return parts[1];
-            }
-
-            throw new ParseException("Found too many = signs" + arg);
+            item.Action?.Invoke(arg);
+            return parts[1];
         }
 
         private bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
@@ -256,7 +254,7 @@ namespace KingpinNet
                     return false;
                 }
 
-            if (parts.Length == 2)
+            if (parts.Length >= 2)
             {
                 var result = IsValidItem(flag, parts[1]);
                 if (!result.success)

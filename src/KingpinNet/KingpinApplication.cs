@@ -75,19 +75,19 @@ namespace KingpinNet
             return result;
         }
 
-        internal KingpinApplication ExitOnParsingErrors()
+        public KingpinApplication ExitOnParsingErrors()
         {
             ExitOnParseErrors = true;
             return this;
         }
 
-        internal KingpinApplication ExitOnHelp()
+        public KingpinApplication ExitOnHelp()
         {
             ExitWhenHelpIsShown = true;
             return this;
         }
 
-        internal KingpinApplication ShowHelpOnParsingErrors()
+        public KingpinApplication ShowHelpOnParsingErrors()
         {
             HelpShownOnParsingErrors = true;
             return this;
