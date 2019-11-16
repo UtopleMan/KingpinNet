@@ -1,240 +1,129 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace KingpinNet
 {
-    public class CommandLineItemBuilder<T>
+
+    public class CommandLineItem<T>
     {
-        public CommandLineItem Item;
-        public T IsUrl()
+        public CommandLineItem(string path, string name, string help, ItemType itemType): this(path, name, help, itemType, ValueType.String)
         {
-            Item.ValueType = ValueType.Url;
-            var obj = (object)this;
-            return (T)obj;
         }
 
-        public T IsRequired()
+        public CommandLineItem(string path, string name, string help, ItemType itemType, ValueType valueType)
         {
-            Item.IsRequired = true;
-            var obj = (object)this;
-            return (T)obj;
+            Path = path;
+            Name = name;
+            Help = help;
+            ItemType = itemType;
+            ValueType = valueType;
+            DefaultValue = String.Empty;
+            if (typeof(T).IsEnum)
+                TypeOfEnum = typeof(T);
         }
 
-        public T IsBool()
-        {
-            Item.ValueType = ValueType.Bool;
-            var obj = (object)this;
-            return (T)obj;
-        }
+        internal List<CommandItem> _commands = new List<CommandItem>();
+        internal List<IItem> _flags = new List<IItem>();
+        internal List<IItem> _arguments = new List<IItem>();
 
-        public T IsInt()
-        {
-            Item.ValueType = ValueType.Int;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        internal void Action(Action<string> action)
-        {
-            Item.Action = action;
-        }
-
-        public T FileExists()
-        {
-            Item.FileShouldExist = true;
-            var obj = (object)this;
-            return (T)obj;
-
-        }
-
-        public T DirectoryExists()
-        {
-            Item.DirectoryShouldExist = true;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsIp()
-        {
-            Item.ValueType = ValueType.Ip;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsEnum(Type type)
-        {
-            Item.ValueType = ValueType.Enum;
-            Item.TypeOfEnum = type;
-
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsDuration()
-        {
-            Item.ValueType = ValueType.Duration;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsDate()
-        {
-            Item.ValueType = ValueType.Date;
-            var obj = (object)this;
-            return (T)obj;
-        }
+        public IEnumerable<CommandItem> Commands => _commands;
+        public IEnumerable<IItem> Flags => _flags;
+        public IEnumerable<IItem> Arguments => _arguments;
 
 
-        public T IsTcp()
-        {
-            Item.ValueType = ValueType.Tcp;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsFloat()
-        {
-            Item.ValueType = ValueType.Float;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T Short(char shortName)
-        {
-            Item.ShortName = shortName;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T IsHidden()
-        {
-            Item.IsHidden = true;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T Examples(params string[] examples)
-        {
-            Item.Examples = examples;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-        public T Default(string defaultValue)
-        {
-            Item.DefaultValue = defaultValue;
-            var obj = (object)this;
-            return (T)obj;
-        }
-
-
-
-        public override string ToString()
-        {
-            return Item?.Value;
-        }
-    }
-    public class ArgumentItem : CommandLineItemBuilder<ArgumentItem>
-    {
-        public ArgumentItem(string name, string help)
-        {
-            Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Argument };
-        }
-    }
-
-    public class FlagItem : CommandLineItemBuilder<FlagItem>
-    {
-        public FlagItem(string name, string help)
-        {
-            Item = new CommandLineItem { Name = name, Help = help, ItemType = ItemType.Flag };
-        }
-    }
-
-    public class CommandItem : CommandLineItemBuilder<CommandItem>
-    {
-        public CommandItem(string name, string help)
-        {
-            Item = new CommandLineItem
-            {
-                Name = name,
-                Help = help,
-                ItemType = ItemType.Command,
-            };
-        }
-        public CommandItem HintOptions(params string[] hints)
-        {
-            Item.HintOptions = hints;
-            return this;
-        }
-        public FlagItem Flag(string name, string help)
-        {
-            var result = new FlagItem(name, help);
-            Item.Flags.Add(result);
-            return result;
-        }
-        public ArgumentItem Argument(string name, string help)
-        {
-            var result = new ArgumentItem(name, help);
-            Item.Arguments.Add(result);
-            return result;
-        }
-        public CommandItem Command(string name, string help)
-        {
-            var result = new CommandItem(name, help);
-            Item.Commands.Add(result);
-            return result;
-        }
-
-        public CommandItem IsDefault()
-        {
-            Item.IsDefault = true;
-            return this;
-        }
-    }
-
-    public enum ItemType
-    {
-        None,
-        Command,
-        Argument,
-        Flag
-    }
-
-    public enum ValueType
-    {
-        String,
-        Bool,
-        Url,
-        Int,
-        Ip,
-        Enum,
-        Duration,
-        Tcp,
-        Float,
-        Date
-    }
-
-    public class CommandLineItem
-    {
-        public readonly List<CommandItem> Commands = new List<CommandItem>();
-        public readonly List<FlagItem> Flags = new List<FlagItem>();
-        public readonly List<ArgumentItem> Arguments = new List<ArgumentItem>();
         public ItemType ItemType = ItemType.None;
         public ValueType ValueType = ValueType.String;
-        public string Name;
-        public string Help;
-        public bool IsRequired;
-        public bool FileShouldExist;
-        public bool DirectoryShouldExist;
-        public Type TypeOfEnum;
-        public string DefaultValue = "";
-        public string Value;
-        public string[] HintOptions;
-        public bool IsDefault;
-        public char ShortName;
-        public Action<string> Action;
-        public bool IsHidden;
-        public bool IsSet;
-        public string[] Examples;
+        public string Path { get; internal set; }
+        public string Name { get; internal set; }
+        public string Help { get; internal set; }
+        public bool IsRequired { get; internal set; }
+        public bool FileShouldExist { get; internal set; }
+        public bool DirectoryShouldExist { get; internal set; }
+        public Type TypeOfEnum { get; internal set; }
+        public string DefaultValue { get; internal set; }
+        public T Value { get; internal set; }
+        public string[] HintOptions { get; internal set; }
+        public bool IsDefault { get; internal set; }
+        public char ShortName { get; internal set; }
+        public Action<T> Action { get; internal set; }
+        public bool IsHidden { get; internal set; }
+        public bool IsSet { get; internal set; }
+        public string[] Examples { get; internal set; }
+        public string ValueName { get; internal set; }
+
+        internal void ConvertAndSetValue(string value)
+        {
+            if (typeof(T) == typeof(string))
+            {
+                Value = (T)Convert.ChangeType(value, typeof(string));
+            }
+            else if (ValueType == ValueType.Bool)
+            {
+                if (bool.TryParse(value, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(bool));
+                else
+                    throw new ArgumentException($"{value} is not of type bool", nameof(value));
+            }
+            else if (ValueType == ValueType.Duration)
+            {
+                if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(TimeSpan));
+                else
+                    throw new ArgumentException($"'{value}' is not a duration (Days.Hours:Minutes:Seconds.Milli)", nameof(value));
+            }
+            else if (ValueType == ValueType.Enum)
+            {
+                try
+                {
+                    var resultEnum = Enum.Parse(TypeOfEnum, value);
+                    Value = (T)Convert.ChangeType(resultEnum, TypeOfEnum);
+                }
+                catch (ArgumentException)
+                {
+                    var values = string.Join(",", Enum.GetNames(TypeOfEnum));
+                    throw new ArgumentException($"'{value}' is not any for the values {values}", nameof(value));
+                }
+            }
+            else if (ValueType == ValueType.Float)
+            {
+                if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(float));
+                else
+                    throw new ArgumentException($"'{value}' is not a float", nameof(value));
+            }
+            else if (ValueType == ValueType.Int)
+            {
+                if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(int));
+                else
+                    throw new ArgumentException($"'{value}' is not an integer", nameof(value));
+            }
+            else if (ValueType == ValueType.Ip || ValueType == ValueType.Tcp || ValueType == ValueType.String)
+            {
+                Value = (T)Convert.ChangeType(value, typeof(string));
+            }
+            else if (ValueType == ValueType.Url)
+            {
+                if (typeof(T) == typeof(Uri))
+                {
+                    if (Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out var uriResult))
+                        Value = (T) Convert.ChangeType(uriResult, typeof(Uri));
+                    else
+                        throw new ArgumentException($"'{value}' is not a Uri", nameof(value));
+                }
+                else
+                {
+                    Value = (T)Convert.ChangeType(value, typeof(string));
+                }
+            }
+            else if (ValueType == ValueType.Date)
+            {
+                if (DateTime.TryParseExact(value, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(DateTime));
+                else
+                    throw new ArgumentException($"'{value}' is not a date", nameof(value));
+            }
+        }
     }
 }

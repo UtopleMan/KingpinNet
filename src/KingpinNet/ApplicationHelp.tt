@@ -1,50 +1,53 @@
-﻿<#@ template language="C#" #> 
+﻿<#@ template language="C#" #>   
 <#@ template visibility="internal" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
-usage:<#= " " + (Application?.Name ?? "")#><# if (Application.Flags.Count > 0) { #>[<flags>] <# } if (Application.Commands.Count > 0) { #><command> <# } if (Application.Arguments.Count > 1) { #>[<args> ...]<# } else if (Application.Arguments.Count == 1) { #>[<<#= Application.Arguments[0].Item.Name #>>]<# } #>
+usage:<#= " " + (Application?.Name ?? "")#><# if (Application.Flags.Count() > 0) { #>[<flags>] <# } if (Application.Commands.Count() > 0) { #><command> <# } if (Application.Arguments.Count() > 1) { #>[<args> ...]<# } else if (Application.Arguments.Count() == 1) { #>[<<#= Application.Arguments.First().Name #>>]<# } #>
 
 
 <#= Application.Help ?? ""#>
 
 <# if (Application.Flags != null) {
-    var flags = Application.Flags.Where(x => !x.Item.IsHidden).ToList();
+    var flags = Application.Flags.Where(x => !x.IsHidden).ToList();
 
     if (flags.Count != 0) {
-        var maxFlagLength = flags.Max(x => x.Item.Name.Length + x.Item.DefaultValue.Length) + 9;#>
+        var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;#>
 Flags:
 <#      foreach (var flag in flags) 
         {
             var defaultValue = "";
-            if (!string.IsNullOrWhiteSpace(flag.Item.DefaultValue))
-                defaultValue = "=" + flag.Item.DefaultValue;
+            if (!string.IsNullOrWhiteSpace(flag.DefaultValue))
+                defaultValue = "=" + flag.DefaultValue;
 
-            if (flag.Item.ShortName != 0) { #>
-  -<#=flag.Item.ShortName#>, --<#=flag.Item.Name#><#=defaultValue#>   <#=flag.Item.Help#> <#=GenerateExamples(flag.Item.Examples)#>
+            if (!string.IsNullOrWhiteSpace(flag.ValueName))
+                defaultValue = "=" + flag.ValueName;
+
+            if (flag.ShortName != 0) { #>
+  -<#=flag.ShortName#>, --<#=flag.Name#><#=defaultValue#>   <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
 <#          }
             else { #>
-      --<#= flag.Item.Name#><#=defaultValue#>   <#=flag.Item.Help#> <#=GenerateExamples(flag.Item.Examples)#>
+      --<#= flag.Name#><#=defaultValue#>   <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
 <#          }
         }
     }
 }#>
-<#if (Application.Arguments != null && Application.Arguments.Count != 0) { #>
+<#if (Application.Arguments != null && Application.Arguments.Count() != 0) { #>
 Args:
 <#
     var Arguments = new List<string>();
-    var maxArgLength = Application.Arguments.Max(x => x.Item.Name.Length) + 9;
+    var maxArgLength = Application.Arguments.Max(x => x.Name.Length) + 9;
 
     foreach (var arg in Application.Arguments)
     {
-        int spacing = maxArgLength - arg.Item.Name.Length;
-        string finalString = $"  [<{arg.Item.Name}>]".PadRight(spacing); #>
-<#=finalString#>   <#=arg.Item.Help#> <#=GenerateExamples(arg.Item.Examples)#>
+        int spacing = maxArgLength - arg.Name.Length;
+        string finalString = $"  [<{arg.Name}>]".PadRight(spacing); #>
+<#=finalString#>   <#=arg.Help#> <#=GenerateExamples(arg.Examples)#>
 <#  }
 }#>
-<#if (Application.Commands != null && Application.Commands.Count != 0) { #>
+<#if (Application.Commands != null && Application.Commands.Count() != 0) { #>
 Commands:
 <#
-    var finalCommands = new List<Tuple<string, CommandLineItem>>();
+    var finalCommands = new List<Tuple<string, CommandItem>>();
     RecurseCommands("", Application.Commands, finalCommands);
 
     var commandNameLength = finalCommands.Max(c => c.Item1.Length);

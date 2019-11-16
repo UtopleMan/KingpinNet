@@ -113,6 +113,8 @@ class Program
 ```
 
 ## Changelog
+ - 0.4
+   - Added parse method to the KingpinApplication class
  - 0.2
    - Added support for Linux newlines
    - Added documentation
