@@ -26,7 +26,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["command"], "run");
+            Assert.AreEqual(result["Command"], "run");
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["command"], "cmd1:cmd2");
+            Assert.AreEqual(result["Command"], "cmd1:cmd2");
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["command"], "run");
+            Assert.AreEqual(result["Command"], "run");
             Assert.AreEqual(result["run:argument"], "an_argument");
         }
         [Test]
@@ -77,7 +77,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["command"], "run");
+            Assert.AreEqual(result["Command"], "run");
             Assert.AreEqual(result["run:myflag"], "danish");
         }
 

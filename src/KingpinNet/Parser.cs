@@ -137,18 +137,18 @@ namespace KingpinNet
             {
                 if (IsCommand(_args[_currentItem], command.Commands, out CommandItem commandFound))
                 {
-                    MergeCommand("command", commandFound);
+                    MergeCommand("Command", commandFound);
                     _currentItem++;
                     CommandFound(commandFound);
                 }
                 else if (IsFlag(_args[_currentItem], command.Flags, out IItem flagFound))
                 {
-                    Merge("command", flagFound);
+                    Merge("Command", flagFound);
                     _currentItem++;
                 }
                 else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound))
                 {
-                    Merge("command", argumentFound);
+                    Merge("Command", argumentFound);
                     _currentItem++;
                 }
                 else
