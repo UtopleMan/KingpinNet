@@ -113,8 +113,10 @@ class Program
 ```
 
 ## Changelog
+ - 0.6
+  - Bug fixes    
  - 0.5
-   - Bug fixes
+  - Bug fixes
  - 0.4
    - Added parse method to the KingpinApplication class
  - 0.2
