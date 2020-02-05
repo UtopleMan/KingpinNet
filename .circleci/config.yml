@@ -3,7 +3,7 @@ version: 2.1
 executors:
   dotnetcore:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     working_directory: /source
 
 jobs:
