@@ -38,11 +38,12 @@ namespace KingpinNet
             SetDefaults();
 
             if (_args.Count > 0)
-                while (_currentItem<_args.Count)
+                while (_currentItem < _args.Count)
                 {
                     if (IsCommand(_args[_currentItem], _commands, out CommandItem commandFound))
                     {
                         AddCommand("Command", commandFound);
+
                         _currentItem++;
                         CommandFound(commandFound);
                     }
@@ -156,6 +157,7 @@ namespace KingpinNet
 
         private void MergeCommand(string name, CommandItem item)
         {
+
             item.IsSet = true;
             _result[name] = _result[name] + ":" + item.Name;
             CheckForDefaultValues(_result[name], item.Flags);
@@ -208,7 +210,10 @@ namespace KingpinNet
             var value = item.StringValue;
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 value = item.DefaultValue;
-            _result.Add(item.Name, value);
+            if (_result.ContainsKey(item.Name))
+                _result[item.Name] = value;
+            else
+                _result.Add(item.Name, value);
         }
 
         private bool IsArgument(string arg, IEnumerable<IItem> arguments,
@@ -217,7 +222,8 @@ namespace KingpinNet
             item = null;
             var errors = new List<string>();
 
-            if (arguments.Any()) {
+            if (arguments.Any())
+            {
                 var argumentsFound = arguments.Where(a => IsValidArgument(a, arg, errors)).ToList();
                 if (argumentsFound.Count() > 1)
                     throw new ParseException("Found multiple arguments");
@@ -248,6 +254,7 @@ namespace KingpinNet
             item.Action?.Invoke(arg);
             return parts[1];
         }
+
 
         private bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
         {
@@ -286,10 +293,10 @@ namespace KingpinNet
 
         private (bool success, string errorMessage) IsValidItem(IItem item, string argument)
         {
-
             if (item.ValueType == ValueType.Bool)
             {
                 if (bool.TryParse(argument, out _))
+
                     return (true, "");
                 else
                     return (false, $"'{argument}' is not a boolean (true/false)");
@@ -324,6 +331,7 @@ namespace KingpinNet
                 }
                 catch (ArgumentException)
                 {
+
                     var values = string.Join(",", Enum.GetNames(item.TypeOfEnum));
                     return (false, $"'{argument}' is not any for the values {values}");
                 }
