@@ -424,7 +424,7 @@ namespace KingpinNet
                 if (flagName.Length > 2)
                     throw new ParseException("Short name arguments are only one character " + flagName);
                 var foundFlags = flags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
-                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
                     IsValidFlag(f, arg, errors)));
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg);

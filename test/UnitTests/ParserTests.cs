@@ -150,16 +150,16 @@ namespace Tests
         public void ParseGlobalShortFlag()
         {
             // Arrange
-            string[] args = new[] { "-h=help" };
+            string[] args = new[] { "-i=help" };
             var application = new KingpinApplication();
-            application.Flag("help", "This is the help").Short('h');
+            application.Flag("ielp", "This is the help").Short('i');
 
             // Act
             var subject = new Parser(application);
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["help"], "help");
+            Assert.AreEqual(result["ielp"], "help");
         }
 
         [Test]
