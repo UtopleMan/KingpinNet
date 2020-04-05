@@ -113,6 +113,8 @@ class Program
 ```
 
 ## Changelog
+ - 0.6
+   - Bug fixes
  - 0.5
    - Bug fixes
  - 0.4

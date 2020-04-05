@@ -42,11 +42,11 @@ namespace KingpinNet
                 {
                     if (IsCommand(_args[_currentItem], _commands, out CommandItem commandFound))
                     {
-                        AddCommand("command", commandFound);
+                        AddCommand("Command", commandFound);
                         _currentItem++;
                         CommandFound(commandFound);
                     }
-                    else if (IsFlag(_args[_currentItem], _globalFlags, out IItem flagFound))
+                    else if (IsFlag(_args[_currentItem], new List<IItem>(), _globalFlags, out IItem flagFound))
                     {
                         Add(flagFound);
                         _currentItem++;
@@ -131,22 +131,22 @@ namespace KingpinNet
 
         private void CommandFound(CommandItem command)
         {
-            SetDefaults();
+            //SetDefaults();
             while (_currentItem < _args.Count)
             {
                 if (IsCommand(_args[_currentItem], command.Commands, out CommandItem commandFound))
                 {
-                    MergeCommand("command", commandFound);
+                    MergeCommand("Command", commandFound);
                     _currentItem++;
                     CommandFound(commandFound);
-                } else if (IsFlag(_args[_currentItem], command.Flags, out IItem flagFound))
+                } else if (IsFlag(_args[_currentItem], command.Flags, _globalFlags, out IItem flagFound))
                 {
-                    Merge("command", flagFound);
+                    Merge("Command", flagFound);
                     _currentItem++;
                 }
                 else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound))
                 {
-                    Merge("command", argumentFound);
+                    Merge("Command", argumentFound);
                     _currentItem++;
                 }
                 else
@@ -181,7 +181,25 @@ namespace KingpinNet
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 value = item.DefaultValue;
 
-            _result.Add(_result[name] + ":" + item.Name, value);
+            AddOrUpdateResult(name, value, item);
+        }
+
+        private void AddOrUpdateResult(string name, string value, IItem item)
+        {
+            if (_globalFlags.Contains(item) || _globalArguments.Contains(item))
+            {
+                if (_result.ContainsKey(item.Name))
+                    _result[item.Name] = value;
+                else
+                    _result.Add(item.Name, value);
+            }
+            else
+            {
+                if (_result.ContainsKey(_result[name] + ":" + item.Name))
+                    _result[_result[name] + ":" + item.Name] = value;
+                else
+                    _result.Add(_result[name] + ":" + item.Name, value);
+            }
         }
 
         private void Add(IItem item)
@@ -369,19 +387,21 @@ namespace KingpinNet
             return match.Success;
         }
 
-        private bool IsFlag(string arg, IEnumerable<IItem> flags, out IItem item)
+        private bool IsFlag(string arg, IEnumerable<IItem> flags, IEnumerable<IItem> globalFlags, out IItem item)
         {
             item = null;
 
-            if (flags == null || flags.Count() == 0)
+            if ((flags == null || flags.Count() == 0) && (globalFlags == null || globalFlags.Count() == 0))
                 return false;
 
             var errors = new List<string>();
 
             if (arg.StartsWith("--"))
             {
-                var foundFlags = flags.Where(f => arg.Replace("--", "").ToLower().StartsWith(f.Name.ToLower()) &&
-                    IsValidFlag(f, arg, errors)).ToArray();
+                var foundFlags = flags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                    IsValidFlag(f, arg, errors)).ToList();
+                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                    IsValidFlag(f, arg, errors)));
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg, errors);
                 if (foundFlags.Count() > 1)
@@ -392,10 +412,12 @@ namespace KingpinNet
             }
             if (arg.StartsWith("-"))
             {
-                var parts = arg.Split('=');
-                if (parts[0].Length > 2)
-                    throw new ParseException("Short name arguments are only one character " + parts[0]);
-                var foundFlags = flags.Where(f => f.ShortName == parts[0][1] && IsValidFlag(f, arg, errors)).ToArray();
+                var flagName = GetFlagName(arg);
+                if (flagName.Length > 2)
+                    throw new ParseException("Short name arguments are only one character " + flagName);
+                var foundFlags = flags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
+                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                    IsValidFlag(f, arg, errors)));
                 if (!foundFlags.Any())
                     throw new ParseException("Illegal flag " + arg);
                 if (foundFlags.Count() > 1)
@@ -407,6 +429,11 @@ namespace KingpinNet
             return false;
         }
 
+        private string GetFlagName(string arg)
+        {
+            var flagName = arg.Replace("-", "").Split('=');
+            return flagName[0].ToLower();
+        }
 
         private bool IsCommand(string arg, IEnumerable<CommandItem> commands, out CommandItem commandFound)
         {
