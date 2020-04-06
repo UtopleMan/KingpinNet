@@ -427,7 +427,7 @@ namespace KingpinNet
                 foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
                     IsValidFlag(f, arg, errors)));
                 if (!foundFlags.Any())
-                    throw new ParseException("Illegal flag " + arg);
+                    throw new ParseException("Illegal flag " + arg, errors);
                 if (foundFlags.Count() > 1)
                     throw new ParseException("Found multiple flags with same name" + arg);
                 item = foundFlags.First();

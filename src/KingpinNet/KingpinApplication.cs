@@ -33,6 +33,10 @@ namespace KingpinNet
         {
             var helpGenerator = new HelpGenerator(this);
             helpGenerator.Generate(Console.Out, _applicationHelp);
+            if (ExitWhenHelpIsShown)
+            {
+                Environment.Exit(0);
+            }
         }
         private void GenerateCommandHelp(CommandItem command)
         {
@@ -121,13 +125,16 @@ namespace KingpinNet
             }
             catch (ParseException exception)
             {
+                Console.WriteLine(exception.Message);
+                foreach (var error in exception.Errors)
+                    Console.WriteLine($"   {error}");
+
                 if (HelpShownOnParsingErrors)
                 {
-                    Console.WriteLine(exception.Message);
-                    foreach (var error in exception.Errors)
-                        Console.WriteLine($"   {error}");
                     GenerateHelp();
                 }
+                if (ExitOnParseErrors)
+                    Environment.Exit(-1);
                 throw;
             }
         }
