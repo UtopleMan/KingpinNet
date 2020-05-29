@@ -1,16 +1,20 @@
 using KingpinNet;
+using KingpinNet.UI;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.IO;
 
 namespace Tests
 {
-
     public class ParserTests
     {
+        private Mock<IConsole> consoleMock;
+
         [SetUp]
         public void Setup()
         {
+            consoleMock = new Mock<IConsole>();
         }
 
         [Test]
@@ -18,7 +22,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "run" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Command("run", "This is a command");
 
             // Act
@@ -34,7 +38,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "cmd1", "cmd2" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
 
@@ -51,7 +55,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "run", "an_argument" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("run", "This is a command");
             command.Argument("argument", "This is an argument");
 
@@ -68,7 +72,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "run", "--myflag=danish" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("run", "This is a command");
             command.Flag("myflag", "This is the flag of the person");
 
@@ -87,7 +91,7 @@ namespace Tests
 
             // Arrange
             string[] args = new[] { "--myflag=danish" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("myflag", "This is the flag of the person");
 
             // Act
@@ -104,7 +108,7 @@ namespace Tests
 
             // Arrange
             string[] args = new[] { "--myflag" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("myflag", "This is the flag of the person").IsBool();
 
             // Act
@@ -121,7 +125,7 @@ namespace Tests
 
             // Arrange
             string[] args = new[] { "--myflag" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("myflag", "This is the flag of the person");
 
             // Act
@@ -135,7 +139,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "hurray" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Argument("argument", "This is an argument");
 
             // Act
@@ -151,7 +155,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "-i=help" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("ielp", "This is the help").Short('i');
 
             // Act
@@ -167,7 +171,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new string[0];
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("required", "This is the required flag").IsRequired();
 
             // Act
@@ -180,7 +184,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--bool=true" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<bool>("bool", "");
 
             // Act
@@ -196,7 +200,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--bool=true" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("bool", "").IsBool();
 
             // Act
@@ -212,7 +216,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--bool=notbool" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("bool", "").IsBool();
 
             // Act
@@ -225,7 +229,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--time=1:00:00" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<TimeSpan>("time", "");
 
             // Act
@@ -241,7 +245,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--time=1:00:00" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("time", "").IsDuration();
 
             // Act
@@ -257,7 +261,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--time=1.1:00:00" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("time", "").IsDuration();
 
             // Act
@@ -274,7 +278,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--time=notduration" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("time", "").IsDuration();
 
             // Act
@@ -292,7 +296,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=NotSoChecked" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<CheckMe>("flag", "");
 
             // Act
@@ -307,7 +311,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=NotSoChecked" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsEnum(typeof(CheckMe));
 
             // Act
@@ -323,7 +327,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=CheckedXXX" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsEnum(typeof(CheckMe));
 
             // Act
@@ -336,7 +340,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=1.000" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<float>("flag", "");
 
             // Act
@@ -352,7 +356,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=1.000" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsFloat();
 
             // Act
@@ -368,7 +372,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=x1.0x" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsFloat();
 
             // Act
@@ -381,7 +385,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=1" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<int>("flag", "");
 
             // Act
@@ -397,7 +401,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=1" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsInt();
 
             // Act
@@ -413,7 +417,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=x1x" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsInt();
 
             // Act
@@ -426,7 +430,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=x1x" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsInt();
 
             // Act
@@ -448,7 +452,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=http://www.google.com" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag<Uri>("flag", "");
 
             // Act
@@ -465,7 +469,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=http://www.google.com" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsUrl();
 
             // Act
@@ -481,7 +485,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=http::\\www.google.com_" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsUrl();
 
             // Act
@@ -494,7 +498,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=123.123.123.123" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsIp();
 
             // Act
@@ -510,7 +514,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=123.123.123.xyz" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsIp();
 
             // Act
@@ -522,7 +526,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=myfancyhostname123:1234" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsTcp();
 
             // Act
@@ -537,7 +541,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--flag=xyz:" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var flag = application.Flag("flag", "").IsTcp();
 
             // Act
@@ -550,7 +554,7 @@ namespace Tests
             // Arrange
             string[] args = new string[0];
 
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "").IsTcp().Default("myfancyhostname123:1234");
 
             // Act
@@ -566,7 +570,7 @@ namespace Tests
         {
             // Arrange
             string[] args = {"cmd1", "cmd2"};
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             var cmd2 = command.Command("cmd2", "command2 help");
             cmd2.Flag("flg", "").Default("1234");
@@ -587,7 +591,7 @@ namespace Tests
             // Arrange
             string directory = Path.GetTempPath();
             string[] args = new[] { directory };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Argument("directory", "").DirectoryExists();
 
             // Act
@@ -604,7 +608,7 @@ namespace Tests
             // Arrange
             string directory = Path.GetTempPath();
             string[] args = new[] { directory +"\\notgonnaexist" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var arg = application.Argument("directory", "").DirectoryExists();
 
             // Act
@@ -618,7 +622,7 @@ namespace Tests
             string fileName = Path.GetTempPath() + Guid.NewGuid().ToString() + ".tmp";
             File.WriteAllText(fileName, "hej");
             string[] args = new[] { fileName };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Argument("file", "").FileExists();
 
             // Act
@@ -634,7 +638,7 @@ namespace Tests
         {
             // Arrange
             string fileName = Path.GetTempPath() + Guid.NewGuid().ToString() + ".tmp";
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             string[] args = new[] { fileName };
             var arg = application.Argument("file", "").FileExists();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KingpinNet.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace KingpinNet
 {
     public class KingpinApplication
     {
+        private readonly IConsole console;
         private List<CommandItem> _commands = new List<CommandItem>();
         private List<IItem> _flags = new List<IItem>();
         private List<IItem> _arguments = new List<IItem>();
@@ -16,6 +18,7 @@ namespace KingpinNet
 
         private IHelpTemplate _applicationHelp;
         private IHelpTemplate _commandHelp;
+
         public string Name { get; internal set; }
         public string Help { get; internal set; }
         public string VersionString { get; private set; }
@@ -23,6 +26,10 @@ namespace KingpinNet
         public bool HelpShownOnParsingErrors { get; private set; }
         public bool ExitOnParseErrors { get; private set; }
         public bool ExitWhenHelpIsShown { get; internal set; }
+        public KingpinApplication(IConsole console)
+        {
+            this.console = console;
+        }
         public void Initialize()
         {
             _applicationHelp = new ApplicationHelp();
@@ -32,7 +39,7 @@ namespace KingpinNet
         public void GenerateHelp()
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(Console.Out, _applicationHelp);
+            helpGenerator.Generate(console.Out, _applicationHelp);
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -41,7 +48,7 @@ namespace KingpinNet
         private void GenerateCommandHelp(CommandItem command)
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(command, Console.Out, _commandHelp);
+            helpGenerator.Generate(command, console.Out, _commandHelp);
         }
 
         public CommandItem Command(string name, string help)
@@ -125,9 +132,9 @@ namespace KingpinNet
             }
             catch (ParseException exception)
             {
-                Console.WriteLine(exception.Message);
+                console.WriteLine(exception.Message);
                 foreach (var error in exception.Errors)
-                    Console.WriteLine($"   {error}");
+                    console.WriteLine($"   {error}");
 
                 if (HelpShownOnParsingErrors)
                 {

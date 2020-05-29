@@ -1,8 +1,9 @@
-﻿using System;
-using KingpinNet;
+﻿using KingpinNet;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
+using KingpinNet.UI;
+using Moq;
 
 namespace Tests
 {
@@ -12,16 +13,20 @@ namespace Tests
     }
     public class HelpGeneratorTests
     {
+        private Mock<IConsole> consoleMock;
+
         [SetUp]
         public void Setup()
         {
+            consoleMock = new Mock<IConsole>();
+            consoleMock.SetupGet(x => x.Out).Returns(new StringWriter());
         }
 
         [Test]
         public void WriteEmpty()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
 
             // Act
             var subject = new HelpGenerator(application);
@@ -36,7 +41,7 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--help" };
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Initialize();
             application.Command("run", "This is a command");
 
@@ -53,12 +58,16 @@ namespace Tests
         {
             // Arrange
             string[] args = new[] { "--integer=x1x" };
+
+            var console = new KingpinNet.UI.Console();
+
+            var application = new KingpinApplication(console);
             Kingpin.ShowHelpOnParsingErrors();
 
             Kingpin.Command("integer", "This is an int").IsInt();
 
             StringWriter sw = new StringWriter();
-            Console.SetOut(sw);
+            console.SetOut(sw);
             // Act
             try
             {
@@ -67,7 +76,7 @@ namespace Tests
             catch { }
             finally
             {
-                Console.Out.Close();
+                console.Out.Close();
             }
 
             // Assert
@@ -79,7 +88,7 @@ namespace Tests
         public void WriteApplictaionName()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.ApplicationHelp("testapp.exe");
             // Act
             var subject = new HelpGenerator(application);
@@ -93,7 +102,7 @@ namespace Tests
         public void WriteApplictaionHelp()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.ApplicationHelp("This is the glorious test app");
             // Act
             var subject = new HelpGenerator(application);
@@ -108,7 +117,7 @@ namespace Tests
         public void WriteGlobalFlag()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "flag help");
             // Act
             var subject = new HelpGenerator(application);
@@ -124,7 +133,7 @@ namespace Tests
         public void WriteGlobalFlagWithShortName()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag", "flag help").Short('f');
             // Act
             var subject = new HelpGenerator(application);
@@ -139,7 +148,7 @@ namespace Tests
         public void WriteGlobalFlags()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Flag("flag1", "flag1 help").Short('f');
             application.Flag("flag2", "flag2 help").Short('g');
             // Act
@@ -158,7 +167,7 @@ namespace Tests
         public void WriteGlobalArgument()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Argument("arg", "arg help");
             // Act
             var subject = new HelpGenerator(application);
@@ -175,7 +184,7 @@ namespace Tests
         public void WriteGlobalArguments()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Argument("arg1", "arg1 help");
             application.Argument("arg2", "arg2 help");
             // Act
@@ -194,7 +203,7 @@ namespace Tests
         public void WriteGlobalCommand()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Command("cmd", "command help");
             // Act
             var subject = new HelpGenerator(application);
@@ -212,7 +221,7 @@ namespace Tests
         public void WriteGlobalCommands()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             application.Command("cmd1", "command1 help");
             application.Command("cmd2", "command2 help");
             // Act
@@ -232,7 +241,7 @@ namespace Tests
         public void WriteNestedCommands()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
             // Act
@@ -251,7 +260,7 @@ namespace Tests
         public void WriteGlobalCommandWithFlag()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Flag("flag", "flag help");
             // Act
@@ -270,7 +279,7 @@ namespace Tests
         public void WriteGlobalCommandWithFlags()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Flag("flag1", "flag1 help");
             command.Flag("flag2", "flag2 help");
@@ -290,7 +299,7 @@ namespace Tests
         public void WriteGlobalCommandWithArguments()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Argument("arg1", "arg1 help");
             command.Argument("arg2", "arg2 help");
@@ -310,7 +319,7 @@ namespace Tests
         public void WriteNestedCommandWithGlobalCommandWithAFlag()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Flag("flag", "flag help");
             command.Command("cmd2", "command2 help");
@@ -332,7 +341,7 @@ namespace Tests
         public void WriteHelpForNestedCommand()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
             // Act
@@ -352,7 +361,7 @@ namespace Tests
         public void WriteGlobalCommandWithFlagAndExamples()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Flag("flag", "flag help").SetExamples("1", "2");
             // Act
@@ -371,7 +380,7 @@ namespace Tests
         public void WriteGlobalCommandWithFlagAndDefaultValue()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Flag("flag", "flag help").Default("1234.5678");
             // Act
@@ -390,7 +399,7 @@ namespace Tests
         public void WriteFlagWithValueName()
         {
             // Arrange
-            var application = new KingpinApplication();
+            var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd", "command help");
             command.Flag("flag", "flag help").ValueName("!name!");
             // Act

@@ -5,7 +5,7 @@ namespace KingpinNet
 {
     public class Kingpin
     {
-        private static readonly KingpinApplication Application = new KingpinApplication();
+        private static readonly KingpinApplication Application = new KingpinApplication(new UI.Console());
 
         static Kingpin()
         {
