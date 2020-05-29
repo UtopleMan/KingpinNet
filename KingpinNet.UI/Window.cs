@@ -2,6 +2,7 @@
 
 namespace KingpinNet.UI
 {
+    // https://en.wikipedia.org/wiki/Box-drawing_character
     public class Window : WidgetParentBase
     {
         private WindowConfig config = new WindowConfig

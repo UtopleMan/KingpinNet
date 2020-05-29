@@ -4,27 +4,6 @@ using System.Text;
 
 namespace KingpinNet.UI
 {
-    /*
- * https://en.wikipedia.org/wiki/Box-drawing_character
- * 
-var bar_styles = [
-'▁▂▃▄▅▆▇█',
-'⣀⣄⣤⣦⣶⣷⣿',
-'⣀⣄⣆⣇⣧⣷⣿',
-'○◔◐◕⬤',
-'□◱◧▣■',
-'□◱▨▩■',
-'□◱▥▦■',
-'░▒▓█',
-'░█',
-'⬜⬛',
-'▱▰',
-'▭◼',
-'▯▮',
-'◯⬤',
-'⚪⚫',
-];
- */
     public class Console : IConsole
     {
         public Console()

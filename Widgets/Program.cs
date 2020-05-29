@@ -34,7 +34,7 @@ namespace Widgets
 
             }
 
-            var spinner = new Spinner(console);
+            var spinner = new Spinner(console, config => { config.Style = new Fade(); } );
 
             for (var i = 0; i < 100; i++)
             {

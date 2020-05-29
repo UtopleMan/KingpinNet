@@ -4,10 +4,9 @@ namespace KingpinNet.UI
 {
     public class Spinner : WidgetBase
     {
-        const string twirl = "-\\|/";
         private int current = 0;
         private SpinnerConfig config = new SpinnerConfig {
-            Style = new Twirl(),
+            Style = new Spin(),
             UseColor = false,
             Foreground = ConsoleColor.White,
             Background = ConsoleColor.Black
@@ -50,9 +49,9 @@ namespace KingpinNet.UI
         public ConsoleColor Background { get; set; }
     }
 
-    public class Twirl : ISpinnerStyleContainer
+    public class Fade : ISpinnerStyleContainer
     {
-        public char[] Items => new[] { '-', '\\', '|', '/' };
+        public char[] Items => new[] { '░', '▒', '▓', '█', '▓', '▒', '░', ' ' };
     }
     public class Spin : ISpinnerStyleContainer
     {
