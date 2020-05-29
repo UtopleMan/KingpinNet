@@ -171,7 +171,7 @@ namespace KingpinNet
             return this;
         }
 
-        public CommandItem ValueName(string valueName)
+        public new CommandItem ValueName(string valueName)
         {
             Item.ValueName = valueName;
             return this;
