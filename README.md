@@ -114,11 +114,14 @@ class Program
 
 ## Changelog
  - 0.7
-  - Added KingpinNet.UI and the first widgets
+   - Added KingpinNet.UI
+   - Added ProgressBar and Spinner widgets
+   - Removed all references to Microsofts static Console object and used the mockable IConsole interface instead
+   - Updated tests
  - 0.6
-  - Bug fixes    
+   - Bug fixes    
  - 0.5
-  - Bug fixes
+   - Bug fixes
  - 0.4
    - Added parse method to the KingpinApplication class
  - 0.2
