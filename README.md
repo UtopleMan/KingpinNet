@@ -113,6 +113,8 @@ class Program
 ```
 
 ## Changelog
+ - 0.7
+  - Added KingpinNet.UI and the first widgets
  - 0.6
   - Bug fixes    
  - 0.5

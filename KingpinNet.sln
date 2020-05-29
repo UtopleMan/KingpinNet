@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.539
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet", "src\KingpinNet\KingpinNet.csproj", "{E66FCE03-E13B-4D92-94AB-282645AABEF7}"
 EndProject
@@ -19,7 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping", "Examples\Ping\Ping.csproj", "{C9F8FEA1-B227-436D-B36A-861AD94FF53E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curl", "Examples\Curl\Curl.csproj", "{B62DEBE8-D795-423A-B277-1DCC239736FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Curl", "Examples\Curl\Curl.csproj", "{B62DEBE8-D795-423A-B277-1DCC239736FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingpinNet.UI", "KingpinNet.UI\KingpinNet.UI.csproj", "{A07ADB80-D8D7-47AF-8CC2-F9255ED8D319}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A07ADB80-D8D7-47AF-8CC2-F9255ED8D319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A07ADB80-D8D7-47AF-8CC2-F9255ED8D319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A07ADB80-D8D7-47AF-8CC2-F9255ED8D319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A07ADB80-D8D7-47AF-8CC2-F9255ED8D319}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

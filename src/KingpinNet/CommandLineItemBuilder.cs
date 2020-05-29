@@ -21,7 +21,7 @@ namespace KingpinNet
         {
         }
 
-        public FlagItem<T> ValueName(string valueName)
+        public new FlagItem<T> ValueName(string valueName)
         {
             Item.ValueName = valueName;
             return this;
