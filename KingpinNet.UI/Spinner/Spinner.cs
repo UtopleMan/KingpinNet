@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KingpinNet.UI
+namespace KingpinNet.UI.Spinner
 {
     public class Spinner : WidgetBase
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KingpinNet.UI
+namespace KingpinNet.UI.ProgressBar
 {
 /*
 var bar_styles = [

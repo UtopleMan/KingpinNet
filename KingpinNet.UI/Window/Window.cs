@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KingpinNet.UI
+namespace KingpinNet.UI.Window
 {
 /*
 88        88                                     88              

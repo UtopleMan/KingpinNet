@@ -1,4 +1,8 @@
 ﻿using KingpinNet.UI;
+using KingpinNet.UI.DataTable;
+using KingpinNet.UI.ProgressBar;
+using KingpinNet.UI.Spinner;
+using KingpinNet.UI.Window;
 using System;
 using System.Threading;
 
@@ -12,6 +16,18 @@ namespace Widgets
             console.BeginRendering();
             try
             {
+                var data = new[] {
+                    new { Column1 = 1234.56, Column2 = "23", ColumnWithLongLength = ConsoleColor.Cyan },
+                    new { Column1 = 1234.56, Column2 = "wsergfwer", ColumnWithLongLength = ConsoleColor.Blue },
+                    new { Column1 = 1234.56, Column2 = "ref", ColumnWithLongLength = ConsoleColor.DarkCyan },
+                    new { Column1 = 1234.5656, Column2 = "234523", ColumnWithLongLength = ConsoleColor.DarkYellow },
+                    new { Column1 = 1234.56, Column2 = "ferfgbfgh", ColumnWithLongLength = ConsoleColor.Blue },
+                    new { Column1 = 1234.56, Column2 = "&/(&%/¤", ColumnWithLongLength = ConsoleColor.DarkGreen }
+                };
+
+                var dataTable = new DataTable(console, config => { });
+                dataTable.Update(data);
+
                 var window = new Window(console, config =>
                 {
                     config.Width = 50;
@@ -45,6 +61,8 @@ namespace Widgets
                     spinner.Render();
                     Thread.Sleep(100);
                 }
+
+
             }
             finally
             {
