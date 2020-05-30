@@ -8,11 +8,9 @@ namespace KingpinNet.UI
         private SpinnerConfig config = new SpinnerConfig {
             Style = new Spin(),
             UseColor = false,
-            Foreground = ConsoleColor.White,
-            Background = ConsoleColor.Black
+            BackgroundColor = ConsoleColor.Black,
+            ForegroundColor = ConsoleColor.Gray
         };
-        private ConsoleColor currentForegroundColor;
-        private ConsoleColor currentBackgroundColor;
 
         public Spinner(IConsole console, Action<SpinnerConfig> configure = null) : base(console)
         {
@@ -21,21 +19,7 @@ namespace KingpinNet.UI
         }
         protected override void Draw()
         {
-            var currentPos = console.CursorLeft;
-            if (config.UseColor)
-            {
-                currentForegroundColor = console.ForegroundColor;
-                currentBackgroundColor = console.BackgroundColor;
-            }
-
             console.Write(config.Style.Items[current++ % config.Style.Items.Length]);
-            if (config.UseColor)
-            {
-                console.ForegroundColor = currentForegroundColor;
-                console.BackgroundColor = currentBackgroundColor;
-            }
-            console.CursorLeft = currentPos;
-            console.CursorVisible = true;
         }
     }
     public class SpinnerConfig : IConfigBase
@@ -44,9 +28,9 @@ namespace KingpinNet.UI
 
         public bool UseColor { get; set; }
 
-        public ConsoleColor Foreground { get; set; }
+        public ConsoleColor ForegroundColor { get; set; }
 
-        public ConsoleColor Background { get; set; }
+        public ConsoleColor BackgroundColor { get; set; }
     }
 
     public class Fade : ISpinnerStyleContainer

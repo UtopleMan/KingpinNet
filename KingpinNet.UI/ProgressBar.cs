@@ -27,9 +27,11 @@ var bar_styles = [
         private int lastWhole = -1;
         private ProgressBarConfig config = new ProgressBarConfig
         {
-            UseColor = false,
             BarWidth = 30,
-            Style = new Boxes()
+            Style = new Boxes(),
+            UseColor = false,
+            BackgroundColor = ConsoleColor.Black,
+            ForegroundColor = ConsoleColor.Gray
         };
 
         public ProgressBar(IConsole console, Action<ProgressBarConfig> configure = null) : base(console)
@@ -91,8 +93,8 @@ var bar_styles = [
         public int ItemCount { get; set; }
         public int BarWidth { get; set; }
         public bool UseColor { get; set; }
-        public ConsoleColor Foreground { get; set; }
-        public ConsoleColor Background { get; set; }
+        public ConsoleColor ForegroundColor { get; set; }
+        public ConsoleColor BackgroundColor { get; set; }
         public IProgressBarStyleContainer Style { get; set; }
     }
 

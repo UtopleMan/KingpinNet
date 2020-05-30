@@ -9,37 +9,46 @@ namespace Widgets
         static void Main(string[] args)
         {
             var console = new KingpinNet.UI.Console();
-            var window = new Window(console, config =>
+            console.BeginRendering();
+            try
             {
-                config.Width = 50;
-                config.Height = 15;
-                config.Title = "Hej med dig";
-                config.UseColor = true;
-                config.Background = ConsoleColor.Blue;
-                config.Foreground = ConsoleColor.Cyan;
-                config.Style = new DoubleLine();
-            });
-            window.Render();
+                var window = new Window(console, config =>
+                {
+                    config.Width = 50;
+                    config.Height = 15;
+                    config.Title = "Hej med dig";
+                    config.TitleColor = ConsoleColor.White;
+                    config.UseColor = true;
+                    config.BackgroundColor = ConsoleColor.Blue;
+                    config.ForegroundColor = ConsoleColor.Cyan;
+                    config.Style = new Fat();
+                });
+                window.Render();
 
-            var progressBar = new ProgressBar(console, config =>
-            {
-                config.ItemCount = 100;
-                config.Style = new GreyScale();
-            });
+                var progressBar = new ProgressBar(console, config =>
+                {
+                    config.ItemCount = 100;
+                    config.Style = new GreyScale();
+                });
 
-            for (var i = 0; i < 100; i++)
-            {
-                progressBar.Increment();
-                Thread.Sleep(100);
+                for (var i = 0; i < 100; i++)
+                {
+                    progressBar.Increment();
+                    Thread.Sleep(100);
 
+                }
+
+                var spinner = new Spinner(console, config => { config.Style = new Spin(); });
+
+                for (var i = 0; i < 100; i++)
+                {
+                    spinner.Render();
+                    Thread.Sleep(100);
+                }
             }
-
-            var spinner = new Spinner(console, config => { config.Style = new Fade(); } );
-
-            for (var i = 0; i < 100; i++)
+            finally
             {
-                spinner.Render();
-                Thread.Sleep(100);
+                console.EndRendering();
             }
             console.ReadLine();
         }

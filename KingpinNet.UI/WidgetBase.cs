@@ -8,6 +8,8 @@ namespace KingpinNet.UI
         private IConfigBase config;
         private ConsoleColor currentForeground;
         private ConsoleColor currentBackground;
+        private int currentLeft;
+        private int currentTop;
 
         public WidgetBase(IConsole console)
         {
@@ -20,16 +22,15 @@ namespace KingpinNet.UI
         }
         public void Render()
         {
-            var currentLeft = console.CursorLeft;
-            var currentTop = console.CursorTop;
-            console.CursorVisible = false;
-
+            console.BeginRendering();
+            currentLeft = console.CursorLeft;
+            currentTop = console.CursorTop;
             if (config.UseColor)
             {
                 currentForeground = console.ForegroundColor;
                 currentBackground = console.BackgroundColor;
-                console.ForegroundColor = config.Foreground;
-                console.BackgroundColor = config.Background;
+                console.ForegroundColor = config.ForegroundColor;
+                console.BackgroundColor = config.BackgroundColor;
             }
             try
             {
@@ -43,8 +44,7 @@ namespace KingpinNet.UI
                     console.BackgroundColor = currentBackground;
                 }
                 console.SetCursorPosition(currentLeft, currentTop);
-                console.CursorVisible = true;
-
+                console.EndRendering();
             }
         }
 
@@ -54,7 +54,7 @@ namespace KingpinNet.UI
     public interface IConfigBase
     {
         public bool UseColor { get;  }
-        public ConsoleColor Foreground { get; }
-        public ConsoleColor Background { get; }
+        public ConsoleColor ForegroundColor { get; }
+        public ConsoleColor BackgroundColor { get; }
     }
 }

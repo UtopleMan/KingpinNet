@@ -17,6 +17,9 @@ namespace KingpinNet.UI
         TextWriter Error { get; }
         ConsoleColor ForegroundColor { get; set; }
         TextReader In { get; }
+
+        void BeginRendering();
+
         Encoding InputEncoding { get; set; }
         bool IsErrorRedirected { get; }
         int WindowWidth { get; set; }
@@ -25,6 +28,9 @@ namespace KingpinNet.UI
         int LargestWindowHeight { get; }
         int LargestWindowWidth { get; }
         bool NumberLock { get; }
+
+        void EndRendering();
+
         TextWriter Out { get; }
         Encoding OutputEncoding { get; set; }
         string Title { get; set; }

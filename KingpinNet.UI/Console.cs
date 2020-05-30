@@ -1,51 +1,40 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace KingpinNet.UI
 {
     public class Console : IConsole
     {
+        private int renderCount;
         public Console()
         {
+            renderCount = 0;
             System.Console.OutputEncoding = Encoding.UTF8;
+            System.Console.ForegroundColor = ConsoleColor.Gray;
+            System.Console.BackgroundColor = ConsoleColor.Black;
         }
         public bool IsInputRedirected => System.Console.IsInputRedirected;
-
         public int BufferHeight { get => System.Console.BufferHeight; set => System.Console.BufferHeight = value; }
         public int BufferWidth { get => System.Console.BufferWidth; set => System.Console.BufferWidth = value; }
-
         public bool CapsLock => System.Console.CapsLock;
-
         public int CursorLeft { get => System.Console.CursorLeft; set => System.Console.CursorLeft = value; }
         public int CursorSize { get => System.Console.CursorSize; set => System.Console.CursorSize = value; }
         public int CursorTop { get => System.Console.CursorTop; set => System.Console.CursorTop = value; }
         public bool CursorVisible { get => System.Console.CursorVisible; set => System.Console.CursorVisible = value; }
-
         public TextWriter Error => System.Console.Error;
-
         public ConsoleColor ForegroundColor { get => System.Console.ForegroundColor; set => System.Console.ForegroundColor = value; }
-
         public TextReader In => System.Console.In;
-
         public Encoding InputEncoding { get => System.Console.InputEncoding; set => System.Console.InputEncoding = value; }
-
         public bool IsErrorRedirected => System.Console.IsErrorRedirected;
-
         public int WindowWidth { get => System.Console.WindowWidth; set => System.Console.WindowWidth = value; }
-
         public bool IsOutputRedirected => System.Console.IsOutputRedirected;
-
         public bool KeyAvailable => System.Console.KeyAvailable;
-
         public int LargestWindowHeight => System.Console.LargestWindowHeight;
-
         public int LargestWindowWidth => System.Console.LargestWindowWidth;
-
         public bool NumberLock => System.Console.NumberLock;
-
         public TextWriter Out => System.Console.Out;
-
         public Encoding OutputEncoding { get => System.Console.OutputEncoding; set => System.Console.OutputEncoding = value; }
         public string Title { get => System.Console.Title; set => System.Console.Title = value; }
         public bool TreatControlCAsInput { get => System.Console.TreatControlCAsInput; set => System.Console.TreatControlCAsInput = value; }
@@ -67,6 +56,19 @@ namespace KingpinNet.UI
         public void Beep(int frequency, int duration)
         {
             System.Console.Beep(frequency, duration);
+        }
+
+        public void BeginRendering()
+        {
+            Interlocked.Increment(ref renderCount);
+            if (renderCount > 1) return;
+            CursorVisible = false;
+        }
+        public void EndRendering()
+        {
+            Interlocked.Decrement(ref renderCount);
+            if (renderCount > 0) return;
+            CursorVisible = true;
         }
 
         public void Clear()
