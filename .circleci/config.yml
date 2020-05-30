@@ -35,7 +35,7 @@ jobs:
       - attach_workspace:
           at: /source/workspace
       - run: find .
-      - run: dotnet nuget push ./workspace/packages/KingpinNet.0.7.$CIRCLE_PREVIOUS_BUILD_NUM.nupkg -k ${nugetapikey} -s https://api.nuget.org/v3/index.json
+      - run: dotnet nuget push ./workspace/packages/KingpinNet.0.7.*.nupkg -k ${nugetapikey} -s https://api.nuget.org/v3/index.json
 
 workflows:
   version: 2
