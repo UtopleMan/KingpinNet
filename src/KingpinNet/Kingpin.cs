@@ -67,7 +67,7 @@ namespace KingpinNet
             return Application.Argument<T>(name, help);
         }
 
-        public static IDictionary<string, string> Parse(IEnumerable<string> args)
+        public static ParseResult Parse(IEnumerable<string> args)
         {
             return Application.Parse(args);
         }

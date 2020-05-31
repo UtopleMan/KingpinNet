@@ -8,14 +8,27 @@ using System.Text.RegularExpressions;
 
 namespace KingpinNet
 {
+    public class ParseResult
+    {
+        public ParseResult()
+        {
+            Result = new Dictionary<string, string>();
+            Suggestions = new List<string>();
+            IsSuggestion = false;
+        }
+        public Dictionary<string, string> Result { get; }
+        public List<string> Suggestions { get; }
+        public bool IsSuggestion { get; set; }
+    }
     public class Parser
     {
         private readonly List<CommandItem> _commands;
         private readonly List<IItem> _globalFlags;
         private readonly List<IItem> _globalArguments;
-        private Dictionary<string, string> _result;
+        private ParseResult _result;
         private List<string> _args;
         private int _currentItem;
+        private string _suggestionString;
 
         public Parser(KingpinApplication application)
         {
@@ -24,11 +37,12 @@ namespace KingpinNet
             _globalArguments = application.Arguments.ToList();
         }
 
-        public IDictionary<string, string> Parse(IEnumerable<string> args)
+        public ParseResult Parse(IEnumerable<string> args)
         {
-            _result = new Dictionary<string, string>();
+            _result = new ParseResult();
             _args = args.ToList();
             _currentItem = 0;
+            _suggestionString = "";
             MainParse();
             return _result;
         }
@@ -38,6 +52,8 @@ namespace KingpinNet
             SetDefaults();
 
             if (_args.Count > 0)
+            {
+                InvestigateSuggestions();
                 while (_currentItem < _args.Count)
                 {
                     if (IsCommand(_args[_currentItem], _commands, out CommandItem commandFound))
@@ -58,9 +74,99 @@ namespace KingpinNet
                         _currentItem++;
                     }
                     else
-                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
+                    {
+                        if (!_result.IsSuggestion)
+                            throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
+                        _suggestionString = _args[_currentItem];
+                        _currentItem++;
+                    }
                 }
-            CheckAllRequiredItemsIsSet();
+            }
+            if (_result.IsSuggestion)
+            {
+                _result.Suggestions.AddRange(ParseSuggestions(_suggestionString));
+            }
+            else
+                CheckAllRequiredItemsIsSet();
+        }
+
+        private void InvestigateSuggestions()
+        {
+            if (!IsSuggestion(_args[0]))
+                return;
+            if (_args.Count > 1 && IsPosition(_args[1]))
+            {
+                _args = _args.Skip(2).ToList();
+            }
+            else
+            {
+                _args = _args.Skip(1).ToList();
+            }
+            _result.IsSuggestion = true;
+        }
+
+        private bool IsPosition(string flag)
+        {
+            return flag == "--position";
+        }
+
+        private bool IsSuggestion(string command)
+        {
+            return command == "suggest";
+        }
+
+        private IEnumerable<string> ParseSuggestions(string partString)
+        {
+            var result = new List<string>();
+            result.AddRange(GetSuggestionsOnCommands(_commands, partString));
+            result.AddRange(GetSuggestionsOnFlags(_globalFlags, partString));
+            return result;
+        }
+
+        private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
+        {
+            var result = new List<string>();
+            result.AddRange(flags.Where(x => !x.IsSet && ("--" + x.Name.ToLowerInvariant()).Contains(partString))
+                .Select(x => "--" + x.Name));
+            result.AddRange(flags.Where(x => !x.IsSet && x.ShortName != 0 && ("-" + x.ShortName).Contains(partString))
+                .Select(x => "-" + x.ShortName));
+            return result;
+        }
+
+        private IEnumerable<string> GetSuggestionsOnCommands(IEnumerable<CommandItem> commands, string partString)
+        {
+            var result = new List<string>();
+
+            if (commands.All(x => !x.IsSet))
+            {
+                result.AddRange(
+                    commands
+                    .Where(x => x.Name.ToLowerInvariant().Contains(partString))
+                    .Select(x => x.Name));
+                return result;
+            }
+
+
+            foreach (var command in commands)
+            {
+                if (!command.IsSet)
+                    continue;
+
+                if (command.Commands.All(x => !x.IsSet))
+                {
+                    result.AddRange(
+                        command.Commands
+                        .Where(x => x.Name.ToLowerInvariant().Contains(partString))
+                        .Select(x => x.Name));
+                    result.AddRange(GetSuggestionsOnFlags(command.Flags, partString));
+                    return result;
+                }
+
+                if (command.Commands != null && command.Commands.Count() > 0)
+                    result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
+            }
+            return result;
+
         }
 
         private void SetDefaults()
@@ -140,7 +246,8 @@ namespace KingpinNet
                     MergeCommand("Command", commandFound);
                     _currentItem++;
                     CommandFound(commandFound);
-                } else if (IsFlag(_args[_currentItem], command.Flags, _globalFlags, out IItem flagFound))
+                }
+                else if (IsFlag(_args[_currentItem], command.Flags, _globalFlags, out IItem flagFound))
                 {
                     Merge("Command", flagFound);
                     _currentItem++;
@@ -151,7 +258,12 @@ namespace KingpinNet
                     _currentItem++;
                 }
                 else
-                    throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
+                {
+                    if (!_result.IsSuggestion)
+                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
+                    _suggestionString = _args[_currentItem];
+                    _currentItem++;
+                }
             }
         }
 
@@ -159,21 +271,21 @@ namespace KingpinNet
         {
 
             item.IsSet = true;
-            _result[name] = _result[name] + ":" + item.Name;
-            CheckForDefaultValues(_result[name], item.Flags);
-            CheckForDefaultValues(_result[name], item.Arguments);
+            _result.Result[name] = _result.Result[name] + ":" + item.Name;
+            CheckForDefaultValues(_result.Result[name], item.Flags);
+            CheckForDefaultValues(_result.Result[name], item.Arguments);
         }
 
         private void CheckForDefaultValues(string name, IEnumerable<IItem> items)
         {
             foreach (var item in items.Where(x => x.IsSet))
-                _result[name + ":" + item.Name] = item.StringValue;
+                _result.Result[name + ":" + item.Name] = item.StringValue;
         }
 
         private void AddCommand(string name, IItem item)
         {
             item.IsSet = true;
-            _result.Add(name, item.Name);
+            _result.Result.Add(name, item.Name);
         }
 
         private void Merge(string name, IItem item)
@@ -190,17 +302,17 @@ namespace KingpinNet
         {
             if (_globalFlags.Contains(item) || _globalArguments.Contains(item))
             {
-                if (_result.ContainsKey(item.Name))
-                    _result[item.Name] = value;
+                if (_result.Result.ContainsKey(item.Name))
+                    _result.Result[item.Name] = value;
                 else
-                    _result.Add(item.Name, value);
+                    _result.Result.Add(item.Name, value);
             }
             else
             {
-                if (_result.ContainsKey(_result[name] + ":" + item.Name))
-                    _result[_result[name] + ":" + item.Name] = value;
+                if (_result.Result.ContainsKey(_result.Result[name] + ":" + item.Name))
+                    _result.Result[_result.Result[name] + ":" + item.Name] = value;
                 else
-                    _result.Add(_result[name] + ":" + item.Name, value);
+                    _result.Result.Add(_result.Result[name] + ":" + item.Name, value);
             }
         }
 
@@ -210,10 +322,10 @@ namespace KingpinNet
             var value = item.StringValue;
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 value = item.DefaultValue;
-            if (_result.ContainsKey(item.Name))
-                _result[item.Name] = value;
+            if (_result.Result.ContainsKey(item.Name))
+                _result.Result[item.Name] = value;
             else
-                _result.Add(item.Name, value);
+                _result.Result.Add(item.Name, value);
         }
 
         private bool IsArgument(string arg, IEnumerable<IItem> arguments,
@@ -411,9 +523,15 @@ namespace KingpinNet
                 foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
                     IsValidFlag(f, arg, errors)));
                 if (!foundFlags.Any())
+                {
+                    if (_result.IsSuggestion) return false;
                     throw new ParseException("Illegal flag " + arg, errors);
+                }
                 if (foundFlags.Count() > 1)
+                {
+                    if (_result.IsSuggestion) return false;
                     throw new ParseException("Found multiple flags with same name " + arg);
+                }
                 item = foundFlags.First();
                 item.StringValue = GetValue(foundFlags.First(), arg);
                 return true;
@@ -421,8 +539,11 @@ namespace KingpinNet
             if (arg.StartsWith("-"))
             {
                 var flagName = GetFlagName(arg);
-                if (flagName.Length > 2)
+                if (flagName.Length == 0 || flagName.Length > 2)
+                {
+                    if (_result.IsSuggestion) return false;
                     throw new ParseException("Short name arguments are only one character " + flagName);
+                }
                 var foundFlags = flags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
                 foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
                     IsValidFlag(f, arg, errors)));

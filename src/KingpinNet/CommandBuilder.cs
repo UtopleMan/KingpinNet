@@ -14,31 +14,31 @@ namespace KingpinNet
             Item.HintOptions = hints;
             return this;
         }
-        public FlagItem<string> Flag(string name, string help)
+        public FlagItem<string> Flag(string name, string help = "")
         {
             var result = new FlagItem<string>($"{Path}:{name}", name, help);
             Item._flags.Add(result);
             return result;
         }
-        public ArgumentItem<string> Argument(string name, string help)
+        public ArgumentItem<string> Argument(string name, string help = "")
         {
             var result = new ArgumentItem<string>($"{Path}:{name}", name, help);
             Item._arguments.Add(result);
             return result;
         }
-        public FlagItem<T> Flag<T>(string name, string help)
+        public FlagItem<T> Flag<T>(string name, string help = "")
         {
             var result = new FlagItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
             Item._flags.Add(result);
             return result;
         }
-        public ArgumentItem<T> Argument<T>(string name, string help)
+        public ArgumentItem<T> Argument<T>(string name, string help = "")
         {
             var result = new ArgumentItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
             Item._arguments.Add(result);
             return result;
         }
-        public CommandItem Command(string name, string help)
+        public CommandItem Command(string name, string help = "")
         {
             var result = new CommandItem($"{Path}:{name}", name, help);
             Item._commands.Add(result);

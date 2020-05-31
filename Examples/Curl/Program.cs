@@ -8,8 +8,13 @@ namespace Curl
     {
         static void Main(string[] args)
         {
-            Kingpin.Version("1.0").Author("Peter Andersen").ApplicationName("curl").ApplicationHelp("An example implementation of curl.");
-            Kingpin.ShowHelpOnParsingErrors();
+            Kingpin
+                .Version("1.0")
+                .Author("Peter Andersen")
+                .ApplicationName("curl")
+                .ApplicationHelp("An example implementation of curl.")
+                .ShowHelpOnParsingErrors();
+
             var timeout = Kingpin.Flag("timeout", "Set connection timeout.").Short('t').Default("5s"); // .Duration()
             var headers = Kingpin.Flag("headers", "Add HTTP headers to the request.").Short('H'); // .PlaceHolder("HEADER=VALUE");
             var get = Kingpin.Command("get", "GET a resource.").IsDefault();

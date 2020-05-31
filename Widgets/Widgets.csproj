@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KingpinNet.UI\KingpinNet.UI.csproj" />
+    <ProjectReference Include="..\src\KingpinNet.UI\KingpinNet.UI.csproj" />
   </ItemGroup>
 
 </Project>

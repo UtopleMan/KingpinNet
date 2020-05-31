@@ -42,9 +42,9 @@ namespace KingpinNet
         public override void Load()
         {
             if (_kingpinApplication == null)
-                Data = Kingpin.Parse(_args);
+                Data = Kingpin.Parse(_args).Result;
             else
-                Data = _kingpinApplication.Parse(_args);
+                Data = _kingpinApplication.Parse(_args).Result;
         }
     }
 }

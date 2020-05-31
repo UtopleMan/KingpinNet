@@ -51,34 +51,34 @@ namespace KingpinNet
             helpGenerator.Generate(command, console.Out, _commandHelp);
         }
 
-        public CommandItem Command(string name, string help)
+        public CommandItem Command(string name, string help = "")
         {
             var result = new CommandItem(name, name, help);
             _commands.Add(result);
             return result;
         }
 
-        public FlagItem<string> Flag(string name, string help)
+        public FlagItem<string> Flag(string name, string help = "")
         {
             var result = new FlagItem<string>(name, name, help);
             _flags.Add(result);
             return result;
         }
-        public ArgumentItem<string> Argument(string name, string help)
+        public ArgumentItem<string> Argument(string name, string help = "")
         {
             var result = new ArgumentItem<string>(name, name, help);
             _arguments.Add(result);
             return result;
         }
 
-        public FlagItem<T> Flag<T>(string name, string help)
+        public FlagItem<T> Flag<T>(string name, string help = "")
         {
             var result = new FlagItem<T>(name, name, help,
                 ValueTypeConverter.Convert(typeof(T)));
             _flags.Add(result);
             return result;
         }
-        public ArgumentItem<T> Argument<T>(string name, string help)
+        public ArgumentItem<T> Argument<T>(string name, string help = "")
         {
             var result = new ArgumentItem<T>(name, name, help,
                 ValueTypeConverter.Convert(typeof(T)));
@@ -122,7 +122,7 @@ namespace KingpinNet
             }
         }
 
-        public IDictionary<string, string> Parse(IEnumerable<string> args)
+        public ParseResult Parse(IEnumerable<string> args)
         {
             var parser = new Parser(this);
             AddCommandHelpOnAllCommands();

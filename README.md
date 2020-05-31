@@ -113,6 +113,8 @@ class Program
 ```
 
 ## Changelog
+ - 0.8
+   - Added first attempt on auto completions for PowerShell, BASH and ZSH
  - 0.7
    - Added KingpinNet.UI
    - Added ProgressBar and Spinner widgets

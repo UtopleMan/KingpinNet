@@ -50,7 +50,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("true", result["help"]);
+            Assert.AreEqual("true", result.Result["help"]);
         }
 
         [Test]

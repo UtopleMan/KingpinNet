@@ -30,7 +30,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["Command"], "run");
+            Assert.AreEqual(result.Result["Command"], "run");
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["Command"], "cmd1:cmd2");
+            Assert.AreEqual(result.Result["Command"], "cmd1:cmd2");
         }
 
         [Test]
@@ -64,8 +64,8 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["Command"], "run");
-            Assert.AreEqual(result["run:argument"], "an_argument");
+            Assert.AreEqual(result.Result["Command"], "run");
+            Assert.AreEqual(result.Result["run:argument"], "an_argument");
         }
         [Test]
         public void ParseSimpleCommandWithFlag()
@@ -81,8 +81,8 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["Command"], "run");
-            Assert.AreEqual(result["run:myflag"], "danish");
+            Assert.AreEqual(result.Result["Command"], "run");
+            Assert.AreEqual(result.Result["run:myflag"], "danish");
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["myflag"], "danish");
+            Assert.AreEqual(result.Result["myflag"], "danish");
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["myflag"], "true");
+            Assert.AreEqual(result.Result["myflag"], "true");
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["argument"], "hurray");
+            Assert.AreEqual(result.Result["argument"], "hurray");
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["ielp"], "help");
+            Assert.AreEqual(result.Result["ielp"], "help");
         }
 
         [Test]
@@ -208,7 +208,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["bool"], "true");
+            Assert.AreEqual(result.Result["bool"], "true");
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1:00:00", result["time"]);
+            Assert.AreEqual("1:00:00", result.Result["time"]);
         }
 
         [Test]
@@ -269,7 +269,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1.1:00:00", result["time"]);
+            Assert.AreEqual("1.1:00:00", result.Result["time"]);
         }
 
 
@@ -319,7 +319,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("NotSoChecked", result["flag"]);
+            Assert.AreEqual("NotSoChecked", result.Result["flag"]);
         }
 
         [Test]
@@ -364,7 +364,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1.000", result["flag"]);
+            Assert.AreEqual("1.000", result.Result["flag"]);
         }
 
         [Test]
@@ -409,7 +409,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1", result["flag"]);
+            Assert.AreEqual("1", result.Result["flag"]);
         }
 
         [Test]
@@ -477,7 +477,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("http://www.google.com", result["flag"]);
+            Assert.AreEqual("http://www.google.com", result.Result["flag"]);
         }
 
         [Test]
@@ -506,7 +506,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("123.123.123.123", result["flag"]);
+            Assert.AreEqual("123.123.123.123", result.Result["flag"]);
         }
 
         [Test]
@@ -534,7 +534,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("myfancyhostname123:1234", result["flag"]);
+            Assert.AreEqual("myfancyhostname123:1234", result.Result["flag"]);
         }
         [Test]
         public void ParseTcpFail()
@@ -562,7 +562,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("myfancyhostname123:1234", result["flag"]);
+            Assert.AreEqual("myfancyhostname123:1234", result.Result["flag"]);
         }
 
         [Test]
@@ -580,7 +580,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result["cmd1:cmd2:flg"], "1234");
+            Assert.AreEqual(result.Result["cmd1:cmd2:flg"], "1234");
         }
 
 
@@ -599,7 +599,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(directory, result["directory"]);
+            Assert.AreEqual(directory, result.Result["directory"]);
         }
 
         [Test]
@@ -630,7 +630,7 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(fileName, result["file"]);
+            Assert.AreEqual(fileName, result.Result["file"]);
         }
 
         [Test]
