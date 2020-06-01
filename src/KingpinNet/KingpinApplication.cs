@@ -1,6 +1,7 @@
 ﻿using KingpinNet.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace KingpinNet
@@ -35,7 +36,24 @@ namespace KingpinNet
             _applicationHelp = new ApplicationHelp();
             _commandHelp = new CommandHelp();
             Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp());
+            Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
+            Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
+            Flag<bool>("suggestion-script-pwsh").IsHidden().Action(x => GenerateScript("pwsh.ps1"));
         }
+
+        private void GenerateScript(string resource)
+        {
+            var content = GetResource(resource);
+            console.Out.Write(content.Replace("{{AppName}}", Path.GetFileName(System.Reflection.Assembly.GetEntryAssembly().Location)));
+            Environment.Exit(0);
+        }
+        private string GetResource(string name)
+        {
+            var stream = this.GetType().Assembly.GetManifestResourceStream($"KingpinNet.Scripts.{name}");
+            var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
         public void GenerateHelp()
         {
             var helpGenerator = new HelpGenerator(this);
@@ -128,7 +146,9 @@ namespace KingpinNet
             AddCommandHelpOnAllCommands();
             try
             {
-                return parser.Parse(args);
+                var result = parser.Parse(args);
+                InvestigateSuggestions(result);
+                return result;
             }
             catch (ParseException exception)
             {
@@ -143,6 +163,16 @@ namespace KingpinNet
                 if (ExitOnParseErrors)
                     Environment.Exit(-1);
                 throw;
+            }
+        }
+
+        private void InvestigateSuggestions(ParseResult result)
+        {
+            if (result.IsSuggestion)
+            {
+                foreach (var suggestion in result.Suggestions)
+                    console.Out.WriteLine(suggestion);
+                Environment.Exit(0);
             }
         }
 

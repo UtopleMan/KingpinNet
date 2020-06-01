@@ -13,6 +13,7 @@ namespace Curl
                 .Author("Peter Andersen")
                 .ApplicationName("curl")
                 .ApplicationHelp("An example implementation of curl.")
+                .ExitOnHelp()
                 .ShowHelpOnParsingErrors();
 
             var timeout = Kingpin.Flag("timeout", "Set connection timeout.").Short('t').Default("5s"); // .Duration()

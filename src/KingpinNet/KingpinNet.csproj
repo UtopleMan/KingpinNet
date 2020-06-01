@@ -9,6 +9,16 @@
     <NuspecFile>KingpinNet.final.nuspec</NuspecFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Scripts\bash.sh" />
+    <None Remove="Scripts\pwsh.ps1" />
+    <None Remove="Scripts\zsh.sh" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\bash.sh" />
+    <EmbeddedResource Include="Scripts\pwsh.ps1" />
+    <EmbeddedResource Include="Scripts\zsh.sh" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.4" />
   </ItemGroup>
   <ItemGroup>

@@ -126,9 +126,9 @@ namespace KingpinNet
         private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
         {
             var result = new List<string>();
-            result.AddRange(flags.Where(x => !x.IsSet && ("--" + x.Name.ToLowerInvariant()).Contains(partString))
+            result.AddRange(flags.Where(x => !x.IsSet && ("--" + x.Name.ToLowerInvariant()).Contains(partString) && !x.Hidden)
                 .Select(x => "--" + x.Name));
-            result.AddRange(flags.Where(x => !x.IsSet && x.ShortName != 0 && ("-" + x.ShortName).Contains(partString))
+            result.AddRange(flags.Where(x => !x.IsSet && x.ShortName != 0 && ("-" + x.ShortName).Contains(partString) && !x.Hidden)
                 .Select(x => "-" + x.ShortName));
             return result;
         }
@@ -141,7 +141,7 @@ namespace KingpinNet
             {
                 result.AddRange(
                     commands
-                    .Where(x => x.Name.ToLowerInvariant().Contains(partString))
+                    .Where(x => x.Name.ToLowerInvariant().Contains(partString) && !x.Hidden)
                     .Select(x => x.Name));
                 return result;
             }
@@ -156,7 +156,7 @@ namespace KingpinNet
                 {
                     result.AddRange(
                         command.Commands
-                        .Where(x => x.Name.ToLowerInvariant().Contains(partString))
+                        .Where(x => x.Name.ToLowerInvariant().Contains(partString) && !x.Hidden)
                         .Select(x => x.Name));
                     result.AddRange(GetSuggestionsOnFlags(command.Flags, partString));
                     return result;
@@ -560,7 +560,7 @@ namespace KingpinNet
 
         private string GetFlagName(string arg)
         {
-            var flagName = arg.Replace("-", "").Split('=');
+            var flagName = arg.TrimStart('-').Split('=');
             return flagName[0].ToLower();
         }
 
