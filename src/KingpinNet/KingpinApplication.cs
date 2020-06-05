@@ -13,6 +13,11 @@ namespace KingpinNet
         private List<IItem> _flags = new List<IItem>();
         private List<IItem> _arguments = new List<IItem>();
 
+        // Used in the parser
+        internal Action<Serverity, string, Exception> log = (a, b, c) => { };
+        internal string exeFileName;
+        internal string exeFileExtension;
+
         public IEnumerable<CommandItem> Commands => _commands;
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
@@ -27,6 +32,11 @@ namespace KingpinNet
         public bool HelpShownOnParsingErrors { get; private set; }
         public bool ExitOnParseErrors { get; private set; }
         public bool ExitWhenHelpIsShown { get; internal set; }
+
+        public KingpinApplication()
+        {
+            this.console = new UI.Console();
+        }
         public KingpinApplication(IConsole console)
         {
             this.console = console;
@@ -39,12 +49,19 @@ namespace KingpinNet
             Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
             Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
             Flag<bool>("suggestion-script-pwsh").IsHidden().Action(x => GenerateScript("pwsh.ps1"));
+            exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+            exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
 
         private void GenerateScript(string resource)
         {
-            var content = GetResource(resource);
-            console.Out.Write(content.Replace("{{AppName}}", Path.GetFileName(System.Reflection.Assembly.GetEntryAssembly().Location)));
+            var content = GetResource(resource)
+                .Replace("{{AppPath}}", Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + Path.DirectorySeparatorChar)
+                .Replace("{{AppName}}", exeFileName)
+                .Replace("{{AppExtension}}", exeFileExtension);
+
+            console.Out.Write(content);
+            log.Invoke(Serverity.Info, "Generated script: " + Environment.NewLine + content, null);
             Environment.Exit(0);
         }
         private string GetResource(string name)
@@ -142,7 +159,7 @@ namespace KingpinNet
 
         public ParseResult Parse(IEnumerable<string> args)
         {
-            var parser = new Parser(this);
+            var parser = new Parser(this, new CommandLineTokenizer());
             AddCommandHelpOnAllCommands();
             try
             {
@@ -206,5 +223,19 @@ namespace KingpinNet
             _commandHelp = commandHelp;
             return this;
         }
+        public KingpinApplication Log(Action<Serverity, string, Exception> log)
+        {
+            this.log = log;
+            return this;
+        }
+    }
+
+    public enum Serverity
+    {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error
     }
 }

@@ -21,6 +21,8 @@ namespace KingpinNet
             DefaultValue = String.Empty;
             if (typeof(T).IsEnum)
                 TypeOfEnum = typeof(T);
+            Suggestions = new string[0];
+            Examples = new string[0];
         }
 
         internal List<CommandItem> _commands = new List<CommandItem>();
@@ -30,8 +32,6 @@ namespace KingpinNet
         public IEnumerable<CommandItem> Commands => _commands;
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
-
-
         public ItemType ItemType = ItemType.None;
         public ValueType ValueType = ValueType.String;
         public string Path { get; internal set; }
@@ -43,15 +43,14 @@ namespace KingpinNet
         public Type TypeOfEnum { get; internal set; }
         public string DefaultValue { get; internal set; }
         public T Value { get; internal set; }
-        public string[] HintOptions { get; internal set; }
         public bool IsDefault { get; internal set; }
         public char ShortName { get; internal set; }
         public Action<T> Action { get; internal set; }
         public bool IsHidden { get; internal set; }
         public bool IsSet { get; internal set; }
         public string[] Examples { get; internal set; }
+        public string[] Suggestions { get; internal set; }
         public string ValueName { get; internal set; }
-
         internal void ConvertAndSetValue(string value)
         {
             if (typeof(T) == typeof(string))

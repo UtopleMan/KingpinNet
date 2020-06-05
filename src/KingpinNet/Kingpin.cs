@@ -16,6 +16,10 @@ namespace KingpinNet
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
             //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
         }
+        public static KingpinApplication Log(Action<Serverity, string, Exception> log)
+        {
+            return Application.Log(log);
+        }
 
         public static KingpinApplication ShowHelpOnParsingErrors()
         {

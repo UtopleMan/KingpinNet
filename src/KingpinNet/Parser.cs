@@ -8,23 +8,15 @@ using System.Text.RegularExpressions;
 
 namespace KingpinNet
 {
-    public class ParseResult
-    {
-        public ParseResult()
-        {
-            Result = new Dictionary<string, string>();
-            Suggestions = new List<string>();
-            IsSuggestion = false;
-        }
-        public Dictionary<string, string> Result { get; }
-        public List<string> Suggestions { get; }
-        public bool IsSuggestion { get; set; }
-    }
     public class Parser
     {
-        private readonly List<CommandItem> _commands;
-        private readonly List<IItem> _globalFlags;
-        private readonly List<IItem> _globalArguments;
+        private readonly List<CommandItem> commands;
+        private readonly List<IItem> globalFlags;
+        private readonly List<IItem> globalArguments;
+        private readonly Action<Serverity, string, Exception> logger;
+        private readonly string exeFileName;
+        private readonly string exeFileExtension;
+        private readonly CommandLineTokenizer commandLineTokenizer;
         private ParseResult _result;
         private List<string> _args;
         private int _currentItem;
@@ -32,9 +24,23 @@ namespace KingpinNet
 
         public Parser(KingpinApplication application)
         {
-            _commands = application.Commands.ToList();
-            _globalFlags = application.Flags.ToList();
-            _globalArguments = application.Arguments.ToList();
+            commands = application.Commands.ToList();
+            globalFlags = application.Flags.ToList();
+            globalArguments = application.Arguments.ToList();
+            logger = application.log;
+            exeFileName = application.exeFileName;
+            exeFileExtension = application.exeFileExtension;
+            this.commandLineTokenizer = new CommandLineTokenizer();
+        }
+        public Parser(KingpinApplication application, CommandLineTokenizer commandLineTokenizer)
+        {
+            commands = application.Commands.ToList();
+            globalFlags = application.Flags.ToList();
+            globalArguments = application.Arguments.ToList();
+            logger = application.log;
+            exeFileName = application.exeFileName;
+            exeFileExtension = application.exeFileExtension;
+            this.commandLineTokenizer = commandLineTokenizer;
         }
 
         public ParseResult Parse(IEnumerable<string> args)
@@ -47,6 +53,19 @@ namespace KingpinNet
             return _result;
         }
 
+        private void Log(Serverity serverity, string message, Exception exception = null)
+        {
+            if (logger == null)
+                return;
+            try
+            {
+                logger.Invoke(serverity, message, exception);
+            }
+            catch
+            {
+            }
+        }
+
         private void MainParse()
         {
             SetDefaults();
@@ -56,19 +75,19 @@ namespace KingpinNet
                 InvestigateSuggestions();
                 while (_currentItem < _args.Count)
                 {
-                    if (IsCommand(_args[_currentItem], _commands, out CommandItem commandFound))
+                    if (IsCommand(_args[_currentItem], commands, out CommandItem commandFound))
                     {
                         AddCommand("Command", commandFound);
 
                         _currentItem++;
                         CommandFound(commandFound);
                     }
-                    else if (IsFlag(_args[_currentItem], new List<IItem>(), _globalFlags, out IItem flagFound))
+                    else if (IsFlag(_args[_currentItem], new List<IItem>(), globalFlags, out IItem flagFound))
                     {
                         Add(flagFound);
                         _currentItem++;
                     }
-                    else if (IsArgument(_args[_currentItem], _globalArguments, out IItem argumentFound))
+                    else if (IsArgument(_args[_currentItem], globalArguments, out IItem argumentFound) && !_result.IsSuggestion)
                     {
                         Add(argumentFound);
                         _currentItem++;
@@ -96,31 +115,65 @@ namespace KingpinNet
                 return;
             if (_args.Count > 1 && IsPosition(_args[1]))
             {
-                _args = _args.Skip(2).ToList();
+                _args = _args.Skip(3).ToList();
             }
             else
             {
                 _args = _args.Skip(1).ToList();
             }
             _result.IsSuggestion = true;
+            var argsStr = _args.Aggregate((c, n) => c + " " + n);
+
+            Log(Serverity.Info, $"Suggestion arguments: '{argsStr}'");
+
+            var argumentLine = RemoveApplicationName(_args[0]);
+            _args = commandLineTokenizer.ToTokens(argumentLine);
         }
 
         private bool IsPosition(string flag)
         {
+            if (flag == "--position")
+                Log(Serverity.Info, $"Found --position flag");
             return flag == "--position";
         }
 
         private bool IsSuggestion(string command)
         {
+            if (command == "suggest")
+                Log(Serverity.Info, $"Found suggest command");
             return command == "suggest";
         }
 
         private IEnumerable<string> ParseSuggestions(string partString)
         {
             var result = new List<string>();
-            result.AddRange(GetSuggestionsOnCommands(_commands, partString));
-            result.AddRange(GetSuggestionsOnFlags(_globalFlags, partString));
+            result.AddRange(GetSuggestionsOnCommands(commands, partString));
+            result.AddRange(GetSuggestionsOnFlags(globalFlags, partString));
+            result.AddRange(GetSuggestionsOnCommandArgument(commands, partString));
+            result.AddRange(GetSuggestionsOnGlobalArguments(partString));
+
+            var suggestions = result.Aggregate((c, n) => c + ", " + n);
+            Log(Serverity.Info, $"Found suggestions for string '{partString}': {suggestions}");
             return result;
+        }
+
+        private IEnumerable<string> GetSuggestionsOnGlobalArguments(string partString)
+        {
+            var result = new List<string>();
+            if (commands.All(x => !x.IsSet))
+            {
+                result.AddRange(globalArguments
+                    .SelectMany(x => x.Examples)
+                    .Where(x => x.ToLowerInvariant().Contains(partString)));
+            }
+            return result;
+        }
+
+        private string RemoveApplicationName(string partString)
+        {
+            var index = partString.IndexOf(exeFileName) + exeFileName.Length;
+            var firstSpace = partString.Substring(index).IndexOf(" ");
+            return partString.Substring(index + firstSpace + 1);
         }
 
         private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
@@ -166,14 +219,42 @@ namespace KingpinNet
                     result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
             }
             return result;
+        }
 
+        private IEnumerable<string> GetSuggestionsOnCommandArgument(IEnumerable<CommandItem> commands, string partString)
+        {
+            var result = new List<string>();
+
+            if (commands.All(x => !x.IsSet))
+            {
+                return result;
+            }
+
+
+            foreach (var command in commands)
+            {
+                if (!command.IsSet)
+                    continue;
+
+                if (!command.Commands.Any() || command.Commands.All(x => !x.IsSet))
+                {
+                    result.AddRange(
+                        command.Arguments.SelectMany(x => x.Suggestions)
+                        .Where(x => x.ToLowerInvariant().Contains(partString))
+                        .Select(x => x));
+                    return result;
+                }
+
+                result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
+            }
+            return result;
         }
 
         private void SetDefaults()
         {
-            SetCommandsToDefault(_commands);
-            SetToDefault(_globalFlags, true);
-            SetToDefault(_globalArguments, true);
+            SetCommandsToDefault(commands);
+            SetToDefault(globalFlags, true);
+            SetToDefault(globalArguments, true);
         }
 
         private void SetCommandsToDefault(IEnumerable<CommandItem> commands)
@@ -200,9 +281,9 @@ namespace KingpinNet
 
         private void CheckAllRequiredItemsIsSet()
         {
-            CheckCommands(_commands);
-            CheckFlags(_globalFlags);
-            CheckArguments(_globalArguments);
+            CheckCommands(commands);
+            CheckFlags(globalFlags);
+            CheckArguments(globalArguments);
         }
 
         private void CheckCommands(IEnumerable<CommandItem> commands)
@@ -247,12 +328,12 @@ namespace KingpinNet
                     _currentItem++;
                     CommandFound(commandFound);
                 }
-                else if (IsFlag(_args[_currentItem], command.Flags, _globalFlags, out IItem flagFound))
+                else if (IsFlag(_args[_currentItem], command.Flags, globalFlags, out IItem flagFound))
                 {
                     Merge("Command", flagFound);
                     _currentItem++;
                 }
-                else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound))
+                else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
                 {
                     Merge("Command", argumentFound);
                     _currentItem++;
@@ -269,9 +350,10 @@ namespace KingpinNet
 
         private void MergeCommand(string name, CommandItem item)
         {
-
             item.IsSet = true;
             _result.Result[name] = _result.Result[name] + ":" + item.Name;
+            Log(Serverity.Info, $"Found command {_result.Result[name]}");
+
             CheckForDefaultValues(_result.Result[name], item.Flags);
             CheckForDefaultValues(_result.Result[name], item.Arguments);
         }
@@ -286,6 +368,7 @@ namespace KingpinNet
         {
             item.IsSet = true;
             _result.Result.Add(name, item.Name);
+            Log(Serverity.Info, $"Found command {name}");
         }
 
         private void Merge(string name, IItem item)
@@ -300,19 +383,32 @@ namespace KingpinNet
 
         private void AddOrUpdateResult(string name, string value, IItem item)
         {
-            if (_globalFlags.Contains(item) || _globalArguments.Contains(item))
+            if (globalFlags.Contains(item) || globalArguments.Contains(item))
             {
                 if (_result.Result.ContainsKey(item.Name))
+                {
                     _result.Result[item.Name] = value;
+                    Log(Serverity.Info, $"Updated global flag {item.Name} with value {value}");
+                }
                 else
+                {
                     _result.Result.Add(item.Name, value);
+                    Log(Serverity.Info, $"Found global flag {item.Name} with value {value}");
+                }
+
             }
             else
             {
                 if (_result.Result.ContainsKey(_result.Result[name] + ":" + item.Name))
+                {
                     _result.Result[_result.Result[name] + ":" + item.Name] = value;
+                    Log(Serverity.Info, $"Updated {_result.Result[name] + ":" + item.Name} with value {value}");
+                }
                 else
+                {
                     _result.Result.Add(_result.Result[name] + ":" + item.Name, value);
+                    Log(Serverity.Info, $"Found {_result.Result[name] + ":" + item.Name} with value {value}");
+                }
             }
         }
 
@@ -323,9 +419,15 @@ namespace KingpinNet
             if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
                 value = item.DefaultValue;
             if (_result.Result.ContainsKey(item.Name))
+            {
                 _result.Result[item.Name] = value;
+                Log(Serverity.Info, $"Updated {item.Name} with value {value}");
+            }
             else
+            {
                 _result.Result.Add(item.Name, value);
+                Log(Serverity.Info, $"Found {item.Name} with value {value}");
+            }
         }
 
         private bool IsArgument(string arg, IEnumerable<IItem> arguments,
@@ -586,7 +688,7 @@ namespace KingpinNet
         {
         }
 
-        public ParseException(object p)
+        public ParseException(object p) : base(p?.ToString())
         {
         }
 

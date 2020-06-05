@@ -8,12 +8,6 @@ namespace KingpinNet
         internal CommandItem(string path, string name, string help) : base(path, name, help, ItemType.Command)
         {
         }
-
-        public CommandItem HintOptions(params string[] hints)
-        {
-            Item.HintOptions = hints;
-            return this;
-        }
         public FlagItem<string> Flag(string name, string help = "")
         {
             var result = new FlagItem<string>($"{Path}:{name}", name, help);

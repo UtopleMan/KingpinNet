@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace KingpinNet
 {
@@ -150,7 +151,11 @@ namespace KingpinNet
             Item.Examples = examples;
             return this;
         }
-
+        public ArgumentItem<T> SetSuggestions(params string[] suggestions)
+        {
+            Item.Suggestions = suggestions;
+            return this;
+        }
         public ArgumentItem<T> IsUrl()
         {
             Item.ValueType = ValueType.Url;
@@ -257,6 +262,7 @@ namespace KingpinNet
         string Help { get; }
         string[] Examples { get; }
         ItemType ItemType { get; }
+        string[] Suggestions { get; }
     }
 
     public class BaseItem<T> : IItem
@@ -324,6 +330,8 @@ namespace KingpinNet
         public string Help => Item.Help;
 
         public string[] Examples => Item.Examples;
+
+        public string[] Suggestions => Item.Suggestions;
 
         public ItemType ItemType => Item.ItemType;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using KingpinNet;
 using Microsoft.Extensions.Configuration;
 
@@ -14,7 +15,14 @@ namespace Curl
                 .ApplicationName("curl")
                 .ApplicationHelp("An example implementation of curl.")
                 .ExitOnHelp()
-                .ShowHelpOnParsingErrors();
+                .ShowHelpOnParsingErrors()
+                .Log((serverity, message, exception) => {
+                    Console.WriteLine($"[{serverity}]\t{message}");
+                    if (exception != null)
+                    {
+                        Console.WriteLine($"\t{exception}");
+                    }
+                });
 
             var timeout = Kingpin.Flag("timeout", "Set connection timeout.").Short('t').Default("5s"); // .Duration()
             var headers = Kingpin.Flag("headers", "Add HTTP headers to the request.").Short('H'); // .PlaceHolder("HEADER=VALUE");
@@ -27,7 +35,7 @@ namespace Curl
             var post = Kingpin.Command("post", "POST a resource.");
             var postData = post.Flag("data", "Key-value data to POST").Short('d'); // .PlaceHolder("KEY:VALUE").StringMap()
             var postBinaryFile = post.Flag("data-binary", "File with binary data to POST."); // .IsFile();
-            var postUrl = post.Argument("url", "URL to POST to.").IsRequired().IsUrl();
+            var postUrl = post.Argument("url", "URL to POST to.").IsRequired().IsUrl().SetSuggestions("http://localhost", "http://192.168.1.1", "http://0.0.0.0");
 
 
             var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddKingpinNetCommandLine(args).Build();
@@ -42,8 +50,6 @@ namespace Curl
                     Console.WriteLine($"Posting to URL {configuration["post:url"]}");
                     break;
             }
-
-            Console.ReadLine();
         }
     }
 }
