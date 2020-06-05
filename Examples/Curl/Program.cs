@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using KingpinNet;
 using Microsoft.Extensions.Configuration;
 
@@ -17,11 +16,11 @@ namespace Curl
                 .ExitOnHelp()
                 .ShowHelpOnParsingErrors()
                 .Log((serverity, message, exception) => {
-                    Console.WriteLine($"[{serverity}]\t{message}");
-                    if (exception != null)
-                    {
-                        Console.WriteLine($"\t{exception}");
-                    }
+                    //Console.WriteLine($"[{serverity}]\t{message}");
+                    //if (exception != null)
+                    //{
+                    //    Console.WriteLine($"\t{exception}");
+                    //}
                 });
 
             var timeout = Kingpin.Flag("timeout", "Set connection timeout.").Short('t').Default("5s"); // .Duration()
@@ -29,7 +28,7 @@ namespace Curl
             var get = Kingpin.Command("get", "GET a resource.").IsDefault();
             var getFlag = get.Flag("test", "Test flag").IsBool();
             var getUrl = get.Command("url", "Retrieve a URL.").IsDefault();
-            var getUrlUrl = getUrl.Argument("url", "URL to GET.").IsRequired().IsUrl();
+            var getUrlUrl = getUrl.Argument("url", "URL to GET.").IsRequired().IsUrl().SetSuggestions("http://localhost", "http://192.168.1.1", "http://0.0.0.0");
             var getFile = get.Command("file", "Retrieve a file.");
             var getFileFile = getFile.Argument("file", "File to retrieve.").IsRequired(); // .ExistingFile()
             var post = Kingpin.Command("post", "POST a resource.");

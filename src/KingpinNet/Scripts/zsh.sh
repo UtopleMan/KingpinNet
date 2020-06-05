@@ -1,6 +1,6 @@
 ﻿#compdef {{AppName}}
 _{{AppName}}() {
-    local matches=($(${words[1]} --completion-bash "${(@)words[1,$CURRENT]}"))
+    local matches=($(${words[1]} suggest "${(@)words[1,$CURRENT]}"))
     compadd -a matches
     if [[ $compstate[nmatches] -eq 0 && $words[$CURRENT] != -* ]]; then
         _files

@@ -40,6 +40,8 @@ namespace KingpinNet
         public KingpinApplication(IConsole console)
         {
             this.console = console;
+            exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+            exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
         public void Initialize()
         {
@@ -49,8 +51,6 @@ namespace KingpinNet
             Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
             Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
             Flag<bool>("suggestion-script-pwsh").IsHidden().Action(x => GenerateScript("pwsh.ps1"));
-            exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
-            exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
 
         private void GenerateScript(string resource)
@@ -60,8 +60,7 @@ namespace KingpinNet
                 .Replace("{{AppName}}", exeFileName)
                 .Replace("{{AppExtension}}", exeFileExtension);
 
-            console.Out.Write(content);
-            log.Invoke(Serverity.Info, "Generated script: " + Environment.NewLine + content, null);
+            console.Out.Write(content.Replace("\r", ""));
             Environment.Exit(0);
         }
         private string GetResource(string name)

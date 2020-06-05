@@ -8,9 +8,9 @@ namespace KingpinNet
     {
         private string GenerateExamples(string[] examples)
         {
-            if (examples == null)
+            if (examples == null || examples.Length == 0)
                 return "";
-            var result = examples.Aggregate((current, example) => current + ", " + example);
+            var result = examples.Aggregate((current, next) => current + ", " + next);
             return "(e.g. " + result + ")";
         }
 
@@ -27,7 +27,9 @@ namespace KingpinNet
                 {
                     if ((command.Arguments != null && command.Arguments.Count() != 0) ||
                         (command.Flags != null && command.Flags.Count() != 0))
+                    {
                         finalCommands.Add(new Tuple<string, CommandItem>((currentCommand + " " + command.Name).Trim(), command));
+                    }
                     RecurseCommands((currentCommand + " " + command.Name).Trim(), command.Commands, finalCommands);
                 }
             }

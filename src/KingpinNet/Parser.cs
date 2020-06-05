@@ -122,12 +122,13 @@ namespace KingpinNet
                 _args = _args.Skip(1).ToList();
             }
             _result.IsSuggestion = true;
+            if (_args.Count == 0) return;
             var argsStr = _args.Aggregate((c, n) => c + " " + n);
 
             Log(Serverity.Info, $"Suggestion arguments: '{argsStr}'");
 
-            var argumentLine = RemoveApplicationName(_args[0]);
-            _args = commandLineTokenizer.ToTokens(argumentLine);
+            argsStr = RemoveApplicationName(argsStr);
+            _args = commandLineTokenizer.ToTokens(argsStr);
         }
 
         private bool IsPosition(string flag)
@@ -152,8 +153,11 @@ namespace KingpinNet
             result.AddRange(GetSuggestionsOnCommandArgument(commands, partString));
             result.AddRange(GetSuggestionsOnGlobalArguments(partString));
 
-            var suggestions = result.Aggregate((c, n) => c + ", " + n);
-            Log(Serverity.Info, $"Found suggestions for string '{partString}': {suggestions}");
+            if (result.Any())
+            {
+                var suggestions = result.Aggregate((c, n) => c + ", " + n);
+                Log(Serverity.Info, $"Found suggestions for string '{partString}': {suggestions}");
+            }
             return result;
         }
 
@@ -164,24 +168,35 @@ namespace KingpinNet
             {
                 result.AddRange(globalArguments
                     .SelectMany(x => x.Examples)
-                    .Where(x => x.ToLowerInvariant().Contains(partString)));
+                    .Where(x => string.IsNullOrWhiteSpace(partString) ? true : x.ToLowerInvariant().Contains(partString)));
             }
             return result;
         }
 
         private string RemoveApplicationName(string partString)
         {
+            if (partString.IndexOf(exeFileName) == -1)
+                return partString;
             var index = partString.IndexOf(exeFileName) + exeFileName.Length;
             var firstSpace = partString.Substring(index).IndexOf(" ");
+            if (firstSpace == -1)
+                return "";
             return partString.Substring(index + firstSpace + 1);
         }
 
         private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
         {
             var result = new List<string>();
-            result.AddRange(flags.Where(x => !x.IsSet && ("--" + x.Name.ToLowerInvariant()).Contains(partString) && !x.Hidden)
+            result.AddRange(flags.Where(
+                x => (!x.IsSet || !String.IsNullOrEmpty(x.DefaultValue))
+                && (string.IsNullOrWhiteSpace(partString) ? true : ("--" + x.Name.ToLowerInvariant()).Contains(partString))
+                && !x.Hidden)
                 .Select(x => "--" + x.Name));
-            result.AddRange(flags.Where(x => !x.IsSet && x.ShortName != 0 && ("-" + x.ShortName).Contains(partString) && !x.Hidden)
+            result.AddRange(flags.Where(x => !x.IsSet
+            && x.ShortName != '\0'
+            && (string.IsNullOrWhiteSpace(partString) ? true : ("-" + x.ShortName).Contains(partString))
+
+            && !x.Hidden)
                 .Select(x => "-" + x.ShortName));
             return result;
         }
@@ -194,7 +209,8 @@ namespace KingpinNet
             {
                 result.AddRange(
                     commands
-                    .Where(x => x.Name.ToLowerInvariant().Contains(partString) && !x.Hidden)
+                    .Where(x => (string.IsNullOrWhiteSpace(partString) ? true : x.Name.ToLowerInvariant().Contains(partString))
+                            && !x.Hidden)
                     .Select(x => x.Name));
                 return result;
             }
@@ -209,7 +225,8 @@ namespace KingpinNet
                 {
                     result.AddRange(
                         command.Commands
-                        .Where(x => x.Name.ToLowerInvariant().Contains(partString) && !x.Hidden)
+                        .Where(x => (string.IsNullOrWhiteSpace(partString) ? true : x.Name.ToLowerInvariant().Contains(partString))
+                                && !x.Hidden)
                         .Select(x => x.Name));
                     result.AddRange(GetSuggestionsOnFlags(command.Flags, partString));
                     return result;
@@ -240,12 +257,12 @@ namespace KingpinNet
                 {
                     result.AddRange(
                         command.Arguments.SelectMany(x => x.Suggestions)
-                        .Where(x => x.ToLowerInvariant().Contains(partString))
+                        .Where(x => string.IsNullOrWhiteSpace(partString) ? true : x.ToLowerInvariant().Contains(partString))
                         .Select(x => x));
                     return result;
                 }
 
-                result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
+                result.AddRange(GetSuggestionsOnCommandArgument(command.Commands, partString));
             }
             return result;
         }

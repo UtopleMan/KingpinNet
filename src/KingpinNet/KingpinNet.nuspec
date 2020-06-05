@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
         <id>KingpinNet</id>
-        <version>0.8.buildversion</version>
+        <version>0.9.buildversion</version>
         <authors>Peter Andersen</authors>
         <owners>Peter Andersen</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>

@@ -1,7 +1,7 @@
 [![CircleCI](https://circleci.com/gh/UtopleMan/KingpinNet/tree/master.svg?style=svg)](https://circleci.com/gh/UtopleMan/KingpinNet/tree/master)
 [![Latest version](https://img.shields.io/badge/nuget-v0.2-blue.svg)](https://www.nuget.org/packages/KingpinNet)
 [![License GPLv3](https://img.shields.io/badge/license-GPLv3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
-# Kingpin.Net style command line arguments parser for .NET
+# Kingpin.Net style command line arguments parser and command line UI goodies for .NET 
 
 <!-- MarkdownTOC -->
 - [Overview](#overview)
@@ -43,6 +43,8 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 - POSIX Style short flags
 - Customizable console help using T4 templates
 - context sensitive help output
+- TAB Auto-completion on ZSH, Bash and Powershell
+- Command line UI Goodies tools for making beautiful command line interfaces. See KingpinNet.UI
 
 ## Usage
 
@@ -111,8 +113,28 @@ class Program
     }
 }
 ```
+### Auto-completion in Powershell, Bash and ZSH
+
+KingpinNet supports auto completion on all the three major terminals. Just run the following commands with your tool:
+
+For ZSH:
+```
+eval "$({Your-tool-executable} --suggestion-script-zsh)"
+```
+For Bash:
+```
+eval "$({Your-tool-executable} --suggestion-script-bash)"
+```
+For Powershell:
+```
+iex "$({Your-tool-executable} --suggestion-script-pwsh)"
+```
+
+After you run the script, you are able to have TAB auto complete on your tool.
 
 ## Changelog
+ - 0.9
+   - Added auto completion scripts for ZSH, Bash and Powershell
  - 0.8
    - Added first attempt on auto completions for PowerShell, BASH and ZSH
  - 0.7
@@ -142,3 +164,6 @@ class Program
 ### Flags
 ### Arguments
 ### Custom help
+
+## Mentions
+ * Check out this fantastic ASCII font library https://github.com/drewnoakes/figgle

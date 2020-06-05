@@ -8,7 +8,7 @@ namespace KingpinNet
     {
         private string GenerateExamples(string[] examples)
         {
-            if (examples == null)
+            if (examples == null ||examples.Length == 0)
                 return "";
             var result = examples.Aggregate((current, example) => current + ", " + example);
             return "(e.g. " + result + ")";
