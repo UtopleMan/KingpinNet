@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>Curlx</AssemblyName>
+    <AssemblyName>Curl</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
