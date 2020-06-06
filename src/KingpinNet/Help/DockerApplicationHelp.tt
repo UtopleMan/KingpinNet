@@ -1,0 +1,53 @@
+﻿<#@ template language="C#" visibility="public" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+Usage:  <#=(Application?.Name ?? "")#> <# if (Application.Arguments.Count() > 0) { #> [ARGS]<#}#><# if (Application.Flags.Count() > 0) { #> [OPTIONS]<#}#><# if (Application.Commands.Count() > 0) { #> COMMAND<# } #>
+
+
+<#= Application?.Help ?? ""#>
+
+<# if (Application.Flags != null) {
+    var flags = Application.Flags.Where(x => !x.Hidden).ToList();
+
+    if (flags.Count != 0) {
+        var maxFlagLength = flags.Max(x => x.Name.Length + x.ValueType.ToString().Length);#>
+Options:
+<#      foreach (var flag in flags) 
+        {
+            var typeString = "";
+            if (flag.ShortName != 0) {
+                typeString = "  -" + flag.ShortName + ", --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } else {
+                typeString = "      --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } #>
+<#=typeString.PadRight(maxFlagLength + 12)#><#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
+<#      }
+    }
+}#>
+
+<#if (Application.Categories != null && Application.Categories.Count() != 0)
+{
+    foreach (var category in Application.Categories)
+    { #>
+<#=category.Description#>
+<#
+        var commandNameLength = Application.Commands.Where(x => x.Category == category).Select(x => x.Name).Max(c => c.Length);
+        foreach (var command in Application.Commands.Where(x => x.Category == category))
+        {#>
+  <#=command.Name.PadRight(commandNameLength + 2)#><#=command.Help#>
+<#      }
+    }
+}
+
+if (Application.Commands != null && Application.Commands.Where(x => x.Category == null).Count() != 0) { #>
+
+Commands:
+<#
+    var commandNameLength = Application.Commands.Where(x => x.Category == null).Select(x => x.Name).Max(c => c.Length);
+
+    foreach (var command in Application.Commands.Where(x => x.Category == null))
+    {#>
+  <#=command.Name.PadRight(commandNameLength + 2)#><#=command.Help#>
+<#  }#>
+<#}#>

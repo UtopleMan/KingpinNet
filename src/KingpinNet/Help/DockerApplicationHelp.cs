@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace KingpinNet
+namespace KingpinNet.Help
 {
     using System.Linq;
     using System.Collections.Generic;
@@ -17,9 +17,9 @@ namespace KingpinNet
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public partial class CommandHelp : CommandHelpBase
+    public partial class DockerApplicationHelp : DockerApplicationHelpBase
     {
 #line hidden
         /// <summary>
@@ -27,281 +27,196 @@ namespace KingpinNet
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(" \r\n");
-            this.Write("usage: ");
+            this.Write("\r\nUsage:  ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name + " "); }
-            
-            #line default
-            #line hidden
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Command.Name));
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture((Application?.Name ?? "")));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
- if (Command.Flags.Count() > 0) { 
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+ if (Application.Arguments.Count() > 0) { 
             
             #line default
             #line hidden
-            this.Write("[<flags>] ");
+            this.Write(" [ARGS]");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
- } if (Command.Commands.Count() > 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("<command> ");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
- } if (Command.Arguments.Count() > 1) { 
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+}
             
             #line default
             #line hidden
-            this.Write("[<args> ...] ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
- } else if (Command.Arguments.Count() == 1) { 
-            
-            #line default
-            #line hidden
-            this.Write("[<");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Command.Arguments.First().Name));
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+ if (Application.Flags.Count() > 0) { 
             
             #line default
             #line hidden
-            this.Write(">]");
+            this.Write(" [OPTIONS]");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+}
+            
+            #line default
+            #line hidden
+            
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+ if (Application.Commands.Count() > 0) { 
+            
+            #line default
+            #line hidden
+            this.Write(" COMMAND");
+            
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 8 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Command.Help ?? ""));
+            #line 8 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Application?.Help ?? ""));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 10 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
- if (Command.Flags != null) {
-    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
+            #line 10 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+ if (Application.Flags != null) {
+    var flags = Application.Flags.Where(x => !x.Hidden).ToList();
 
     if (flags.Count != 0) {
-        var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;
+        var maxFlagLength = flags.Max(x => x.Name.Length + x.ValueType.ToString().Length);
             
             #line default
             #line hidden
-            this.Write("Flags:\r\n");
+            this.Write("Options:\r\n");
             
-            #line 16 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 16 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
       foreach (var flag in flags) 
         {
-            var defaultValue = "";
-            if (!string.IsNullOrWhiteSpace(flag.DefaultValue))
-                defaultValue = "=" + flag.DefaultValue;
-
-            if (!string.IsNullOrWhiteSpace(flag.ValueName))
-                defaultValue = "=" + flag.ValueName;
-
-            if (flag.ShortName != 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("  -");
-            
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(flag.ShortName));
-            
-            #line default
-            #line hidden
-            this.Write(", --");
-            
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(flag.Name));
+            var typeString = "";
+            if (flag.ShortName != 0) {
+                typeString = "  -" + flag.ShortName + ", --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } else {
+                typeString = "      --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } 
             
             #line default
             #line hidden
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(typeString.PadRight(maxFlagLength + 12)));
             
             #line default
             #line hidden
-            this.Write("   ");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 27 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-          }
-            else { 
-            
-            #line default
-            #line hidden
-            this.Write("      --");
-            
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(flag.Name));
-            
-            #line default
-            #line hidden
-            
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
-            
-            #line default
-            #line hidden
-            this.Write("   ");
-            
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(flag.Help));
-            
-            #line default
-            #line hidden
-            this.Write(" ");
-            
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Examples)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 30 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-          }
-        }
+            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+      }
     }
 }
             
             #line default
             #line hidden
+            this.Write("\r\n");
             
-            #line 34 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-if (Command.Arguments != null && Command.Arguments.Count() != 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("Args:\r\n");
-            
-            #line 36 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-
-    var Arguments = new List<string>();
-    var maxArgLength = Command.Arguments.Max(x => x.Name.Length) + 9;
-
-    foreach (var arg in Command.Arguments)
-    {
-        int spacing = maxArgLength - arg.Name.Length;
-        string finalString = $"  [<{arg.Name}>]".PadRight(spacing); 
+            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+if (Application.Categories != null && Application.Categories.Count() != 0)
+{
+    foreach (var category in Application.Categories)
+    { 
             
             #line default
             #line hidden
             
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(finalString));
-            
-            #line default
-            #line hidden
-            this.Write("   ");
-            
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(arg.Help));
-            
-            #line default
-            #line hidden
-            this.Write(" ");
-            
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(arg.Examples)));
+            #line 33 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(category.Description));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 45 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-  }
+            #line 34 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+
+        var commandNameLength = Application.Commands.Where(x => x.Category == category).Select(x => x.Name).Max(c => c.Length);
+        foreach (var command in Application.Commands.Where(x => x.Category == category))
+        {
+            
+            #line default
+            #line hidden
+            this.Write("  ");
+            
+            #line 38 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(command.Name.PadRight(commandNameLength + 2)));
+            
+            #line default
+            #line hidden
+            
+            #line 38 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(command.Help));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
+            
+            #line 39 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+      }
+    }
 }
+
+if (Application.Commands != null && Application.Commands.Where(x => x.Category == null).Count() != 0) { 
             
             #line default
             #line hidden
+            this.Write("\r\nCommands:\r\n");
             
-            #line 47 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-if (Command.Commands != null && Command.Commands.Count() != 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("Commands:\r\n");
-            
-            #line 49 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 46 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
 
-    var finalCommands = new List<Tuple<string, CommandItem>>();
-    RecurseCommands("", Command.Commands, finalCommands);
+    var commandNameLength = Application.Commands.Where(x => x.Category == null).Select(x => x.Name).Max(c => c.Length);
 
-    var commandNameLength = finalCommands.Max(c => c.Item1.Length);
-
-    foreach (var command in finalCommands)
+    foreach (var command in Application.Commands.Where(x => x.Category == null))
     {
             
             #line default
             #line hidden
             this.Write("  ");
             
-            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(command.Item1));
+            #line 51 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(command.Name.PadRight(commandNameLength + 2)));
             
             #line default
             #line hidden
-            this.Write(" ");
             
-            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CommandUsage(command.Item2)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(command.Item2.Help));
-            
-            #line default
-            #line hidden
-            this.Write(" ");
-            
-            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
-GenerateExamples(command.Item2.Examples);
+            #line 51 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(command.Help));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 60 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 52 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
   }
             
             #line default
             #line hidden
-            this.Write("\r\n");
             
-            #line 62 "C:\Sources\KingpinNet\src\KingpinNet\CommandHelp.tt"
+            #line 53 "C:\Sources\KingpinNet\src\KingpinNet\Help\DockerApplicationHelp.tt"
 }
             
             #line default
@@ -317,7 +232,7 @@ GenerateExamples(command.Item2.Examples);
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public class CommandHelpBase
+    public class DockerApplicationHelpBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

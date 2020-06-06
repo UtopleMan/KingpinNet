@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KingpinNet.Help;
+using System;
 using System.IO;
 
 namespace KingpinNet
@@ -18,7 +19,7 @@ namespace KingpinNet
             if (template == null)
                 template = new ApplicationHelp();
             template.Application = _application;
-            output.WriteLine(template.TransformText().Replace("\r\n", $"{Nl}"));
+            output.Write(template.TransformText().Replace("\r\n", $"{Nl}"));
         }
 
         public void Generate(CommandItem command, TextWriter output, IHelpTemplate template = default(CommandHelp))

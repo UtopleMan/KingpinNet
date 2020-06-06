@@ -7,11 +7,12 @@ namespace KingpinNet
 
     public class CommandLineItem<T>
     {
-        public CommandLineItem(string path, string name, string help, ItemType itemType): this(path, name, help, itemType, ValueType.String)
+        public CommandLineItem(string path, string name, string help, ItemType itemType):
+            this(path, name, help, itemType, ValueType.String, null)
         {
         }
 
-        public CommandLineItem(string path, string name, string help, ItemType itemType, ValueType valueType)
+        public CommandLineItem(string path, string name, string help, ItemType itemType, ValueType valueType, CommandCategory category)
         {
             Path = path;
             Name = name;
@@ -23,6 +24,7 @@ namespace KingpinNet
                 TypeOfEnum = typeof(T);
             Suggestions = new string[0];
             Examples = new string[0];
+            Category = category;
         }
 
         internal List<CommandItem> _commands = new List<CommandItem>();
@@ -51,6 +53,8 @@ namespace KingpinNet
         public string[] Examples { get; internal set; }
         public string[] Suggestions { get; internal set; }
         public string ValueName { get; internal set; }
+        public CommandCategory Category { get; internal set; }
+
         internal void ConvertAndSetValue(string value)
         {
             if (typeof(T) == typeof(string))

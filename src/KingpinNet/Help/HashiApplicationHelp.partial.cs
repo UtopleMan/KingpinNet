@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
-namespace KingpinNet
+namespace KingpinNet.Help
 {
-    public partial class ApplicationHelp : IHelpTemplate
+    public partial class HashiApplicationHelp : IHelpTemplate
     {
         private string GenerateExamples(string[] examples)
         {
@@ -57,6 +58,10 @@ namespace KingpinNet
             return result;
         }
 
+        private string WriteFlags(IEnumerable<IItem> flags)
+        {
+            return flags.Where(x => !x.Hidden).Select(x => "[ --" + x.Name + " ]").Aggregate((c, n) => c + " " + n);
+        }
 
         public KingpinApplication Application { get; set; }
         public CommandItem Command { get; set; }

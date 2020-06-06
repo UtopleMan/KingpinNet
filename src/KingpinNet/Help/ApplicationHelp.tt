@@ -1,14 +1,13 @@
-﻿<#@ template language="C#" #>   
-<#@ template visibility="internal" #>
+﻿<#@ template language="C#" visibility="public" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
 usage:<#= " " + (Application?.Name ?? "")#><# if (Application.Flags.Count() > 0) { #>[<flags>] <# } if (Application.Commands.Count() > 0) { #><command> <# } if (Application.Arguments.Count() > 1) { #>[<args> ...]<# } else if (Application.Arguments.Count() == 1) { #>[<<#= Application.Arguments.First().Name #>>]<# } #>
 
 
-<#= Application.Help ?? ""#>
+<#= Application?.Help ?? ""#>
 
 <# if (Application.Flags != null) {
-    var flags = Application.Flags.Where(x => !x.IsHidden).ToList();
+    var flags = Application.Flags.Where(x => !x.Hidden).ToList();
 
     if (flags.Count != 0) {
         var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;#>

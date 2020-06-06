@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace KingpinNet
+namespace KingpinNet.Help
 {
     using System.Linq;
     using System.Collections.Generic;
@@ -17,9 +17,9 @@ namespace KingpinNet
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+    #line 1 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public partial class ApplicationHelp : ApplicationHelpBase
+    public partial class HashiCommandHelp : HashiCommandHelpBase
     {
 #line hidden
         /// <summary>
@@ -27,76 +27,80 @@ namespace KingpinNet
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("   \r\n");
-            this.Write("usage:");
+            this.Write("Usage: ");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(" " + (Application?.Name ?? "")));
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name); }
+            
+            #line default
+            #line hidden
+            this.Write(" ");
+            
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Command.Name));
             
             #line default
             #line hidden
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
- if (Application.Flags.Count() > 0) { 
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (Command.Commands.Count() > 0) { 
             
             #line default
             #line hidden
-            this.Write("[<flags>] ");
+            this.Write(" <subcommand>");
             
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
- } if (Application.Commands.Count() > 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("<command> ");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
- } if (Application.Arguments.Count() > 1) { 
-            
-            #line default
-            #line hidden
-            this.Write("[<args> ...]");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
- } else if (Application.Arguments.Count() == 1) { 
-            
-            #line default
-            #line hidden
-            this.Write("[<");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Application.Arguments.First().Name));
-            
-            #line default
-            #line hidden
-            this.Write(">]");
-            
-            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n");
             
-            #line 8 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Application.Help ?? ""));
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (Command.Flags.Count() > 0) { 
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n");
+            this.Write(" [options]");
             
-            #line 10 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
- if (Application.Flags != null) {
-    var flags = Application.Flags.Where(x => !x.Hidden).ToList();
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+ } 
+            
+            #line default
+            #line hidden
+            
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (Command.Arguments.Count() > 0) { 
+            
+            #line default
+            #line hidden
+            this.Write(" [args]");
+            
+            #line 2 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+ } 
+            
+            #line default
+            #line hidden
+            this.Write("\r\n\r\n  ");
+            
+            #line 5 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Command.Help ?? ""));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
+            
+            #line 6 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+ if (Command.Flags != null) {
+    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
 
     if (flags.Count != 0) {
         var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;
             
             #line default
             #line hidden
-            this.Write("Flags:\r\n");
+            this.Write("\r\nOptions\r\n\r\n");
             
-            #line 16 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 14 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
       foreach (var flag in flags) 
         {
             var defaultValue = "";
@@ -112,76 +116,76 @@ namespace KingpinNet
             #line hidden
             this.Write("  -");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.ShortName));
             
             #line default
             #line hidden
             this.Write(", --");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Name));
             
             #line default
             #line hidden
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 24 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
             
             #line default
             #line hidden
-            this.Write("   ");
+            this.Write("\r\n     ");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 25 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 27 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 26 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
           }
             else { 
             
             #line default
             #line hidden
-            this.Write("      --");
+            this.Write("  --");
             
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 28 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Name));
             
             #line default
             #line hidden
             
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 28 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(defaultValue));
             
             #line default
             #line hidden
-            this.Write("   ");
+            this.Write("\r\n     ");
             
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(flag.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 29 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(flag.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 30 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 30 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
           }
         }
     }
@@ -190,66 +194,62 @@ namespace KingpinNet
             #line default
             #line hidden
             
-            #line 34 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-if (Application.Arguments != null && Application.Arguments.Count() != 0) { 
+            #line 34 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (Command.Arguments != null && Command.Arguments.Count() != 0) { 
             
             #line default
             #line hidden
-            this.Write("Args:\r\n");
+            this.Write("\r\nArguments\r\n\r\n");
             
-            #line 36 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 38 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
 
     var Arguments = new List<string>();
-    var maxArgLength = Application.Arguments.Max(x => x.Name.Length) + 9;
-
-    foreach (var arg in Application.Arguments)
-    {
-        int spacing = maxArgLength - arg.Name.Length;
-        string finalString = $"  [<{arg.Name}>]".PadRight(spacing); 
+    foreach (var arg in Command.Arguments)
+    { 
             
             #line default
             #line hidden
+            this.Write("  ");
             
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(finalString));
+            #line 42 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(arg.Name));
             
             #line default
             #line hidden
-            this.Write("   ");
+            this.Write("\r\n     ");
             
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 43 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(arg.Help));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 43 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(GenerateExamples(arg.Examples)));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 45 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 44 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
   }
 }
             
             #line default
             #line hidden
             
-            #line 47 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-if (Application.Commands != null && Application.Commands.Count() != 0) { 
+            #line 46 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+if (Command.Commands != null && Command.Commands.Count() != 0) { 
             
             #line default
             #line hidden
-            this.Write("Commands:\r\n");
+            this.Write("\r\nSubcommands\r\n\r\n");
             
-            #line 49 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 50 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
 
     var finalCommands = new List<Tuple<string, CommandItem>>();
-    RecurseCommands("", Application.Commands, finalCommands);
-
+    RecurseCommands("", Command.Commands, finalCommands);
     var commandNameLength = finalCommands.Max(c => c.Item1.Length);
 
     foreach (var command in finalCommands)
@@ -259,42 +259,22 @@ if (Application.Commands != null && Application.Commands.Count() != 0) {
             #line hidden
             this.Write("  ");
             
-            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(command.Item1));
+            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(command.Item1.PadRight(commandNameLength)));
             
             #line default
             #line hidden
-            this.Write(" ");
+            this.Write("    ");
             
-            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(CommandUsage(command.Item2)));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n    ");
-            
-            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 57 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(command.Item2.Help));
-            
-            #line default
-            #line hidden
-            this.Write(" ");
-            
-            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-GenerateExamples(command.Item2.Examples);
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n");
-            
-            #line 61 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
-  }
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 63 "C:\Sources\KingpinNet\src\KingpinNet\ApplicationHelp.tt"
+            #line 58 "C:\Sources\KingpinNet\src\KingpinNet\Help\HashiCommandHelp.tt"
+  }
 }
             
             #line default
@@ -310,7 +290,7 @@ GenerateExamples(command.Item2.Examples);
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
-    public class ApplicationHelpBase
+    public class HashiCommandHelpBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

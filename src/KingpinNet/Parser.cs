@@ -336,7 +336,6 @@ namespace KingpinNet
 
         private void CommandFound(CommandItem command)
         {
-            //SetDefaults();
             while (_currentItem < _args.Count)
             {
                 if (IsCommand(_args[_currentItem], command.Commands, out CommandItem commandFound))
@@ -637,23 +636,11 @@ namespace KingpinNet
 
             if (arg.StartsWith("--"))
             {
-                var foundFlags = flags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                var foundLocalFlags = flags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
                     IsValidFlag(f, arg, errors)).ToList();
-                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
-                    IsValidFlag(f, arg, errors)));
-                if (!foundFlags.Any())
-                {
-                    if (_result.IsSuggestion) return false;
-                    throw new ParseException("Illegal flag " + arg, errors);
-                }
-                if (foundFlags.Count() > 1)
-                {
-                    if (_result.IsSuggestion) return false;
-                    throw new ParseException("Found multiple flags with same name " + arg);
-                }
-                item = foundFlags.First();
-                item.StringValue = GetValue(foundFlags.First(), arg);
-                return true;
+                var foundGlobalFlags = globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
+                    IsValidFlag(f, arg, errors));
+                return EvaluateItem(foundLocalFlags, foundGlobalFlags, arg, errors, out item);
             }
             if (arg.StartsWith("-"))
             {
@@ -663,18 +650,32 @@ namespace KingpinNet
                     if (_result.IsSuggestion) return false;
                     throw new ParseException("Short name arguments are only one character " + flagName);
                 }
-                var foundFlags = flags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
-                foundFlags.AddRange(globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
-                    IsValidFlag(f, arg, errors)));
-                if (!foundFlags.Any())
-                    throw new ParseException("Illegal flag " + arg, errors);
-                if (foundFlags.Count() > 1)
-                    throw new ParseException("Found multiple flags with same name" + arg);
-                item = foundFlags.First();
-                item.StringValue = GetValue(foundFlags.First(), arg);
-                return true;
+                var foundLocalFlags = flags.Where(f => f.ShortName == flagName[0] &&
+                    IsValidFlag(f, arg, errors)).ToList();
+                var foundGlobalFlags = globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
+                    IsValidFlag(f, arg, errors));
+                return EvaluateItem(foundLocalFlags, foundGlobalFlags, arg, errors, out item);
             }
             return false;
+        }
+
+        private bool EvaluateItem(IEnumerable<IItem> localItems,
+            IEnumerable<IItem> globalItems, string arg, List<string> errors, out IItem item)
+        {
+            item = null;
+            if (!localItems.Any() && !globalItems.Any())
+            {
+                if (_result.IsSuggestion) return false;
+                throw new ParseException("Illegal flag " + arg, errors);
+            }
+            if (localItems.Count() > 1 || globalItems.Count() > 1)
+            {
+                if (_result.IsSuggestion) return false;
+                throw new ParseException("Found multiple flags with same name " + arg);
+            }
+            item = localItems.SingleOrDefault() ?? globalItems.Single();
+            item.StringValue = GetValue(item, arg);
+            return true;
         }
 
         private string GetFlagName(string arg)

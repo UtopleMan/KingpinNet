@@ -1,0 +1,39 @@
+﻿<#@ template language="C#" visibility="public" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+Usage:  <#=Application.Name + " "#><#=Command.Name#><# if (Command.Commands.Count() > 0) { #> COMMAND<# } #><# if (Command.Arguments.Count() > 0) { #> [ARGS]<#}#><# if (Command.Flags.Count() > 0) { #> [OPTIONS]<#}#>
+
+
+<#= Command?.Help ?? ""#>
+
+<# if (Command.Flags != null) {
+    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
+
+    if (flags.Count != 0) {
+        var maxFlagLength = flags.Max(x => x.Name.Length + x.ValueType.ToString().Length);#>
+Options:
+<#      foreach (var flag in flags) 
+        {
+            var typeString = "";
+            if (flag.ShortName != 0) {
+                typeString = "  -" + flag.ShortName + ", --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } else {
+                typeString = "      --" + flag.Name + " " + (flag.ValueType == KingpinNet.ValueType.Bool ? "" : flag.ValueType.ToString().ToLower());
+            } #>
+<#=typeString.PadRight(maxFlagLength + 12)#><#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
+<#      }
+    }
+}
+
+if (Command.Commands != null && Command.Commands.Where(x => x.Category == null).Count() != 0) { #>
+
+Commands:
+<#
+    var commandNameLength = Command.Commands.Where(x => x.Category == null).Select(x => x.Name).Max(c => c.Length);
+
+    foreach (var command in Command.Commands.Where(x => x.Category == null))
+    {#>
+  <#=command.Name.PadRight(commandNameLength + 2)#><#=command.Help#>
+<#  }#>
+<#}#>

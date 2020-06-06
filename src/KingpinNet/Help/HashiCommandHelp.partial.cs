@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using System.Text;
 
-namespace KingpinNet
+namespace KingpinNet.Help
 {
-    public partial class CommandHelp : IHelpTemplate
+    public partial class HashiCommandHelp : IHelpTemplate
     {
         private string GenerateExamples(string[] examples)
         {
@@ -53,9 +54,7 @@ namespace KingpinNet
             return result;
         }
 
-
         public KingpinApplication Application { get; set; }
         public CommandItem Command { get; set; }
     }
 }
-

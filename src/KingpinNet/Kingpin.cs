@@ -31,6 +31,11 @@ namespace KingpinNet
             return Application.ExitOnParsingErrors();
         }
 
+        public static CommandCategory Category(string name, string description)
+        {
+            return Application.Category(name, description);
+        }
+
         public static KingpinApplication ExitOnHelp()
         {
             return Application.ExitOnHelp();

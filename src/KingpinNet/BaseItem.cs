@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace KingpinNet
 {
@@ -31,7 +30,7 @@ namespace KingpinNet
 
         internal BaseItem(string path, string name, string help, ItemType itemType, ValueType valueType = ValueType.String)
         {
-            Item = new CommandLineItem<T>(path, name, help, itemType, valueType);
+            Item = new CommandLineItem<T>(path, name, help, itemType, valueType, null);
         }
 
         public string Path => Item.Path;

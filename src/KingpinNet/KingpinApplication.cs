@@ -1,4 +1,5 @@
-﻿using KingpinNet.UI;
+﻿using KingpinNet.Help;
+using KingpinNet.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,7 @@ namespace KingpinNet
     public class KingpinApplication
     {
         private readonly IConsole console;
+        private List<CommandCategory> _categories = new List<CommandCategory>();
         private List<CommandItem> _commands = new List<CommandItem>();
         private List<IItem> _flags = new List<IItem>();
         private List<IItem> _arguments = new List<IItem>();
@@ -18,6 +20,7 @@ namespace KingpinNet
         internal string exeFileName;
         internal string exeFileExtension;
 
+        public IEnumerable<CommandCategory> Categories => _categories;
         public IEnumerable<CommandItem> Commands => _commands;
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
@@ -81,8 +84,24 @@ namespace KingpinNet
         }
         private void GenerateCommandHelp(CommandItem command)
         {
-            var helpGenerator = new HelpGenerator(this);
+            var helpGenerator = new HelpGenerator(this);    
             helpGenerator.Generate(command, console.Out, _commandHelp);
+            if (ExitWhenHelpIsShown)
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        internal void AddCommand(CommandItem result)
+        {
+            _commands.Add(result);
+        }
+
+        public CommandCategory Category(string name, string description)
+        {
+            var category = new CommandCategory(this, name, description);
+            _categories.Add(category);
+            return category;
         }
 
         public CommandItem Command(string name, string help = "")
@@ -151,8 +170,8 @@ namespace KingpinNet
             {
                 if (command.Commands.Count() > 0)
                     AddCommandHelpOnAllCommands(command.Commands);
-                else
-                    Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
+                //else
+                command.Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
             }
         }
 

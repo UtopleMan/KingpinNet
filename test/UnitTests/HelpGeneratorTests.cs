@@ -37,7 +37,7 @@ namespace Tests
             Assert.IsTrue(result.Contains("usage:"));
         }
         [Test]
-        public void ParseHelpFlag()
+        public void ParseGlobalHelpFlag()
         {
             // Arrange
             string[] args = new[] { "--help" };
@@ -46,13 +46,26 @@ namespace Tests
             application.Command("run", "This is a command");
 
             // Act
-            var subject = new Parser(application);
-            var result = subject.Parse(args);
+            var result = application.Parse(args);
 
             // Assert
             Assert.AreEqual("true", result.Result["help"]);
         }
+        [Test]
+        public void ParseHelpFlagOnCommand()
+        {
+            // Arrange
+            string[] args = new[] { "run", "--help" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Initialize();
+            application.Command("run", "This is a command");
 
+            // Act
+            var result = application.Parse(args);
+
+            // Assert
+            Assert.AreEqual("true", result.Result["run:help"]);
+        }
         [Test]
         public void ShowDetailedError()
         {

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace KingpinNet
 {
     public class CommandItem : BaseItem<string>
     {
+        internal CommandItem(string path, string name, string help, CommandCategory category) : base(path, name, help, ItemType.Command)
+        {
+            Item.Category = category;
+        }
         internal CommandItem(string path, string name, string help) : base(path, name, help, ItemType.Command)
         {
         }
@@ -38,7 +43,13 @@ namespace KingpinNet
             Item._commands.Add(result);
             return result;
         }
-
+        public CommandCategory Category
+        {
+            get
+            {
+                return Item.Category;
+            }
+        }
         public IEnumerable<CommandItem> Commands
         {
             get

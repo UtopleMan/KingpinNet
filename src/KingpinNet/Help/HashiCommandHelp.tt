@@ -1,0 +1,59 @@
+﻿<#@ template language="C#" visibility="public" #><#@ import namespace="System.Linq" #><#@ import namespace="System.Collections.Generic" #>
+Usage: <#if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name); }#> <#=Command.Name#><#if (Command.Commands.Count() > 0) { #> <subcommand><# } #><#if (Command.Flags.Count() > 0) { #> [options]<# } #><#if (Command.Arguments.Count() > 0) { #> [args]<# } #>
+
+
+  <#= Command.Help ?? ""#>
+<# if (Command.Flags != null) {
+    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
+
+    if (flags.Count != 0) {
+        var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;#>
+
+Options
+
+<#      foreach (var flag in flags) 
+        {
+            var defaultValue = "";
+            if (!string.IsNullOrWhiteSpace(flag.DefaultValue))
+                defaultValue = "=" + flag.DefaultValue;
+
+            if (!string.IsNullOrWhiteSpace(flag.ValueName))
+                defaultValue = "=" + flag.ValueName;
+
+            if (flag.ShortName != 0) { #>
+  -<#=flag.ShortName#>, --<#=flag.Name#><#=defaultValue#>
+     <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
+<#          }
+            else { #>
+  --<#= flag.Name#><#=defaultValue#>
+     <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
+<#          }
+        }
+    }
+}#>
+<#if (Command.Arguments != null && Command.Arguments.Count() != 0) { #>
+
+Arguments
+
+<#
+    var Arguments = new List<string>();
+    foreach (var arg in Command.Arguments)
+    { #>
+  <#=arg.Name#>
+     <#=arg.Help#> <#=GenerateExamples(arg.Examples)#>
+<#  }
+}#>
+<#if (Command.Commands != null && Command.Commands.Count() != 0) { #>
+
+Subcommands
+
+<#
+    var finalCommands = new List<Tuple<string, CommandItem>>();
+    RecurseCommands("", Command.Commands, finalCommands);
+    var commandNameLength = finalCommands.Max(c => c.Item1.Length);
+
+    foreach (var command in finalCommands)
+    {#>
+  <#=command.Item1.PadRight(commandNameLength)#>    <#=command.Item2.Help#>
+<#  }
+}#>
