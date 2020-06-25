@@ -7,7 +7,15 @@
     <Authors>Peter Andersen</Authors>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
     <NuspecFile>KingpinNet.final.nuspec</NuspecFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Remove="Scripts\bash.sh" />
     <None Remove="Scripts\pwsh.ps1" />
