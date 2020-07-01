@@ -164,6 +164,7 @@ After you run the script, you are able to have TAB auto complete on your tool.
 ### Flags
 ### Arguments
 ### Custom help
+## Integration into .NET Core Options and Configuration
 
 ## Mentions
  * Check out this fantastic ASCII font library https://github.com/drewnoakes/figgle
