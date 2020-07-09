@@ -119,15 +119,15 @@ KingpinNet supports auto completion on all the three major terminals. Just run t
 
 For ZSH:
 ```
-eval "$({Your-tool-executable} --suggestion-script-zsh)"
+eval "$({Your-tool-executable} --completion-script-zsh)"
 ```
 For Bash:
 ```
-eval "$({Your-tool-executable} --suggestion-script-bash)"
+eval "$({Your-tool-executable} --completion-script-bash)"
 ```
 For Powershell:
 ```
-iex "$({Your-tool-executable} --suggestion-script-pwsh)"
+iex "$({Your-tool-executable} --completion-script-pwsh)"
 ```
 
 After you run the script, you are able to have TAB auto complete on your tool.

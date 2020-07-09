@@ -4,7 +4,7 @@ Usage: <#if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name);
 
   <#= Command.Help ?? ""#>
 <# if (Command.Flags != null) {
-    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
+    var flags = Command.Flags.Where(x => !x.IsHidden).ToList();
 
     if (flags.Count != 0) {
         var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;#>

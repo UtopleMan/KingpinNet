@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Tests
 {
-    public class SuggestionTests
+    public class AutoCompletionTests
     {
         private Mock<IConsole> consoleMock;
 
@@ -17,10 +17,10 @@ namespace Tests
         }
 
         [Test]
-        public void SuggestCommand()
+        public void CompleteCommand()
         {
             // Arrange
-            string[] args = new[] { "suggest", "cmd1" };
+            string[] args = new[] { "complete", "cmd1" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
@@ -30,14 +30,14 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions.First(), "cmd2");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions.First(), "cmd2");
         }
         [Test]
-        public void SuggestNoCommand()
+        public void CompleteNoCommand()
         {
             // Arrange
-            string[] args = new[] { "suggest", "cmd1", "k" };
+            string[] args = new[] { "complete", "cmd1", "k" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
@@ -47,14 +47,14 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.IsFalse(result.Suggestions.Any());
+            Assert.IsTrue(result.IsCompletion);
+            Assert.IsFalse(result.Completions.Any());
         }
         [Test]
-        public void SuggestCommandSubstring()
+        public void CompleteCommandSubstring()
         {
             // Arrange
-            string[] args = new[] { "suggest", "cmd1", "cm" };
+            string[] args = new[] { "complete", "cmd1", "cm" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1", "command1 help");
             command.Command("cmd2", "command2 help");
@@ -64,14 +64,14 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions.First(), "cmd2");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions.First(), "cmd2");
         }
         [Test]
-        public void EmptySuggestCommandShowAll()
+        public void EmptyCompleteCommandShowAll()
         {
             // Arrange
-            string[] args = new[] { "suggest" };
+            string[] args = new[] { "complete" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1");
             command.Command("cmd2");
@@ -82,15 +82,15 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions[0], "cmd1");
+            Assert.AreEqual(result.Completions[1], "--myflag");
         }
         [Test]
-        public void SuggestCommandShowAll()
+        public void CompleteCommandShowAll()
         {
             // Arrange
-            string[] args = new[] { "suggest", "m" };
+            string[] args = new[] { "complete", "m" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1");
             command.Command("cmd2");
@@ -101,15 +101,15 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions[0], "cmd1");
+            Assert.AreEqual(result.Completions[1], "--myflag");
         }
         [Test]
-        public void SuggestMinusShowFlags()
+        public void CompleteMinusShowFlags()
         {
             // Arrange
-            string[] args = new[] { "suggest","cmd1","-" };
+            string[] args = new[] { "complete", "cmd1","-" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1");
             command.Command("cmd2");
@@ -120,14 +120,14 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "--myflag");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions[0], "--myflag");
         }
         [Test]
-        public void SuggestDoubleMinusShowFlags()
+        public void CompleteDoubleMinusShowFlags()
         {
             // Arrange
-            string[] args = new[] { "suggest", "cmd1", "--" };
+            string[] args = new[] { "complete", "cmd1", "--" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1");
             command.Command("cmd2");
@@ -138,14 +138,14 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "--myflag");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions[0], "--myflag");
         }
         [Test]
-        public void SuggestCommandShowShortNamedFlag()
+        public void CompleteCommandShowShortNamedFlag()
         {
             // Arrange
-            string[] args = new[] { "suggest", "m" };
+            string[] args = new[] { "complete", "m" };
             var application = new KingpinApplication(consoleMock.Object);
             var command = application.Command("cmd1");
             application.Flag("myflag").Short('m');
@@ -155,10 +155,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
-            Assert.AreEqual(result.Suggestions[2], "-m");
+            Assert.IsTrue(result.IsCompletion);
+            Assert.AreEqual(result.Completions[0], "cmd1");
+            Assert.AreEqual(result.Completions[1], "--myflag");
+            Assert.AreEqual(result.Completions[2], "-m");
         }
     }
 }

@@ -51,6 +51,11 @@ namespace KingpinNet
             return Application.Version(version);
         }
 
+        public static KingpinApplication Options(Type optionType)
+        {
+            return Application.Options(optionType);
+        }
+
         public static CommandItem Command(string name, string help)
         {
             return Application.Command(name, help);

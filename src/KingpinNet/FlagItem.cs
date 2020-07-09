@@ -2,15 +2,8 @@
 
 namespace KingpinNet
 {
-    public class FlagItem<T> : BaseItem<T>
+    public class FlagItem<T> : CommandLineItem<T>
     {
-        public T Value {
-            get
-            {
-                return Item.Value;
-            }
-        }
-
         internal FlagItem(string path, string name, string help)
             : base(path, name, help, ItemType.Flag)
         {
@@ -23,104 +16,109 @@ namespace KingpinNet
 
         public new FlagItem<T> ValueName(string valueName)
         {
-            Item.ValueName = valueName;
+            base.ValueName = valueName;
             return this;
         }
 
         public FlagItem<T> SetExamples(params string[] examples)
         {
-            Item.Examples = examples;
+            Examples = examples;
             return this;
         }
 
         public FlagItem<T> IsUrl()
         {
-            Item.ValueType = ValueType.Url;
+            ValueType = ValueType.Url;
             return this;
         }
 
         public FlagItem<T> IsRequired()
         {
-            Item.IsRequired = true;
+            Required = true;
             return this;
         }
 
         public FlagItem<T> IsBool()
         {
-            Item.ValueType = ValueType.Bool;
+            ValueType = ValueType.Bool;
             return this;
         }
 
         public FlagItem<T> IsInt()
         {
-            Item.ValueType = ValueType.Int;
+            ValueType = ValueType.Int;
             return this;
         }
 
         public FlagItem<T> FileExists()
         {
-            Item.FileShouldExist = true;
+            FileShouldExist = true;
             return this;
         }
 
         public FlagItem<T> DirectoryExists()
         {
-            Item.DirectoryShouldExist = true;
+            DirectoryShouldExist = true;
             return this;
         }
 
         public FlagItem<T> IsIp()
         {
-            Item.ValueType = ValueType.Ip;
+            ValueType = ValueType.Ip;
             return this;
         }
 
         public FlagItem<T> IsEnum(Type type)
         {
-            Item.ValueType = ValueType.Enum;
-            Item.TypeOfEnum = type;
+            ValueType = ValueType.Enum;
+            TypeOfEnum = type;
             return this;
         }
 
         public FlagItem<T> IsDuration()
         {
-            Item.ValueType = ValueType.Duration;
+            ValueType = ValueType.Duration;
             return this;
         }
 
         public FlagItem<T> IsDate()
         {
-            Item.ValueType = ValueType.Date;
+            ValueType = ValueType.Date;
             return this;
         }
 
         public FlagItem<T> IsTcp()
         {
-            Item.ValueType = ValueType.Tcp;
+            ValueType = ValueType.Tcp;
             return this;
         }
 
         public FlagItem<T> IsFloat()
         {
-            Item.ValueType = ValueType.Float;
+            ValueType = ValueType.Float;
             return this;
         }
 
         public FlagItem<T> Short(char shortName)
         {
-            Item.ShortName = shortName;
+            ShortName = shortName;
             return this;
         }
 
         public FlagItem<T> IsHidden()
         {
-            Item.IsHidden = true;
+            Hidden = true;
+            return this;
+        }
+        public FlagItem<T> Run(Action<CommandLineItem<T>> action)
+        {
+            Action = action;
             return this;
         }
 
         public FlagItem<T> Default(string defaultValue)
         {
-            Item.DefaultValue = defaultValue;
+            DefaultValue = defaultValue;
             return this;
         }
     }

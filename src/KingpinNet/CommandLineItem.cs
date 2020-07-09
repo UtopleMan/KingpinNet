@@ -5,14 +5,19 @@ using System.Globalization;
 namespace KingpinNet
 {
 
-    public class CommandLineItem<T>
+    public class CommandLineItem<T>: IItem
     {
         public CommandLineItem(string path, string name, string help, ItemType itemType):
             this(path, name, help, itemType, ValueType.String, null)
         {
         }
+        public CommandLineItem(string path, string name, string help, ItemType itemType, ValueType valueType):
+            this(path, name, help, itemType, valueType, null)
+        {
 
-        public CommandLineItem(string path, string name, string help, ItemType itemType, ValueType valueType, CommandCategory category)
+        }
+        public CommandLineItem(string path, string name, string help, ItemType itemType,
+            ValueType valueType, CommandCategory category)
         {
             Path = path;
             Name = name;
@@ -22,7 +27,7 @@ namespace KingpinNet
             DefaultValue = String.Empty;
             if (typeof(T).IsEnum)
                 TypeOfEnum = typeof(T);
-            Suggestions = new string[0];
+            Completions = new string[0];
             Examples = new string[0];
             Category = category;
         }
@@ -34,12 +39,12 @@ namespace KingpinNet
         public IEnumerable<CommandItem> Commands => _commands;
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
-        public ItemType ItemType = ItemType.None;
-        public ValueType ValueType = ValueType.String;
+        public ItemType ItemType { get; set; }
+        public ValueType ValueType { get; set; }
         public string Path { get; internal set; }
         public string Name { get; internal set; }
         public string Help { get; internal set; }
-        public bool IsRequired { get; internal set; }
+        public bool Required { get; internal set; }
         public bool FileShouldExist { get; internal set; }
         public bool DirectoryShouldExist { get; internal set; }
         public Type TypeOfEnum { get; internal set; }
@@ -47,13 +52,13 @@ namespace KingpinNet
         public T Value { get; internal set; }
         public bool IsDefault { get; internal set; }
         public char ShortName { get; internal set; }
-        public Action<T> Action { get; internal set; }
-        public bool IsHidden { get; internal set; }
-        public bool IsSet { get; internal set; }
+        public bool Hidden { get; internal set; }
+        public bool IsSet { get; set; }
         public string[] Examples { get; internal set; }
-        public string[] Suggestions { get; internal set; }
+        public string[] Completions { get; internal set; }
         public string ValueName { get; internal set; }
         public CommandCategory Category { get; internal set; }
+        public Action<CommandLineItem<T>> Action { get; set; }
 
         internal void ConvertAndSetValue(string value)
         {
@@ -127,7 +132,18 @@ namespace KingpinNet
                 else
                     throw new ArgumentException($"'{value}' is not a date", nameof(value));
             }
-            Action?.Invoke(Value);
+            Action?.Invoke(this);
+        }
+        public string StringValue
+        {
+            get
+            {
+                return Value.ToString();
+            }
+            set
+            {
+                ConvertAndSetValue(value);
+            }
         }
     }
 }

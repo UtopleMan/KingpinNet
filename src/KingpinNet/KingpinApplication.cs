@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace KingpinNet
 {
@@ -15,7 +16,6 @@ namespace KingpinNet
         private List<IItem> _flags = new List<IItem>();
         private List<IItem> _arguments = new List<IItem>();
 
-        // Used in the parser
         internal Action<Serverity, string, Exception> log = (a, b, c) => { };
         internal string exeFileName;
         internal string exeFileExtension;
@@ -25,8 +25,9 @@ namespace KingpinNet
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
 
-        private IHelpTemplate _applicationHelp;
-        private IHelpTemplate _commandHelp;
+        private IHelpTemplate applicationHelp;
+        private IHelpTemplate commandHelp;
+        private OptionsParser optionsParser;
 
         public string Name { get; internal set; }
         public string Help { get; internal set; }
@@ -46,14 +47,16 @@ namespace KingpinNet
             exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
             exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
+
         public void Initialize()
         {
-            _applicationHelp = new ApplicationHelp();
-            _commandHelp = new CommandHelp();
-            Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp());
-            Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
-            Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
-            Flag<bool>("suggestion-script-pwsh").IsHidden().Action(x => GenerateScript("pwsh.ps1"));
+            applicationHelp = new ApplicationHelp();
+            commandHelp = new CommandHelp();
+            optionsParser = new OptionsParser(this);
+            Flag("help", "Show context-sensitive help").Short('h').IsBool().Run(x => GenerateHelp());
+            Flag<bool>("completion-script-bash").IsHidden().Run(x => GenerateScript("bash.sh"));
+            Flag<bool>("completion-script-zsh").IsHidden().Run(x => GenerateScript("zsh.sh"));
+            Flag<bool>("completion-script-pwsh").IsHidden().Run(x => GenerateScript("pwsh.ps1"));
         }
 
         private void GenerateScript(string resource)
@@ -76,7 +79,7 @@ namespace KingpinNet
         public void GenerateHelp()
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(console.Out, _applicationHelp);
+            helpGenerator.Generate(console.Out, applicationHelp);
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -85,7 +88,7 @@ namespace KingpinNet
         private void GenerateCommandHelp(CommandItem command)
         {
             var helpGenerator = new HelpGenerator(this);    
-            helpGenerator.Generate(command, console.Out, _commandHelp);
+            helpGenerator.Generate(command, console.Out, commandHelp);
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -150,14 +153,16 @@ namespace KingpinNet
             ExitWhenHelpIsShown = true;
             return this;
         }
-
         public KingpinApplication ShowHelpOnParsingErrors()
         {
             HelpShownOnParsingErrors = true;
             return this;
         }
-
-
+        public KingpinApplication Options(Type optionsType)
+        {
+            optionsParser.Parse(optionsType);
+            return this;
+        }
 
         public void AddCommandHelpOnAllCommands()
         {
@@ -170,8 +175,7 @@ namespace KingpinNet
             {
                 if (command.Commands.Count() > 0)
                     AddCommandHelpOnAllCommands(command.Commands);
-                //else
-                command.Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
+                command.Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Run(x => GenerateCommandHelp(command));
             }
         }
 
@@ -182,12 +186,16 @@ namespace KingpinNet
             try
             {
                 var result = parser.Parse(args);
-                InvestigateSuggestions(result);
+                InvestigateCompletions(result);
                 return result;
             }
             catch (ParseException exception)
             {
-                console.WriteLine(exception.Message);
+                if (string.IsNullOrEmpty(exception.Suggestion))
+                    console.WriteLine(exception.Message);
+                else
+                    console.WriteLine(exception.Message + $". Did you mean '{exception.Suggestion}'?");
+
                 foreach (var error in exception.Errors)
                     console.WriteLine($"   {error}");
 
@@ -201,12 +209,12 @@ namespace KingpinNet
             }
         }
 
-        private void InvestigateSuggestions(ParseResult result)
+        private void InvestigateCompletions(ParseResult result)
         {
-            if (result.IsSuggestion)
+            if (result.IsCompletion)
             {
-                foreach (var suggestion in result.Suggestions)
-                    console.Out.WriteLine(suggestion);
+                foreach (var completions in result.Completions)
+                    console.Out.WriteLine(completions);
                 Environment.Exit(0);
             }
         }
@@ -237,8 +245,8 @@ namespace KingpinNet
 
         public KingpinApplication Template(IHelpTemplate applicationHelp, IHelpTemplate commandHelp)
         {
-            _applicationHelp = applicationHelp;
-            _commandHelp = commandHelp;
+            this.applicationHelp = applicationHelp;
+            this.commandHelp = commandHelp;
             return this;
         }
         public KingpinApplication Log(Action<Serverity, string, Exception> log)

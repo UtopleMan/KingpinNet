@@ -8,7 +8,7 @@ Usage:  <#=(Application?.Name ?? "")#> <# if (Application.Arguments.Count() > 0)
 <#= Application?.Help ?? ""#>
 
 <# if (Application.Flags != null) {
-    var flags = Application.Flags.Where(x => !x.Hidden).ToList();
+    var flags = Application.Flags.Where(x => !x.IsHidden).ToList();
 
     if (flags.Count != 0) {
         var maxFlagLength = flags.Max(x => x.Name.Length + x.ValueType.ToString().Length);#>

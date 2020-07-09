@@ -20,7 +20,7 @@ namespace KingpinNet
         private ParseResult _result;
         private List<string> _args;
         private int _currentItem;
-        private string _suggestionString;
+        private string _completionString;
 
         public Parser(KingpinApplication application)
         {
@@ -48,7 +48,7 @@ namespace KingpinNet
             _result = new ParseResult();
             _args = args.ToList();
             _currentItem = 0;
-            _suggestionString = "";
+            _completionString = "";
             MainParse();
             return _result;
         }
@@ -72,7 +72,7 @@ namespace KingpinNet
 
             if (_args.Count > 0)
             {
-                InvestigateSuggestions();
+                InvestigateCompletions();
                 while (_currentItem < _args.Count)
                 {
                     if (IsCommand(_args[_currentItem], commands, out CommandItem commandFound))
@@ -87,31 +87,32 @@ namespace KingpinNet
                         Add(flagFound);
                         _currentItem++;
                     }
-                    else if (IsArgument(_args[_currentItem], globalArguments, out IItem argumentFound) && !_result.IsSuggestion)
+                    else if (IsArgument(_args[_currentItem], globalArguments, out IItem argumentFound) && !_result.IsCompletion)
                     {
                         Add(argumentFound);
                         _currentItem++;
                     }
                     else
                     {
-                        if (!_result.IsSuggestion)
-                            throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
-                        _suggestionString = _args[_currentItem];
+                        var suggestion = ComputeSuggestion(_args[_currentItem], commands.Union(globalFlags));
+
+                        if (!_result.IsCompletion)
+                            throw new ParseException($"Didn't expect argument {_args[_currentItem]}", suggestion);
                         _currentItem++;
                     }
                 }
             }
-            if (_result.IsSuggestion)
+            if (_result.IsCompletion)
             {
-                _result.Suggestions.AddRange(ParseSuggestions(_suggestionString));
+                _result.Completions.AddRange(ParseCompletions(_completionString));
             }
             else
                 CheckAllRequiredItemsIsSet();
         }
 
-        private void InvestigateSuggestions()
+        private void InvestigateCompletions()
         {
-            if (!IsSuggestion(_args[0]))
+            if (!IsCompletion(_args[0]))
                 return;
             if (_args.Count > 1 && IsPosition(_args[1]))
             {
@@ -121,11 +122,11 @@ namespace KingpinNet
             {
                 _args = _args.Skip(1).ToList();
             }
-            _result.IsSuggestion = true;
+            _result.IsCompletion = true;
             if (_args.Count == 0) return;
             var argsStr = _args.Aggregate((c, n) => c + " " + n);
 
-            Log(Serverity.Info, $"Suggestion arguments: '{argsStr}'");
+            Log(Serverity.Info, $"Completions arguments: '{argsStr}'");
 
             argsStr = RemoveApplicationName(argsStr);
             _args = commandLineTokenizer.ToTokens(argsStr);
@@ -138,30 +139,30 @@ namespace KingpinNet
             return flag == "--position";
         }
 
-        private bool IsSuggestion(string command)
+        private bool IsCompletion(string command)
         {
-            if (command == "suggest")
-                Log(Serverity.Info, $"Found suggest command");
-            return command == "suggest";
+            if (command == "complete")
+                Log(Serverity.Info, $"Found complete command");
+            return command == "complete";
         }
 
-        private IEnumerable<string> ParseSuggestions(string partString)
+        private IEnumerable<string> ParseCompletions(string partString)
         {
             var result = new List<string>();
-            result.AddRange(GetSuggestionsOnCommands(commands, partString));
-            result.AddRange(GetSuggestionsOnFlags(globalFlags, partString));
-            result.AddRange(GetSuggestionsOnCommandArgument(commands, partString));
-            result.AddRange(GetSuggestionsOnGlobalArguments(partString));
+            result.AddRange(GetCompletionsOnCommands(commands, partString));
+            result.AddRange(GetCompletionsOnFlags(globalFlags, partString));
+            result.AddRange(GetCompletionsOnCommandArgument(commands, partString));
+            result.AddRange(GetCompletionsOnGlobalArguments(partString));
 
             if (result.Any())
             {
-                var suggestions = result.Aggregate((c, n) => c + ", " + n);
-                Log(Serverity.Info, $"Found suggestions for string '{partString}': {suggestions}");
+                var completions = result.Aggregate((c, n) => c + ", " + n);
+                Log(Serverity.Info, $"Found completions for string '{partString}': {completions}");
             }
             return result;
         }
 
-        private IEnumerable<string> GetSuggestionsOnGlobalArguments(string partString)
+        private IEnumerable<string> GetCompletionsOnGlobalArguments(string partString)
         {
             var result = new List<string>();
             if (commands.All(x => !x.IsSet))
@@ -184,7 +185,7 @@ namespace KingpinNet
             return partString.Substring(index + firstSpace + 1);
         }
 
-        private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
+        private IEnumerable<string> GetCompletionsOnFlags(IEnumerable<IItem> flags, string partString)
         {
             var result = new List<string>();
             result.AddRange(flags.Where(
@@ -201,7 +202,7 @@ namespace KingpinNet
             return result;
         }
 
-        private IEnumerable<string> GetSuggestionsOnCommands(IEnumerable<CommandItem> commands, string partString)
+        private IEnumerable<string> GetCompletionsOnCommands(IEnumerable<CommandItem> commands, string partString)
         {
             var result = new List<string>();
 
@@ -228,17 +229,17 @@ namespace KingpinNet
                         .Where(x => (string.IsNullOrWhiteSpace(partString) ? true : x.Name.ToLowerInvariant().Contains(partString))
                                 && !x.Hidden)
                         .Select(x => x.Name));
-                    result.AddRange(GetSuggestionsOnFlags(command.Flags, partString));
+                    result.AddRange(GetCompletionsOnFlags(command.Flags, partString));
                     return result;
                 }
 
                 if (command.Commands != null && command.Commands.Count() > 0)
-                    result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
+                    result.AddRange(GetCompletionsOnCommands(command.Commands, partString));
             }
             return result;
         }
 
-        private IEnumerable<string> GetSuggestionsOnCommandArgument(IEnumerable<CommandItem> commands, string partString)
+        private IEnumerable<string> GetCompletionsOnCommandArgument(IEnumerable<CommandItem> commands, string partString)
         {
             var result = new List<string>();
 
@@ -256,13 +257,13 @@ namespace KingpinNet
                 if (!command.Commands.Any() || command.Commands.All(x => !x.IsSet))
                 {
                     result.AddRange(
-                        command.Arguments.SelectMany(x => x.Suggestions)
+                        command.Arguments.SelectMany(x => x.Completions)
                         .Where(x => string.IsNullOrWhiteSpace(partString) ? true : x.ToLowerInvariant().Contains(partString))
                         .Select(x => x));
                     return result;
                 }
 
-                result.AddRange(GetSuggestionsOnCommandArgument(command.Commands, partString));
+                result.AddRange(GetCompletionsOnCommandArgument(command.Commands, partString));
             }
             return result;
         }
@@ -308,7 +309,10 @@ namespace KingpinNet
             foreach (var command in commands)
             {
                 if (command.Required && !command.IsSet)
+                {
                     throw new ParseException($"Required command <{command.Name}> not set");
+
+                }
 
                 if (!command.IsSet)
                     continue;
@@ -324,14 +328,18 @@ namespace KingpinNet
         {
             foreach (var argument in arguments)
                 if (argument.Required && !argument.IsSet)
+                {
                     throw new ParseException($"Required argument <{argument.Name}> not set");
+                }
         }
 
         private void CheckFlags(IEnumerable<IItem> flags)
         {
             foreach (var flag in flags)
                 if (flag.Required && !flag.IsSet)
+                {
                     throw new ParseException($"Required flag --{flag.Name} not set");
+                }
         }
 
         private void CommandFound(CommandItem command)
@@ -349,19 +357,51 @@ namespace KingpinNet
                     Merge("Command", flagFound);
                     _currentItem++;
                 }
-                else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
+                else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsCompletion)
                 {
                     Merge("Command", argumentFound);
                     _currentItem++;
                 }
                 else
                 {
-                    if (!_result.IsSuggestion)
-                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
-                    _suggestionString = _args[_currentItem];
+                    var suggestion = ComputeSuggestion(_args[_currentItem], command.Commands.Union(command.Flags.Union(globalFlags)));
+                    if (!_result.IsCompletion)
+                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}", suggestion);
                     _currentItem++;
                 }
             }
+        }
+
+        private string ComputeSuggestion(string argument, IEnumerable<IItem> items)
+        {
+            return items
+                .Select(x => new { x.Name, Score = LevhinsteinScore(argument, x.Name) })
+                .OrderBy(x => x.Score).FirstOrDefault()?.Name;
+        }
+
+        private int LevhinsteinScore(string string1, string string2)
+        {
+            var length1 = string1.Length;
+            var lenght2 = string2.Length;
+            var resultArray = new int[length1 + 1, lenght2 + 1];
+
+            if (length1 == 0) return lenght2;
+            if (lenght2 == 0) return length1;
+
+            for (var i = 0; i <= length1; resultArray[i, 0] = i++) { }
+            for (var j = 0; j <= lenght2; resultArray[0, j] = j++) { }
+
+            for (var i = 1; i <= length1; i++)
+            {
+                for (var j = 1; j <= lenght2; j++)
+                {
+                    var cost = (string2[j - 1] == string1[i - 1]) ? 0 : 1;
+                    resultArray[i, j] = Math.Min(
+                        Math.Min(resultArray[i - 1, j] + 1, resultArray[i, j - 1] + 1),
+                        resultArray[i - 1, j - 1] + cost);
+                }
+            }
+            return resultArray[length1, lenght2];
         }
 
         private void MergeCommand(string name, CommandItem item)
@@ -456,7 +496,7 @@ namespace KingpinNet
             {
                 var argumentsFound = arguments.Where(a => IsValidArgument(a, arg, errors)).ToList();
                 if (argumentsFound.Count() > 1)
-                    throw new ParseException("Found multiple arguments");
+                    throw new ParseException("Found multiple arguments " + argumentsFound.Select(x => x.Name).Aggregate((c, n) => c + ", " + n));
                 if (argumentsFound.Count() == 0)
                     return false;
                 item = argumentsFound.First();
@@ -475,13 +515,10 @@ namespace KingpinNet
             if (parts.Length == 1)
                 if (item.ValueType == ValueType.Bool)
                 {
-                    item.Action?.Invoke(arg);
                     return "true";
                 }
                 else
-                    throw new ParseException("Not a boolean " + arg);
-
-            item.Action?.Invoke(arg);
+                    throw new ParseException($"Not a boolean '{arg}'");
             return parts[1];
         }
 
@@ -647,8 +684,8 @@ namespace KingpinNet
                 var flagName = GetFlagName(arg);
                 if (flagName.Length == 0 || flagName.Length > 2)
                 {
-                    if (_result.IsSuggestion) return false;
-                    throw new ParseException("Short name arguments are only one character " + flagName);
+                    if (_result.IsCompletion) return false;
+                    throw new ParseException($"Short name arguments are only one character '{flagName}'");
                 }
                 var foundLocalFlags = flags.Where(f => f.ShortName == flagName[0] &&
                     IsValidFlag(f, arg, errors)).ToList();
@@ -665,13 +702,13 @@ namespace KingpinNet
             item = null;
             if (!localItems.Any() && !globalItems.Any())
             {
-                if (_result.IsSuggestion) return false;
-                throw new ParseException("Illegal flag " + arg, errors);
+                if (_result.IsCompletion) return false;
+                throw new ParseException($"Illegal flag '{arg}'" + arg, errors);
             }
             if (localItems.Count() > 1 || globalItems.Count() > 1)
             {
-                if (_result.IsSuggestion) return false;
-                throw new ParseException("Found multiple flags with same name " + arg);
+                if (_result.IsCompletion) return false;
+                throw new ParseException($"Found multiple flags with same name '{arg}'", errors);
             }
             item = localItems.SingleOrDefault() ?? globalItems.Single();
             item.StringValue = GetValue(item, arg);
@@ -702,16 +739,21 @@ namespace KingpinNet
     {
         private List<string> _errors = new List<string>();
         public List<string> Errors => _errors;
+        public string Suggestion { get; private set; }
         public ParseException()
         {
         }
 
-        public ParseException(object p) : base(p?.ToString())
+        public ParseException(object obj) : base(obj?.ToString())
         {
         }
 
         public ParseException(string message) : base(message)
         {
+        }
+        public ParseException(string message, string suggestion) : base(message)
+        {
+            Suggestion = suggestion;
         }
 
         public ParseException(string message, List<string> errors) : base(message)

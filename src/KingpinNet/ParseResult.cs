@@ -7,11 +7,16 @@ namespace KingpinNet
         public ParseResult()
         {
             Result = new Dictionary<string, string>();
-            Suggestions = new List<string>();
-            IsSuggestion = false;
+            Completions = new List<string>();
+            Errors = new List<string>();
+            IsCompletion = false;
         }
         public Dictionary<string, string> Result { get; }
-        public List<string> Suggestions { get; }
-        public bool IsSuggestion { get; set; }
+        public List<string> Completions { get; }
+        public bool IsCompletion { get; internal set; }
+        public string Suggestion { get; internal set; }
+        public bool HasErrors { get; internal set; }
+        public string ErrorMessage { get; internal set; }
+        public List<string> Errors { get; }
     }
 }

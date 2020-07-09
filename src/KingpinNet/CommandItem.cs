@@ -4,11 +4,11 @@ using System.ComponentModel;
 
 namespace KingpinNet
 {
-    public class CommandItem : BaseItem<string>
+    public class CommandItem : CommandLineItem<string>
     {
         internal CommandItem(string path, string name, string help, CommandCategory category) : base(path, name, help, ItemType.Command)
         {
-            Item.Category = category;
+            base.Category = category;
         }
         internal CommandItem(string path, string name, string help) : base(path, name, help, ItemType.Command)
         {
@@ -16,169 +16,155 @@ namespace KingpinNet
         public FlagItem<string> Flag(string name, string help = "")
         {
             var result = new FlagItem<string>($"{Path}:{name}", name, help);
-            Item._flags.Add(result);
+            base._flags.Add(result);
             return result;
         }
         public ArgumentItem<string> Argument(string name, string help = "")
         {
             var result = new ArgumentItem<string>($"{Path}:{name}", name, help);
-            Item._arguments.Add(result);
+            base._arguments.Add(result);
             return result;
         }
         public FlagItem<T> Flag<T>(string name, string help = "")
         {
             var result = new FlagItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
-            Item._flags.Add(result);
+            base._flags.Add(result);
             return result;
         }
         public ArgumentItem<T> Argument<T>(string name, string help = "")
         {
             var result = new ArgumentItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
-            Item._arguments.Add(result);
+            base._arguments.Add(result);
             return result;
         }
         public CommandItem Command(string name, string help = "")
         {
             var result = new CommandItem($"{Path}:{name}", name, help);
-            Item._commands.Add(result);
+            base._commands.Add(result);
             return result;
         }
-        public CommandCategory Category
+        public new IEnumerable<IItem> Flags
         {
             get
             {
-                return Item.Category;
+                return base.Flags;
             }
         }
-        public IEnumerable<CommandItem> Commands
+        public new IEnumerable<IItem> Arguments
         {
             get
             {
-                return Item._commands;
-            }
-        }
-        public IEnumerable<IItem> Flags
-        {
-            get
-            {
-                return Item.Flags;
-            }
-        }
-        public IEnumerable<IItem> Arguments
-        {
-            get
-            {
-                return Item.Arguments;
+                return base.Arguments;
             }
         }
 
-        public CommandItem IsDefault()
+        public new CommandItem IsDefault()
         {
-            Item.IsDefault = true;
+            base.IsDefault = true;
             return this;
         }
 
         public CommandItem IsUrl()
         {
-            Item.ValueType = ValueType.Url;
+            ValueType = ValueType.Url;
             return this;
         }
 
         public CommandItem IsRequired()
         {
-            Item.IsRequired = true;
+            Required = true;
             return this;
         }
 
         public CommandItem IsBool()
         {
-            Item.ValueType = ValueType.Bool;
+            ValueType = ValueType.Bool;
             return this;
         }
 
         public CommandItem IsInt()
         {
-            Item.ValueType = ValueType.Int;
+            ValueType = ValueType.Int;
             return this;
         }
 
         public CommandItem FileExists()
         {
-            Item.FileShouldExist = true;
+            FileShouldExist = true;
             return this;
         }
 
         public CommandItem DirectoryExists()
         {
-            Item.DirectoryShouldExist = true;
+            DirectoryShouldExist = true;
             return this;
         }
 
         public CommandItem IsIp()
         {
-            Item.ValueType = ValueType.Ip;
+            ValueType = ValueType.Ip;
             return this;
         }
 
         public CommandItem IsEnum(Type type)
         {
-            Item.ValueType = ValueType.Enum;
-            Item.TypeOfEnum = type;
+            ValueType = ValueType.Enum;
+            TypeOfEnum = type;
             return this;
         }
 
         public CommandItem IsDuration()
         {
-            Item.ValueType = ValueType.Duration;
+            ValueType = ValueType.Duration;
             return this;
         }
 
         public CommandItem IsDate()
         {
-            Item.ValueType = ValueType.Date;
+            ValueType = ValueType.Date;
             return this;
         }
 
 
         public CommandItem IsTcp()
         {
-            Item.ValueType = ValueType.Tcp;
+            ValueType = ValueType.Tcp;
             return this;
         }
 
         public CommandItem IsFloat()
         {
-            Item.ValueType = ValueType.Float;
+            ValueType = ValueType.Float;
             return this;
         }
 
         public CommandItem Short(char shortName)
         {
-            Item.ShortName = shortName;
+            ShortName = shortName;
             return this;
         }
 
         public CommandItem IsHidden()
         {
-            Item.IsHidden = true;
+            Hidden = true;
             return this;
         }
 
         public CommandItem SetExamples(params string[] examples)
         {
-            Item.Examples = examples;
+            Examples = examples;
             return this;
         }
 
         public CommandItem Default(string defaultValue)
         {
-            Item.DefaultValue = defaultValue;
+            DefaultValue = defaultValue;
             return this;
         }
 
         public new CommandItem ValueName(string valueName)
         {
-            Item.ValueName = valueName;
+            base.ValueName = valueName;
             return this;
         }
     }
