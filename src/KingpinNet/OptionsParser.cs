@@ -77,7 +77,7 @@ namespace KingpinNet
             throw new NotImplementedException();
         }
     }
-    internal class CommandAttribute : Attribute
+    public class CommandAttribute : Attribute
     {
         public string Description { get; private set; }
 
@@ -87,7 +87,7 @@ namespace KingpinNet
         }
     }
 
-    internal class DefaultAttribute : Attribute
+    public class DefaultAttribute : Attribute
     {
         private string value;
 
@@ -97,7 +97,7 @@ namespace KingpinNet
         }
     }
 
-    internal class ShortAttribute : Attribute
+    public class ShortAttribute : Attribute
     {
         private char name;
 
@@ -107,7 +107,7 @@ namespace KingpinNet
         }
     }
 
-    internal class FlagAttribute : Attribute
+    public class FlagAttribute : Attribute
     {
         private string description;
 
@@ -117,7 +117,7 @@ namespace KingpinNet
         }
     }
 
-    internal class ArgumentAttribute : Attribute
+    public class ArgumentAttribute : Attribute
     {
         private string description;
 
@@ -126,7 +126,7 @@ namespace KingpinNet
             this.description = description;
         }
     }
-    internal class FileAttribute : Attribute
+    public class FileAttribute : Attribute
     {
         private bool fileExists;
 
@@ -135,7 +135,7 @@ namespace KingpinNet
             this.fileExists = fileExists;
         }
     }
-    internal class CompletionsAttribute : Attribute
+    public class CompletionsAttribute : Attribute
     {
         private string[] completions;
 
