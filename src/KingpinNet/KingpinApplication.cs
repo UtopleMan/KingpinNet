@@ -1,6 +1,4 @@
-﻿using KingpinNet.Help;
-using KingpinNet.UI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +7,6 @@ namespace KingpinNet
 {
     public class KingpinApplication
     {
-        private readonly IConsole console;
         private List<CommandCategory> _categories = new List<CommandCategory>();
         private List<CommandItem> _commands = new List<CommandItem>();
         private List<IItem> _flags = new List<IItem>();
@@ -19,37 +16,29 @@ namespace KingpinNet
         internal Action<Serverity, string, Exception> log = (a, b, c) => { };
         internal string exeFileName;
         internal string exeFileExtension;
+        private string applicationHelpResource = "Phoenix.Shared.CommandLine.KingpinNet.Help.ApplicationHelp.liquid";
+        private string commandHelpResource = "Phoenix.Shared.CommandLine.KingpinNet.Help.CommandHelp.liquid";
 
         public IEnumerable<CommandCategory> Categories => _categories;
         public IEnumerable<CommandItem> Commands => _commands;
         public IEnumerable<IItem> Flags => _flags;
         public IEnumerable<IItem> Arguments => _arguments;
 
-        private IHelpTemplate _applicationHelp;
-        private IHelpTemplate _commandHelp;
-
-        public string Name { get; internal set; }
-        public string Help { get; internal set; }
+        public string Name { get; private set; }
+        public string HelpText { get; private set; }
         public string VersionString { get; private set; }
         public string AuthorName { get; private set; }
         public bool HelpShownOnParsingErrors { get; private set; }
         public bool ExitOnParseErrors { get; private set; }
-        public bool ExitWhenHelpIsShown { get; internal set; }
+        public bool ExitWhenHelpIsShown { get; private set; }
 
         public KingpinApplication()
         {
-            this.console = new UI.Console();
-        }
-        public KingpinApplication(IConsole console)
-        {
-            this.console = console;
             exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
             exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
         public void Initialize()
         {
-            _applicationHelp = new ApplicationHelp();
-            _commandHelp = new CommandHelp();
             Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp());
             Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
             Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
@@ -63,7 +52,7 @@ namespace KingpinNet
                 .Replace("{{AppName}}", exeFileName)
                 .Replace("{{AppExtension}}", exeFileExtension);
 
-            console.Out.Write(content.Replace("\r", ""));
+            Console.Out.Write(content.Replace("\r", ""));
             Environment.Exit(0);
         }
         private string GetResource(string name)
@@ -76,7 +65,8 @@ namespace KingpinNet
         public void GenerateHelp()
         {
             var helpGenerator = new HelpGenerator(this);
-            helpGenerator.Generate(console.Out, _applicationHelp);
+            helpGenerator.GenerateWithLiquid(Console.Out, applicationHelpResource);
+                                                           
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -85,7 +75,7 @@ namespace KingpinNet
         private void GenerateCommandHelp(CommandItem command)
         {
             var helpGenerator = new HelpGenerator(this);    
-            helpGenerator.Generate(command, console.Out, _commandHelp);
+            helpGenerator.GenerateWithLiquid(command, Console.Out, commandHelpResource);
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -187,9 +177,9 @@ namespace KingpinNet
             }
             catch (ParseException exception)
             {
-                console.WriteLine(exception.Message);
+                Console.WriteLine(exception.Message);
                 foreach (var error in exception.Errors)
-                    console.WriteLine($"   {error}");
+                    Console.WriteLine($"   {error}");
 
                 if (HelpShownOnParsingErrors)
                 {
@@ -206,7 +196,7 @@ namespace KingpinNet
             if (result.IsSuggestion)
             {
                 foreach (var suggestion in result.Suggestions)
-                    console.Out.WriteLine(suggestion);
+                    Console.Out.WriteLine(suggestion);
                 Environment.Exit(0);
             }
         }
@@ -223,9 +213,9 @@ namespace KingpinNet
             return this;
         }
 
-        public KingpinApplication ApplicationHelp(string text)
+        public KingpinApplication Help(string text)
         {
-            Help = text;
+            HelpText = text;
             return this;
         }
 
@@ -235,10 +225,10 @@ namespace KingpinNet
             return this;
         }
 
-        public KingpinApplication Template(IHelpTemplate applicationHelp, IHelpTemplate commandHelp)
+        public KingpinApplication Template(string applicationHelpResource, string commandHelpResource)
         {
-            _applicationHelp = applicationHelp;
-            _commandHelp = commandHelp;
+            this.applicationHelpResource = applicationHelpResource;
+            this.commandHelpResource = commandHelpResource;
             return this;
         }
         public KingpinApplication Log(Action<Serverity, string, Exception> log)

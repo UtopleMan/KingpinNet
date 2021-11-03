@@ -1,0 +1,34 @@
+﻿usage: {{ application.Name }}{% if application.Flags.size > 0 %} [<flags>]{% endif %}{% if application.Commands.size > 0 %} <command>{% endif %}{% if application.Arguments.size > 1 %} [<args> ...]{% endif %}{% if application.Arguments.size == 1 %} [{{application.Arguments.first.Name}}]{% endif %}{{nl}}
+{{nl}}
+{% if application.Help != "" %}
+{{sl}}{{ application.Help }}{{nl}}
+{{nl}}
+{% endif %}
+{% if application.Flags.size > 0 %}
+{{sl}}Flags:{{nl}}
+    {% for flag in application.Flags %}
+        {% if flag.Hidden != true %}
+{{sl}}  {% if flag.ShortName != "" %}-{{ flag.ShortName }}, {% endif %}--{{ flag.Name }}{% if flag.ValueType != "Bool" %}={{ flag.DefaultValue }}{% endif %}   {{ flag.Help }} {{ flag.Examples }}{{nl}}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% if application.Arguments.size > 0 %}
+{{nl}}
+Args:{{nl}}
+    {% for arg in application.Arguments %}
+{{sl}}  [<{{ arg.Name }}>]   {{ arg.Help }} {{ arg.Examples }}{{nl}}
+    {% endfor %}
+{% endif %}
+
+{% if application.RecursedCommands.size > 0 %}
+{{nl}}
+Commands:{{nl}}
+    {% for command in application.RecursedCommands %}
+{{sl}}  {{ command.FullCommand }} {% if command.Flags.size == 1 %}{% if command.Flags.first.Hidden != true %}{% if command.Flags.first.ShortName != "" %}-{{ command.Flags.first.ShortName }}, {% endif %}--{{ command.Flags.first.Name }}{% if command.Flags.first.ValueType != "Bool" %}={{ command.Flags.first.DefaultValue }}{% endif %}{% endif %}{% endif %}{% if command.Flags.size > 1 %}[<flags>] {% endif %}{% for argument in command.Arguments %}<{{argument.Name}}> {% endfor %}{{nl}}
+{{sl}}    {{ command.Help }} {{ command.Examples }}{{nl}}
+{{nl}}
+    {% endfor %}
+{% endif %}
+
+

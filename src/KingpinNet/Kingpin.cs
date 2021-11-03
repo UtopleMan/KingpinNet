@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace KingpinNet
 {
     public class Kingpin
     {
-        private static readonly KingpinApplication Application = new KingpinApplication(new UI.Console());
+        private static readonly KingpinApplication Application = new KingpinApplication();
 
         static Kingpin()
         {
             Application.ApplicationName(AppDomain.CurrentDomain.FriendlyName);
-            Application.ApplicationHelp("");
+            if (Assembly.GetEntryAssembly().GetName().Version != null)
+                Application.Version(Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Application.Help("");
             Application.Initialize();
 
             //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
@@ -44,6 +47,11 @@ namespace KingpinNet
         public static KingpinApplication Author(string author)
         {
             return Application.Author(author);
+        }
+
+        public static KingpinApplication Help(string help)
+        {
+            return Application.Help(help);
         }
 
         public static KingpinApplication Version(string version)
