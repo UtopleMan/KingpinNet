@@ -30,8 +30,10 @@ namespace KingpinNet
         public string VersionString { get; private set; }
         public string AuthorName { get; private set; }
         public bool HelpShownOnParsingErrors { get; private set; }
-        public bool ExitOnParseErrors { get; private set; }
+        public bool ExitOnParsingErrors { get; private set; }
         public bool ExitWhenHelpIsShown { get; private set; }
+        public bool HelpShownOnNoArguments { get; private set; }
+        public bool ExitWhenNoArguments { get; private set; }
 
         public KingpinApplication()
         {
@@ -139,9 +141,9 @@ namespace KingpinNet
             return result;
         }
 
-        public KingpinApplication ExitOnParsingErrors()
+        public KingpinApplication ExitOnParseErrors()
         {
-            ExitOnParseErrors = true;
+            ExitOnParsingErrors = true;
             return this;
         }
 
@@ -156,7 +158,17 @@ namespace KingpinNet
             HelpShownOnParsingErrors = true;
             return this;
         }
+        public KingpinApplication ShowHelpOnNoArguments()
+        {
+            HelpShownOnNoArguments = true;
+            return this;
+        }
 
+        public KingpinApplication ExitOnNoArguments()
+        {
+            ExitWhenNoArguments = true;
+            return this;
+        }
 
 
         public void AddCommandHelpOnAllCommands()
@@ -177,6 +189,14 @@ namespace KingpinNet
 
         public ParseResult Parse(IEnumerable<string> args)
         {
+            if (args == null || args.Count() == 0)
+            {
+                if (HelpShownOnNoArguments)
+                    GenerateHelp();
+                if (ExitWhenNoArguments)
+                    Environment.Exit(-1);
+            }
+
             var parser = new Parser(this, new CommandLineTokenizer());
             AddCommandHelpOnAllCommands();
             try
@@ -192,10 +212,8 @@ namespace KingpinNet
                     console.Out.WriteLine($"   {error}");
 
                 if (HelpShownOnParsingErrors)
-                {
                     GenerateHelp();
-                }
-                if (ExitOnParseErrors)
+                if (ExitOnParsingErrors)
                     Environment.Exit(-1);
                 throw;
             }
