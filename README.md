@@ -90,7 +90,7 @@ class Program
             .ApplicationHelp("An example implementation of curl.");
         Kingpin.ShowHelpOnParsingErrors();
         var get = Kingpin.Command("get", "GET a resource.").IsDefault();
-        get.Command("url", "Retrieve a URL.").IsDefault();
+        get.Argument("url", "Retrieve a URL.").IsDefault();
         var post = Kingpin.Command("post", "POST a resource.");
         post.Argument("url", "URL to POST to.").IsRequired().IsUrl();
 
@@ -101,7 +101,7 @@ class Program
         switch (configuration["command"])
         {
             case "get:url":
-                Console.WriteLine($"Getting URL {configuration["get:url:url"]}");
+                Console.WriteLine($"Getting URL {configuration["get:url"]}");
                 break;
 
             case "post":
