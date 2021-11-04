@@ -16,7 +16,7 @@ jobs:
       - run: cp src/KingpinNet/KingpinNet.final.csproj src/KingpinNet/KingpinNet.csproj
       - run: dotnet build
       - run: dotnet test --no-build --logger "junit;LogFilePath=results.xml"
-      - run: dotnet pack src/KingpinNet -o /source/workspace/packages
+      - run: dotnet pack src/KingpinNet/KingpinNet.csproj -o /source/workspace/packages
       - run: find .
 
       - store_test_results:
