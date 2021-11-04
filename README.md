@@ -42,10 +42,9 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 - Type safe arguments and flags
 - Beautiful console help
 - POSIX Style short flags
-- Customizable console help using T4 templates
-- context sensitive help output
+- Customizable console help using the awesome [Liquid syntax](https://shopify.github.io/liquid/basics/introduction/)
+- Context sensitive help output
 - TAB Auto-completion on ZSH, Bash and Powershell
-- Command line UI Goodies tools for making beautiful command line interfaces. See KingpinNet.UI
 
 ## Usage
 
@@ -134,6 +133,10 @@ iex "$({Your-tool-executable} --suggestion-script-pwsh)"
 After you run the script, you are able to have TAB auto complete on your tool.
 
 ## Changelog
+ - 1.0
+   - Removed TT templates help generation
+   - Added default DotLiquid help template
+   - Cleaned up IConsole usage
  - 0.9
    - Added auto completion scripts for ZSH, Bash and Powershell
  - 0.8
