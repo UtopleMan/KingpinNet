@@ -1,23 +1,20 @@
 using KingpinNet;
-using KingpinNet.UI;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.IO;
+using Xunit;
 
 namespace Tests
 {
     public class ParserTests
     {
         private Mock<IConsole> consoleMock;
-
-        [SetUp]
-        public void Setup()
+        public ParserTests()
         {
             consoleMock = new Mock<IConsole>();
         }
 
-        [Test]
+        [Fact]
         public void ParseSimpleCommand()
         {
             // Arrange
@@ -30,10 +27,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["Command"], "run");
+            Assert.Equal("run", result.Result["Command"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseNestedCommand()
         {
             // Arrange
@@ -47,10 +44,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["Command"], "cmd1:cmd2");
+            Assert.Equal("cmd1:cmd2", result.Result["Command"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseSimpleCommandWithArgument()
         {
             // Arrange
@@ -64,10 +61,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["Command"], "run");
-            Assert.AreEqual(result.Result["run:argument"], "an_argument");
+            Assert.Equal("run", result.Result["Command"]);
+            Assert.Equal("an_argument", result.Result["run:argument"]);
         }
-        [Test]
+        [Fact]
         public void ParseSimpleCommandWithFlag()
         {
             // Arrange
@@ -81,11 +78,11 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["Command"], "run");
-            Assert.AreEqual(result.Result["run:myflag"], "danish");
+            Assert.Equal("run", result.Result["Command"]);
+            Assert.Equal("danish", result.Result["run:myflag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseGlobalFlag()
         {
 
@@ -99,10 +96,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["myflag"], "danish");
+            Assert.Equal("danish", result.Result["myflag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseGlobalBoolFlag()
         {
 
@@ -116,10 +113,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["myflag"], "true");
+            Assert.Equal("true", result.Result["myflag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseGlobalNonBoolFlagThrowsException()
         {
 
@@ -134,7 +131,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseGlobalArgument()
         {
             // Arrange
@@ -147,10 +144,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["argument"], "hurray");
+            Assert.Equal("hurray", result.Result["argument"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseGlobalShortFlag()
         {
             // Arrange
@@ -163,10 +160,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["ielp"], "help");
+            Assert.Equal("help", result.Result["ielp"]);
         }
 
-        [Test]
+        [Fact]
         public void IsRequiredShouldFailWhenNoArgumentIsGiven()
         {
             // Arrange
@@ -179,7 +176,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseStrongTypedBoolSuccess()
         {
             // Arrange
@@ -192,10 +189,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(flag.Value, true);
+            Assert.True(flag.Value);
         }
 
-        [Test]
+        [Fact]
         public void ParseBoolSuccess()
         {
             // Arrange
@@ -208,10 +205,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["bool"], "true");
+            Assert.Equal("true", result.Result["bool"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseBoolFail()
         {
             // Arrange
@@ -224,7 +221,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseStrongTypedDurationSuccess()
         {
             // Arrange
@@ -237,10 +234,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(TimeSpan.FromHours(1), flag.Value);
+            Assert.Equal(TimeSpan.FromHours(1), flag.Value);
         }
 
-        [Test]
+        [Fact]
         public void ParseDurationSuccess()
         {
             // Arrange
@@ -253,10 +250,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1:00:00", result.Result["time"]);
+            Assert.Equal("1:00:00", result.Result["time"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseDurationSuccessWithDays()
         {
             // Arrange
@@ -269,11 +266,11 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1.1:00:00", result.Result["time"]);
+            Assert.Equal("1.1:00:00", result.Result["time"]);
         }
 
 
-        [Test]
+        [Fact]
         public void ParseDurationFail()
         {
             // Arrange
@@ -291,7 +288,7 @@ namespace Tests
             Checked,
             NotSoChecked
         }
-        [Test]
+        [Fact]
         public void ParseStrongTypedEnumSuccess()
         {
             // Arrange
@@ -304,9 +301,9 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(CheckMe.NotSoChecked, flag.Value);
+            Assert.Equal(CheckMe.NotSoChecked, flag.Value);
         }
-        [Test]
+        [Fact]
         public void ParseEnumSuccess()
         {
             // Arrange
@@ -319,10 +316,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("NotSoChecked", result.Result["flag"]);
+            Assert.Equal("NotSoChecked", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseEnumFail()
         {
             // Arrange
@@ -335,7 +332,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseStrongTypedFloatSuccess()
         {
             // Arrange
@@ -348,10 +345,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(1.000f, flag.Value);
+            Assert.Equal(1.000f, flag.Value);
         }
 
-        [Test]
+        [Fact]
         public void ParseFloatSuccess()
         {
             // Arrange
@@ -364,10 +361,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1.000", result.Result["flag"]);
+            Assert.Equal("1.000", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseFloatFail()
         {
             // Arrange
@@ -380,7 +377,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseStrongTypedIntSuccess()
         {
             // Arrange
@@ -393,10 +390,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(1, flag.Value);
+            Assert.Equal(1, flag.Value);
         }
 
-        [Test]
+        [Fact]
         public void ParseIntSuccess()
         {
             // Arrange
@@ -409,10 +406,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("1", result.Result["flag"]);
+            Assert.Equal("1", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseIntFail()
         {
             // Arrange
@@ -425,7 +422,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseIntReturnsRichErrorMessage()
         {
             // Arrange
@@ -442,12 +439,12 @@ namespace Tests
             }
             catch (ParseException exception)
             {
-                Assert.IsTrue(exception.Errors.Count == 1);
-                Assert.AreEqual("'x1x' is not an integer", exception.Errors[0]);
+                Assert.True(exception.Errors.Count == 1);
+                Assert.Equal("'x1x' is not an integer", exception.Errors[0]);
             }
         }
 
-        [Test]
+        [Fact]
         public void ParseStrongTypedUriSuccess()
         {
             // Arrange
@@ -460,11 +457,11 @@ namespace Tests
             subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(new Uri("http://www.google.com", UriKind.RelativeOrAbsolute).AbsolutePath,
+            Assert.Equal(new Uri("http://www.google.com", UriKind.RelativeOrAbsolute).AbsolutePath,
                 flag.Value.AbsolutePath);
         }
 
-        [Test]
+        [Fact]
         public void ParseUrlSuccess()
         {
             // Arrange
@@ -477,10 +474,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("http://www.google.com", result.Result["flag"]);
+            Assert.Equal("http://www.google.com", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseUrlFail()
         {
             // Arrange
@@ -493,7 +490,7 @@ namespace Tests
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
 
-        [Test]
+        [Fact]
         public void ParseIpSuccess()
         {
             // Arrange
@@ -506,10 +503,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("123.123.123.123", result.Result["flag"]);
+            Assert.Equal("123.123.123.123", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseIpFail()
         {
             // Arrange
@@ -521,7 +518,7 @@ namespace Tests
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
-        [Test]
+        [Fact]
         public void ParseTcpSuccess()
         {
             // Arrange
@@ -534,9 +531,9 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("myfancyhostname123:1234", result.Result["flag"]);
+            Assert.Equal("myfancyhostname123:1234", result.Result["flag"]);
         }
-        [Test]
+        [Fact]
         public void ParseTcpFail()
         {
             // Arrange
@@ -548,7 +545,7 @@ namespace Tests
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
-        [Test]
+        [Fact]
         public void ParseDefaultFlagSuccess()
         {
             // Arrange
@@ -562,10 +559,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual("myfancyhostname123:1234", result.Result["flag"]);
+            Assert.Equal("myfancyhostname123:1234", result.Result["flag"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseNestedDefaultFlag()
         {
             // Arrange
@@ -580,12 +577,12 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(result.Result["cmd1:cmd2:flg"], "1234");
+            Assert.Equal("1234", result.Result["cmd1:cmd2:flg"]);
         }
 
 
         
-        [Test]
+        [Fact]
         public void ParseDirectoryShouldExistSuccess()
         {
             // Arrange
@@ -599,10 +596,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(directory, result.Result["directory"]);
+            Assert.Equal(directory, result.Result["directory"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseDirectoryShouldExistFail()
         {
             // Arrange
@@ -615,7 +612,7 @@ namespace Tests
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
         }
-        [Test]
+        [Fact]
         public void ParseFileShouldExistSuccess()
         {
             // Arrange
@@ -630,10 +627,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.AreEqual(fileName, result.Result["file"]);
+            Assert.Equal(fileName, result.Result["file"]);
         }
 
-        [Test]
+        [Fact]
         public void ParseFileShouldExistFail()
         {
             // Arrange

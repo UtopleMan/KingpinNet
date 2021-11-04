@@ -1,17 +1,16 @@
 ﻿using System;
+using System.IO;
 
 namespace KingpinNet
 {
     public class DefaultConsole : IConsole
     {
-        public void Write(string text)
+        public TextWriter Out
         {
-            Console.Write(text);
-        }
-
-        public void WriteLine(string text)
-        {
-            Console.WriteLine(text);
+            get
+            {
+                return Console.Out;
+            }
         }
     }
 }

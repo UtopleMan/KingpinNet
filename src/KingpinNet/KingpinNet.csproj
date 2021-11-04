@@ -1,95 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Title>KingpinNet</Title>
     <TargetFramework>netstandard2.1</TargetFramework>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
-    <Version>0.9.0</Version>
+    <PackageVersion>1.0.9999</PackageVersion>
+    <Version>1.0.9999</Version>
+    <FileVersion>1.0.9999</FileVersion>
     <Authors>Peter Andersen</Authors>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-    <NuspecFile>KingpinNet.final.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/UtopleMan/KingpinNet</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageOutputPath>./source/workspace/packages</PackageOutputPath>
+    <PackageTags>Posix, Commandline, Parsing, Kingpin, Parser</PackageTags>
+    <PackageId>KingpinNet</PackageId>
+    <RepositoryUrl>https://github.com/UtopleMan/KingpinNet</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Authors>Peter Andersen</Authors>
+    <Description>Kingpin.Net style command line arguments parser and command line UI goodies for .NET</Description>
+    <Copyright>Copyright 2021</Copyright>
+
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Help\ApplicationHelp.liquid" />
+    <None Remove="Help\CommandHelp.liquid" />
     <None Remove="Scripts\bash.sh" />
     <None Remove="Scripts\pwsh.ps1" />
     <None Remove="Scripts\zsh.sh" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Help\ApplicationHelp.liquid" />
+    <EmbeddedResource Include="Help\CommandHelp.liquid" />
     <EmbeddedResource Include="Scripts\bash.sh" />
     <EmbeddedResource Include="Scripts\pwsh.ps1" />
     <EmbeddedResource Include="Scripts\zsh.sh" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Help\DockerCommandHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DockerCommandHelp.tt</DependentUpon>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\KingpinNet.UI\KingpinNet.UI.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Help\DockerApplicationHelp.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>DockerApplicationHelp.cs</LastGenOutput>
-    </None>
-    <None Update="Help\DockerCommandHelp.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>DockerCommandHelp.cs</LastGenOutput>
-    </None>
-    <None Update="Help\HashiApplicationHelp.tt">
-      <LastGenOutput>HashiApplicationHelp.cs</LastGenOutput>
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-    </None>
-    <None Update="Help\CommandHelp.tt">
-      <LastGenOutput>CommandHelp.cs</LastGenOutput>
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-    </None>
-    <None Update="Help\ApplicationHelp.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ApplicationHelp.cs</LastGenOutput>
-    </None>
-    <None Update="Help\HashiCommandHelp.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>HashiCommandHelp.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Help\ApplicationHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ApplicationHelp.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Help\CommandHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CommandHelp.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Help\DockerApplicationHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DockerApplicationHelp.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Help\DockerCommandHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DockerCommandHelp.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Help\HashiApplicationHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>HashiApplicationHelp.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Help\HashiCommandHelp.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>HashiCommandHelp.tt</DependentUpon>
-    </Compile>
+    <PackageReference Include="DotLiquid" Version="2.2.548" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 </Project>

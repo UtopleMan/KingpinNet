@@ -1,5 +1,4 @@
-﻿using KingpinNet.UI;
-using KingpinNet.UI.DataTable;
+﻿using KingpinNet.UI.DataTable;
 using KingpinNet.UI.ProgressBar;
 using KingpinNet.UI.Spinner;
 using KingpinNet.UI.Window;

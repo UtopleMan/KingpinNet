@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30104.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet", "src\KingpinNet\KingpinNet.csproj", "{E66FCE03-E13B-4D92-94AB-282645AABEF7}"
 EndProject
@@ -21,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping", "Examples\Ping\Ping.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Curl", "Examples\Curl\Curl.csproj", "{B62DEBE8-D795-423A-B277-1DCC239736FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Widgets", "Widgets\Widgets.csproj", "{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet.UI", "src\KingpinNet.UI\KingpinNet.UI.csproj", "{1B2675BD-6A67-402C-B457-97EA361E5FE3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet.UI", "src\KingpinNet.UI\KingpinNet.UI.csproj", "{951BDE29-10F7-4C4F-9B85-64C15897A6B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Widgets", "Examples\Widgets\Widgets.csproj", "{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,14 +51,14 @@ Global
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B62DEBE8-D795-423A-B277-1DCC239736FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554}.Release|Any CPU.Build.0 = Release|Any CPU
-		{951BDE29-10F7-4C4F-9B85-64C15897A6B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{951BDE29-10F7-4C4F-9B85-64C15897A6B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{951BDE29-10F7-4C4F-9B85-64C15897A6B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{951BDE29-10F7-4C4F-9B85-64C15897A6B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B2675BD-6A67-402C-B457-97EA361E5FE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B2675BD-6A67-402C-B457-97EA361E5FE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B2675BD-6A67-402C-B457-97EA361E5FE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B2675BD-6A67-402C-B457-97EA361E5FE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,7 +67,7 @@ Global
 		{F3B2B2CB-37B8-4FF1-AA5D-D8B6A2F3B4DE} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 		{C9F8FEA1-B227-436D-B36A-861AD94FF53E} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 		{B62DEBE8-D795-423A-B277-1DCC239736FC} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
-		{5B5A9AA4-216B-4AA2-AB43-EF3DBB6C5554} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
+		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D8F8808-564F-4E0A-8DBF-E14FC1302FD3}

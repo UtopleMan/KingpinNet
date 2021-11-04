@@ -1,61 +1,83 @@
-﻿<#@ template language="C#" visibility="public" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Collections.Generic" #>
-usage: <#if (!string.IsNullOrEmpty(Application.Name)) { Write(Application.Name + " "); }#><#=Command.Name#> <# if (Command.Flags.Count() > 0) { #>[<flags>] <# } if (Command.Commands.Count() > 0) { #><command> <# } if (Command.Arguments.Count() > 1) { #>[<args> ...] <# } else if (Command.Arguments.Count() == 1) { #>[<<#= Command.Arguments.First().Name #>>]<# } #>
-
-
-<#= Command?.Help ?? ""#>
-
-<# if (Command.Flags != null) {
-    var flags = Command.Flags.Where(x => !x.Hidden).ToList();
-
-    if (flags.Count != 0) {
-        var maxFlagLength = flags.Max(x => x.Name.Length + x.DefaultValue.Length) + 9;#>
-Flags:
-<#      foreach (var flag in flags) 
-        {
-            var defaultValue = "";
-            if (!string.IsNullOrWhiteSpace(flag.DefaultValue))
-                defaultValue = "=" + flag.DefaultValue;
-
-            if (!string.IsNullOrWhiteSpace(flag.ValueName))
-                defaultValue = "=" + flag.ValueName;
-
-            if (flag.ShortName != 0) { #>
-  -<#=flag.ShortName#>, --<#=flag.Name#><#=defaultValue#>   <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
-<#          }
-            else { #>
-      --<#= flag.Name#><#=defaultValue#>   <#=flag.Help#> <#=GenerateExamples(flag.Examples)#>
-<#          }
-        }
-    }
-}#>
-<#if (Command.Arguments != null && Command.Arguments.Count() != 0) { #>
-Args:
-<#
-    var Arguments = new List<string>();
-    var maxArgLength = Command.Arguments.Max(x => x.Name.Length) + 9;
-
-    foreach (var arg in Command.Arguments)
-    {
-        int spacing = maxArgLength - arg.Name.Length;
-        string finalString = $"  [<{arg.Name}>]".PadRight(spacing); #>
-<#=finalString#>   <#=arg.Help#> <#=GenerateExamples(arg.Examples)#>
-<#  }
-}#>
-<#if (Command.Commands != null && Command.Commands.Count() != 0) { #>
-Commands:
-<#
-    var finalCommands = new List<Tuple<string, CommandItem>>();
-    RecurseCommands("", Command.Commands, finalCommands);
-
-    var commandNameLength = finalCommands.Max(c => c.Item1.Length);
-
-    foreach (var command in finalCommands)
-    {#>
-  <#=command.Item1#> <#=CommandUsage(command.Item2)#>
-    <#=command.Item2.Help#> <#GenerateExamples(command.Item2.Examples);#>
-
-<#  }#>
-
-<#}#>
+﻿usage: {{ application.Name }} {{ command.FullCommand }}
+{%- if command.Flags.size > 0 -%}
+ [<flags>]
+{%- endif -%}
+{%- if command.Commands.size > 0 -%}
+ <command>
+{%- endif -%}
+{%- if command.Arguments.size > 1 -%}
+ [<args> ...]
+{%- endif -%}
+{%- if command.Arguments.size == 1 -%}
+ [<{{command.Arguments.first.Name}}>]
+{%- endif %}
+__NL__
+{% if command.Help != "" %}
+  {{ command.Help }}__NL____NL__
+{% endif %}
+{%- if command.Flags.size > 0 -%}
+Flags:__NL__
+    {%- for flag in command.Flags -%}
+        {%- if flag.Hidden != true -%}
+{%- capture line -%}
+            {%- if flag.ShortName != "" -%}
+  -{{ flag.ShortName }},
+            {%- endif -%}
+  --{{ flag.Name }}
+            {%- if flag.ValueType != "Bool" -%}
+                {%- if flag.DefaultValue != "" -%}
+=<{{ flag.DefaultValue }}>
+                {%- elsif flag.ValueName != "" -%}
+={{ flag.ValueName }}
+                {%- else -%}
+=<value>
+                {%- endif -%}
+            {%- endif -%}
+                                                                                                                                            {% endcapture -%}
+{{ line | strip_newlines  | truncate: 40, "" }}{{ flag.Help }} {{ flag.Examples }}__NL__
+        {%- endif -%}
+    {%- endfor -%}
+{%- endif -%}
+{%- if command.Arguments.size > 0 -%}
+__NL__
+Args:__NL__
+    {%- for arg in command.Arguments -%}
+{%- capture line -%}
+  [<{{ arg.Name }}>]
+                                                                                                                                            {% endcapture -%}
+{{ line | strip_newlines | truncate: 40, "" }}{{ arg.Help }} {{ arg.Examples }}__NL__
+    {%- endfor -%}
+{%- endif -%}
+{%- if command.RecursedCommands.size > 0 -%}
+__NL__
+Commands:__NL__
+    {%- for command in command.RecursedCommands -%}
+{%- capture line -%}
+  {{ command.FullCommand }}
+        {%- if command.Flags.size == 1 -%}
+            {%- if command.Flags.first.Hidden != true -%}
+                {%- if command.Flags.first.ShortName != "" -%}
+ -{{ command.Flags.first.ShortName }},
+                {%- endif -%}
+ --{{ command.Flags.first.Name }}
+                {%- if command.Flags.first.ValueType != "Bool" -%}
+                    {%- if command.Flags.first.DefaultValue != "" -%}
+=<{{ command.Flags.first.DefaultValue }}>
+                    {%- elsif command.Flags.first.ValueName != "" -%}
+={{ command.Flags.first.ValueName }}
+                    {%- else -%}
+=<value>
+                    {%- endif -%}
+                {%- endif -%}
+ {{ command.Flags.first.Help }} {{ command.Flags.first.Examples }}
+            {%- endif -%}
+        {%- elsif command.Flags.size > 1 -%}
+ [<flags>]
+        {%- endif -%}
+        {%- for argument in command.Arguments -%}
+ <{{argument.Name}}>
+        {%- endfor -%}
+                                                                                                                                            {% endcapture -%}
+{{ line | strip_newlines | truncate: 40, "" }}{{ command.Help }} {{ command.Examples }}__NL__
+    {%- endfor -%}
+{%- endif -%}

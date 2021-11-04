@@ -1,6 +1,5 @@
 ﻿using System;
 using KingpinNet;
-using KingpinNet.Help;
 using Microsoft.Extensions.Configuration;
 
 namespace Curl
@@ -13,10 +12,10 @@ namespace Curl
                 .Version("1.0")
                 .Author("Peter Andersen")
                 .ApplicationName("curl")
-                .ApplicationHelp("An example implementation of curl.")
+                .Help("An example implementation of curl.")
                 .ExitOnHelp()
                 .ShowHelpOnParsingErrors()
-                .Template(new DockerApplicationHelp(), new DockerCommandHelp())
+                //.Template("DockerApplicationHelp", "DockerCommandHelp")
                 .Log((serverity, message, exception) => {
                     //Console.WriteLine($"[{serverity}]\t{message}");
                     //if (exception != null)
@@ -47,7 +46,7 @@ namespace Curl
             var listBinaryFile = list.Flag("data-binary", "File with binary data to LIST."); // .IsFile();
             var listUrl = list.Argument("url", "URL to LIST to.").IsRequired().IsUrl().SetSuggestions("http://localhost", "http://192.168.1.1", "http://0.0.0.0");
 
-            var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddKingpinNetCommandLine(args).Build();
+            var configuration = new ConfigurationBuilder().AddKingpinNetCommandLine(args).Build();
 
             switch (configuration["command"])
             {

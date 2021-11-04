@@ -1,11 +1,11 @@
 ﻿using KingpinNet;
-using NUnit.Framework;
+using Xunit;
 
 namespace Tests
 {
     public class TokenizerTests
     {
-        [Test]
+        [Fact]
         public void ParseTwoItems()
         {
             // Arrange
@@ -15,12 +15,12 @@ namespace Tests
             var result = subject.ToTokens("word1 word2");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
 
-        [Test]
+        [Fact]
         public void ParseOneItem()
         {
             // Arrange
@@ -30,10 +30,10 @@ namespace Tests
             var result = subject.ToTokens("word1");
 
             // Assert
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0] == "word1");
+            Assert.True(result.Count == 1);
+            Assert.True(result[0] == "word1");
         }
-        [Test]
+        [Fact]
         public void IgnoreSpaces1()
         {
             // Arrange
@@ -43,10 +43,10 @@ namespace Tests
             var result = subject.ToTokens("   word1   ");
 
             // Assert
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0] == "word1");
+            Assert.True(result.Count == 1);
+            Assert.True(result[0] == "word1");
         }
-        [Test]
+        [Fact]
         public void IgnoreSpaces2()
         {
             // Arrange
@@ -56,11 +56,11 @@ namespace Tests
             var result = subject.ToTokens("   word1   word2    ");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
-        [Test]
+        [Fact]
         public void RespectQuotes()
         {
             // Arrange
@@ -70,11 +70,11 @@ namespace Tests
             var result = subject.ToTokens("   word1 \"  word2   \" ");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "  word2   ");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "  word2   ");
         }
-        [Test]
+        [Fact]
         public void TreatTabsLikeSpaces()
         {
             // Arrange
@@ -84,11 +84,11 @@ namespace Tests
             var result = subject.ToTokens("word1\tword2");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
-        [Test]
+        [Fact]
         public void TreatNewlineLikeSpaces()
         {
             // Arrange
@@ -98,11 +98,11 @@ namespace Tests
             var result = subject.ToTokens("word1\nword2");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
-        [Test]
+        [Fact]
         public void TreatCarriageReturnNewLineLikeSpaces()
         {
             // Arrange
@@ -112,11 +112,11 @@ namespace Tests
             var result = subject.ToTokens("word1\r\nword2");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
-        [Test]
+        [Fact]
         public void ParseZeroString()
         {
             // Arrange
@@ -126,9 +126,9 @@ namespace Tests
             var result = subject.ToTokens("");
 
             // Assert
-            Assert.IsTrue(result.Count == 0);
+            Assert.True(result.Count == 0);
         }
-        [Test]
+        [Fact]
         public void ParseEmptySpaces()
         {
             // Arrange
@@ -138,10 +138,10 @@ namespace Tests
             var result = subject.ToTokens("         ");
 
             // Assert
-            Assert.IsTrue(result.Count == 0);
+            Assert.True(result.Count == 0);
         }
 
-        [Test]
+        [Fact]
         public void TreatCarriageReturnNewlineAsSpace()
         {
             // Arrange
@@ -151,12 +151,12 @@ namespace Tests
             var result = subject.ToTokens("   word1 \r\n  word2   ");
 
             // Assert
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result[0] == "word1");
-            Assert.IsTrue(result[1] == "word2");
+            Assert.True(result.Count == 2);
+            Assert.True(result[0] == "word1");
+            Assert.True(result[1] == "word2");
         }
 
-        [Test]
+        [Fact]
         public void TreatWeirdScenario1()
         {
             // Arrange
@@ -166,8 +166,8 @@ namespace Tests
             var result = subject.ToTokens("   word1\"\"word2");
 
             // Assert
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0] == "word1word2");
+            Assert.True(result.Count == 1);
+            Assert.True(result[0] == "word1word2");
         }
     }
 }

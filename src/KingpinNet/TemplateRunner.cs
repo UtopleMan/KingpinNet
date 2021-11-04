@@ -1,4 +1,7 @@
 ﻿using DotLiquid;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace KingpinNet
 {
@@ -8,6 +11,12 @@ namespace KingpinNet
     }
     public class TemplateRunner : ITemplateRunner
     {
+        private readonly IConsole console;
+
+        public TemplateRunner(IConsole console)
+        {
+            this.console = console;
+        }
         public async Task<string> Run(string templateName, dynamic application)
         {
 
@@ -20,12 +29,12 @@ namespace KingpinNet
             }
             catch (DotLiquid.Exceptions.SyntaxException exception)
             {
-                Console.WriteLine($"Syntax error in template {templateName}: {exception.Message}");
+                console.Out.WriteLine($"Syntax error in template {templateName}: {exception.Message}");
                 return await Task.FromResult("");
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.ToString());
+                console.Out.WriteLine(exception.ToString());
                 return await Task.FromResult("");
             }
         }

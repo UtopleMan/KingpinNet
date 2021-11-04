@@ -16,8 +16,9 @@ namespace KingpinNet
         internal Action<Serverity, string, Exception> log = (a, b, c) => { };
         internal string exeFileName;
         internal string exeFileExtension;
-        private string applicationHelpResource = "Phoenix.Shared.CommandLine.KingpinNet.Help.ApplicationHelp.liquid";
-        private string commandHelpResource = "Phoenix.Shared.CommandLine.KingpinNet.Help.CommandHelp.liquid";
+        private string applicationHelpResource = "KingpinNet.Help.ApplicationHelp.liquid";
+        private string commandHelpResource = "KingpinNet.Help.CommandHelp.liquid";
+        private readonly IConsole console;
 
         public IEnumerable<CommandCategory> Categories => _categories;
         public IEnumerable<CommandItem> Commands => _commands;
@@ -36,6 +37,13 @@ namespace KingpinNet
         {
             exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
             exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+            console = new DefaultConsole();
+        }
+        public KingpinApplication(IConsole console)
+        {
+            exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+            exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+            this.console = console;
         }
         public void Initialize()
         {
@@ -52,7 +60,7 @@ namespace KingpinNet
                 .Replace("{{AppName}}", exeFileName)
                 .Replace("{{AppExtension}}", exeFileExtension);
 
-            Console.Out.Write(content.Replace("\r", ""));
+            console.Out.Write(content.Replace("\r", ""));
             Environment.Exit(0);
         }
         private string GetResource(string name)
@@ -64,8 +72,9 @@ namespace KingpinNet
 
         public void GenerateHelp()
         {
-            var helpGenerator = new HelpGenerator(this);
-            helpGenerator.GenerateWithLiquid(Console.Out, applicationHelpResource);
+            var helpGenerator = new HelpGenerator(this, console);
+            var liquidText = helpGenerator.ReadResourceInExecutingAssembly(applicationHelpResource);
+            helpGenerator.Generate(console.Out, liquidText);
                                                            
             if (ExitWhenHelpIsShown)
             {
@@ -74,8 +83,9 @@ namespace KingpinNet
         }
         private void GenerateCommandHelp(CommandItem command)
         {
-            var helpGenerator = new HelpGenerator(this);    
-            helpGenerator.GenerateWithLiquid(command, Console.Out, commandHelpResource);
+            var helpGenerator = new HelpGenerator(this, console);
+            var liquidText = helpGenerator.ReadResourceInExecutingAssembly(commandHelpResource);
+            helpGenerator.Generate(command, console.Out, liquidText);
             if (ExitWhenHelpIsShown)
             {
                 Environment.Exit(0);
@@ -177,9 +187,9 @@ namespace KingpinNet
             }
             catch (ParseException exception)
             {
-                Console.WriteLine(exception.Message);
+                console.Out.WriteLine(exception.Message);
                 foreach (var error in exception.Errors)
-                    Console.WriteLine($"   {error}");
+                    console.Out.WriteLine($"   {error}");
 
                 if (HelpShownOnParsingErrors)
                 {
@@ -196,7 +206,7 @@ namespace KingpinNet
             if (result.IsSuggestion)
             {
                 foreach (var suggestion in result.Suggestions)
-                    Console.Out.WriteLine(suggestion);
+                    console.Out.WriteLine(suggestion);
                 Environment.Exit(0);
             }
         }

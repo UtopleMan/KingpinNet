@@ -1,22 +1,19 @@
 using KingpinNet;
-using KingpinNet.UI;
 using Moq;
-using NUnit.Framework;
 using System.Linq;
+using Xunit;
 
 namespace Tests
 {
     public class SuggestionTests
     {
         private Mock<IConsole> consoleMock;
-
-        [SetUp]
-        public void Setup()
+        public SuggestionTests()
         {
             consoleMock = new Mock<IConsole>();
         }
 
-        [Test]
+        [Fact]
         public void SuggestCommand()
         {
             // Arrange
@@ -30,10 +27,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions.First(), "cmd2");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd2", result.Suggestions.First());
         }
-        [Test]
+        [Fact]
         public void SuggestNoCommand()
         {
             // Arrange
@@ -47,10 +44,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.IsFalse(result.Suggestions.Any());
+            Assert.True(result.IsSuggestion);
+            Assert.False(result.Suggestions.Any());
         }
-        [Test]
+        [Fact]
         public void SuggestCommandSubstring()
         {
             // Arrange
@@ -64,10 +61,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions.First(), "cmd2");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd2", result.Suggestions.First());
         }
-        [Test]
+        [Fact]
         public void EmptySuggestCommandShowAll()
         {
             // Arrange
@@ -82,11 +79,11 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd1", result.Suggestions[0]);
+            Assert.Equal("--myflag", result.Suggestions[1]);
         }
-        [Test]
+        [Fact]
         public void SuggestCommandShowAll()
         {
             // Arrange
@@ -101,11 +98,11 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd1", result.Suggestions[0]);
+            Assert.Equal("--myflag", result.Suggestions[1]);
         }
-        [Test]
+        [Fact]
         public void SuggestMinusShowFlags()
         {
             // Arrange
@@ -120,10 +117,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "--myflag");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("--myflag", result.Suggestions[0]);
         }
-        [Test]
+        [Fact]
         public void SuggestDoubleMinusShowFlags()
         {
             // Arrange
@@ -138,10 +135,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "--myflag");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("--myflag", result.Suggestions[0]);
         }
-        [Test]
+        [Fact]
         public void SuggestCommandShowShortNamedFlag()
         {
             // Arrange
@@ -155,10 +152,10 @@ namespace Tests
             var result = subject.Parse(args);
 
             // Assert
-            Assert.IsTrue(result.IsSuggestion);
-            Assert.AreEqual(result.Suggestions[0], "cmd1");
-            Assert.AreEqual(result.Suggestions[1], "--myflag");
-            Assert.AreEqual(result.Suggestions[2], "-m");
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd1", result.Suggestions[0]);
+            Assert.Equal("--myflag", result.Suggestions[1]);
+            Assert.Equal("-m", result.Suggestions[2]);
         }
     }
 }
