@@ -15,13 +15,12 @@ namespace Curl
                 .Help("An example implementation of curl.")
                 .ExitOnHelp()
                 .ShowHelpOnParsingErrors()
-                //.Template("DockerApplicationHelp", "DockerCommandHelp")
                 .Log((serverity, message, exception) => {
-                    //Console.WriteLine($"[{serverity}]\t{message}");
-                    //if (exception != null)
-                    //{
-                    //    Console.WriteLine($"\t{exception}");
-                    //}
+                    Console.WriteLine($"[{serverity}]\t{message}");
+                    if (exception != null)
+                    {
+                        Console.WriteLine($"\t{exception}");
+                    }
                 });
 
             var timeout = Kingpin.Flag("timeout", "Set connection timeout.").Short('t').Default("5s"); // .Duration()
