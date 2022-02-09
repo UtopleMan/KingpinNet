@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingpinNet.UI", "src\Kingpi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Widgets", "Examples\Widgets\Widgets.csproj", "{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif", "Examples\Motif\Motif.csproj", "{952F3F51-6C70-42C0-A67F-D3B58364E9DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836}.Release|Any CPU.Build.0 = Release|Any CPU
+		{952F3F51-6C70-42C0-A67F-D3B58364E9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{952F3F51-6C70-42C0-A67F-D3B58364E9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{952F3F51-6C70-42C0-A67F-D3B58364E9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{952F3F51-6C70-42C0-A67F-D3B58364E9DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{C9F8FEA1-B227-436D-B36A-861AD94FF53E} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 		{B62DEBE8-D795-423A-B277-1DCC239736FC} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 		{E12F2B57-D1D5-4FDA-AC19-B08BBE74D836} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
+		{952F3F51-6C70-42C0-A67F-D3B58364E9DE} = {76582B9F-52BA-4E22-8A0D-A6302DF6FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D8F8808-564F-4E0A-8DBF-E14FC1302FD3}
