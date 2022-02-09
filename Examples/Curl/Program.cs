@@ -56,6 +56,8 @@ namespace Curl
                 case "post":
                     Console.WriteLine($"Posting to URL {configuration["post:url"]}");
                     break;
+                default:
+                    throw new Exception("Didn't understand commandline");
             }
         }
     }
