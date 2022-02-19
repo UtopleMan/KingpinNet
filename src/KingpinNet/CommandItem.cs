@@ -101,7 +101,11 @@ namespace KingpinNet
             Item.ValueType = ValueType.Int;
             return this;
         }
-
+        public CommandItem IsLong()
+        {
+            Item.ValueType = ValueType.Long;
+            return this;
+        }
         public CommandItem FileExists()
         {
             Item.FileShouldExist = true;

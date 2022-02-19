@@ -580,6 +580,13 @@ namespace KingpinNet
                 else
                     return (false, $"'{argument}' is not an integer");
             }
+            else if (item.ValueType == ValueType.Long)
+            {
+                if (Int64.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                    return (true, "");
+                else
+                    return (false, $"'{argument}' is not a long");
+            }
             else if (item.ValueType == ValueType.Ip)
             {
                 var result = Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument);

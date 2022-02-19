@@ -8,6 +8,7 @@ namespace KingpinNet
         Bool,
         Url,
         Int,
+        Long,
         Ip,
         Enum,
         Duration,
@@ -20,8 +21,10 @@ namespace KingpinNet
     {
         internal static ValueType Convert(Type type)
         {
-            if (type == typeof(Int32) || type == typeof(Int16) || type == typeof(Int64))
+            if (type == typeof(Int32) || type == typeof(Int16))
                 return ValueType.Int;
+            if (type == typeof(Int64))
+                return ValueType.Long;
             if (type == typeof(DateTime))
                 return ValueType.Date;
             if (type == typeof(TimeSpan))

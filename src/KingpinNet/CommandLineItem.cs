@@ -97,11 +97,19 @@ namespace KingpinNet
             }
             else if (ValueType == ValueType.Int)
             {
-                if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                    Value = (T)Convert.ChangeType(result, typeof(int));
+                if (Int32.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(Int32));
                 else
                     throw new ArgumentException($"'{value}' is not an integer", nameof(value));
             }
+            else if (ValueType == ValueType.Long)
+            {
+                if (Int64.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
+                    Value = (T)Convert.ChangeType(result, typeof(Int64));
+                else
+                    throw new ArgumentException($"'{value}' is not a long", nameof(value));
+            }
+
             else if (ValueType == ValueType.Ip || ValueType == ValueType.Tcp || ValueType == ValueType.String)
             {
                 Value = (T)Convert.ChangeType(value, typeof(string));

@@ -56,6 +56,12 @@ namespace KingpinNet
             return this;
         }
 
+        public ArgumentItem<T> IsLong()
+        {
+            Item.ValueType = ValueType.Long;
+            return this;
+        }
+
         public ArgumentItem<T> FileExists()
         {
             Item.FileShouldExist = true;
