@@ -22,7 +22,7 @@ jobs:
         shell: bash         
         run: |
           dotnet restore
-          sed 's/9999/'"${{github.run_number}}"-alpha'/g' src/KingpinNet/KingpinNet.csproj > src/KingpinNet/KingpinNet.final.csproj
+          sed 's/9999/'"${{github.run_number}}"'/g' src/KingpinNet/KingpinNet.csproj > src/KingpinNet/KingpinNet.final.csproj
           cp src/KingpinNet/KingpinNet.final.csproj src/KingpinNet/KingpinNet.csproj
           dotnet build --configuration Release
           dotnet test --configuration Release --no-build --logger "junit;LogFilePath=results.xml"
