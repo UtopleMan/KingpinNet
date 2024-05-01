@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:    
+      - main
+    paths:
+      - '.github/workflows/build.yml'
+      - '.github/workflows/build-CrawlService.yml'
+      - 'src/**'
+      - 'test/**'
+
+name: KingpinNet
+jobs:
+  build-and-test:
+    name: Test and Push image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Build
+        shell: bash         
+        run: |
+          dotnet restore
+          sed 's/9999/'"${{github.run_number}}"-alpha'/g' src/KingpinNet/KingpinNet.csproj > src/KingpinNet/KingpinNet.final.csproj
+          cp src/KingpinNet/KingpinNet.final.csproj src/KingpinNet/KingpinNet.csproj
+          dotnet build
+          dotnet test --no-build --logger "junit;LogFilePath=results.xml"
+          dotnet pack src/KingpinNet/KingpinNet.csproj -o /source/workspace/packages
+          find .
+      - name: Push to NuGET
+        shell: bash         
+        run: |
+            find .
+            dotnet nuget push ./workspace/packages/KingpinNet.1.0.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
