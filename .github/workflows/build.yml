@@ -24,7 +24,7 @@ jobs:
           dotnet restore
           sed 's/9999/'"${{github.run_number}}"-alpha'/g' src/KingpinNet/KingpinNet.csproj > src/KingpinNet/KingpinNet.final.csproj
           cp src/KingpinNet/KingpinNet.final.csproj src/KingpinNet/KingpinNet.csproj
-          dotnet build
+          dotnet build --configuration Release
           dotnet test --no-build --logger "junit;LogFilePath=results.xml"
           dotnet pack src/KingpinNet/KingpinNet.csproj -o /source/workspace/packages
           find .
