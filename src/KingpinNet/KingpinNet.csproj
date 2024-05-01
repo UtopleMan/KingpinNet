@@ -44,8 +44,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.548" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.692" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 </Project>
