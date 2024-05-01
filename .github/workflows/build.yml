@@ -28,4 +28,4 @@ jobs:
           dotnet test --configuration Release --no-build --logger "junit;LogFilePath=results.xml"
           dotnet pack src/KingpinNet/KingpinNet.csproj
           find .
-          dotnet nuget push ./workspace/packages/KingpinNet.1.0.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json

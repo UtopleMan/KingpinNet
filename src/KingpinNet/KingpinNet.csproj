@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
-    <PackageVersion>1.0.9999</PackageVersion>
-    <Version>1.0.9999</Version>
-    <FileVersion>1.0.9999</FileVersion>
+    <PackageVersion>1.1.9999</PackageVersion>
+    <Version>1.1.9999</Version>
+    <FileVersion>1.1.9999</FileVersion>
     <Authors>Peter Andersen</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/UtopleMan/KingpinNet</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>./source/workspace/packages</PackageOutputPath>
     <PackageTags>Posix, Commandline, Parsing, Kingpin, Parser</PackageTags>
     <PackageId>KingpinNet</PackageId>
