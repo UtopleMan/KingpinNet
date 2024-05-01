@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Build
+      - name: Build Test Push
         shell: bash         
         run: |
           dotnet restore
@@ -26,10 +26,6 @@ jobs:
           cp src/KingpinNet/KingpinNet.final.csproj src/KingpinNet/KingpinNet.csproj
           dotnet build --configuration Release
           dotnet test --configuration Release --no-build --logger "junit;LogFilePath=results.xml"
-          dotnet pack src/KingpinNet/KingpinNet.csproj -o /source/workspace/packages
+          dotnet pack src/KingpinNet/KingpinNet.csproj
           find .
-      - name: Push to NuGET
-        shell: bash         
-        run: |
-            find .
-            dotnet nuget push ./workspace/packages/KingpinNet.1.0.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./workspace/packages/KingpinNet.1.0.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
