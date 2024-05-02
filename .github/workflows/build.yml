@@ -29,4 +29,4 @@ jobs:
           dotnet pack src/KingpinNet/KingpinNet.csproj
           find .
           dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
-          dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.snupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
+
