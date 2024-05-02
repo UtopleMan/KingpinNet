@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestKingpinNet", "Examples\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", "{8E193EB9-C73B-4C3F-BA7C-51DABFC72F84}"
 	ProjectSection(SolutionItems) = preProject
-		.circleci\config.yml = .circleci\config.yml
+		.github\workflows\build.yml = .github\workflows\build.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ping", "Examples\Ping\Ping.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Curl", "Examples\Curl\Curl.csproj", "{B62DEBE8-D795-423A-B277-1DCC239736FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif", "Examples\Motif\Motif.csproj", "{952F3F51-6C70-42C0-A67F-D3B58364E9DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Motif", "Examples\Motif\Motif.csproj", "{952F3F51-6C70-42C0-A67F-D3B58364E9DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -21,7 +21,9 @@
     <Authors>Peter Andersen</Authors>
     <Description>Kingpin.Net style command line arguments parser and command line UI goodies for .NET</Description>
     <Copyright>Copyright 2021</Copyright>
-
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Help\ApplicationHelp.liquid" />
@@ -30,6 +32,11 @@
     <None Remove="Scripts\pwsh.ps1" />
     <None Remove="Scripts\zsh.sh" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Help\ApplicationHelp.liquid" />
     <EmbeddedResource Include="Help\CommandHelp.liquid" />
