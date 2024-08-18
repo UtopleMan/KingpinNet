@@ -8,7 +8,7 @@ namespace TestKingpinNet
         static void Main(string[] args)
         {
             Kingpin.ExitOnHelp();
-            Kingpin.ExitOnParsingErrors();
+            Kingpin.ExitOnParseErrors();
             Kingpin.ShowHelpOnParsingErrors();
             Kingpin.ExitOnNoArguments();
             Kingpin.ShowHelpOnNoArguments();
