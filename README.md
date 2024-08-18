@@ -1,7 +1,4 @@
-[![CircleCI](https://circleci.com/gh/UtopleMan/KingpinNet/tree/master.svg?style=svg)](https://circleci.com/gh/UtopleMan/KingpinNet/tree/master)
 [![Latest version](https://img.shields.io/badge/nuget-v0.2-blue.svg)](https://www.nuget.org/packages/KingpinNet)
-[![License GPLv3](https://img.shields.io/badge/license-GPLv3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=UtopleMan_KingpinNet&metric=alert_status)](https://sonarcloud.io/dashboard?id=UtopleMan_KingpinNet)
 # Kingpin.Net style command line arguments parser and command line UI goodies for .NET 
 
 <!-- MarkdownTOC -->
@@ -133,6 +130,8 @@ iex "$({Your-tool-executable} --suggestion-script-pwsh)"
 After you run the script, you are able to have TAB auto complete on your tool.
 
 ## Changelog
+ - 1.1
+   - Various clean ups
  - 1.0
    - Removed TT templates help generation
    - Added default DotLiquid help template

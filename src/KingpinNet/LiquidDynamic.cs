@@ -1,24 +1,22 @@
 ﻿using DotLiquid;
 
-namespace KingpinNet
+namespace KingpinNet;
+internal class LiquidDynamic : Drop
 {
-    internal class LiquidDynamic : Drop
+    private dynamic content;
+
+    public LiquidDynamic(dynamic content)
     {
-        private dynamic content;
+        this.content = content;
+    }
 
-        public LiquidDynamic(dynamic content)
+    public override object BeforeMethod(string method)
+    {
+        foreach (var item in content)
         {
-            this.content = content;
+            if (item.Key == method)
+                return content[method];
         }
-
-        public override object BeforeMethod(string method)
-        {
-            foreach (var item in content)
-            {
-                if (item.Key == method)
-                    return content[method];
-            }
-            return null;
-        }
+        return null;
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System.IO;
 
-namespace KingpinNet
+namespace KingpinNet;
+public interface IConsole
 {
-    public interface IConsole
-    {
-        public TextWriter Out { get; }
-    }
+    public TextWriter Out { get; }
 }

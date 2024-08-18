@@ -1,10 +1,8 @@
-﻿namespace KingpinNet
+﻿namespace KingpinNet;
+public enum ItemType
 {
-    public enum ItemType
-    {
-        None,
-        Command,
-        Argument,
-        Flag
-    }
+    None,
+    Command,
+    Argument,
+    Flag
 }

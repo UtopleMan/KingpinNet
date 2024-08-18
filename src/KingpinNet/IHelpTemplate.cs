@@ -1,10 +1,8 @@
-﻿namespace KingpinNet
+﻿namespace KingpinNet;
+public interface IHelpTemplate
 {
-    public interface IHelpTemplate
-    {
-        string TransformText();
-        KingpinApplication Application { get; set; }
-        CommandItem Command { get; set; }
-    }
+    string TransformText();
+    KingpinApplication Application { get; set; }
+    CommandItem Command { get; set; }
 }
 

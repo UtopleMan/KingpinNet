@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace KingpinNet;
-
 public class Kingpin
 {
     private static readonly KingpinApplication Application = new KingpinApplication();
