@@ -33,7 +33,7 @@ Flags:__NL__
 =<value>
                 {%- endif -%}
             {%- endif -%}
-                                                                                                                                            {%- endcapture -%}
+                                        {% endcapture -%}
 {{ line | strip_newlines  | truncate: 40, "" }}{{ flag.Help }} {{ flag.Examples }}__NL__
         {%- endif -%}
     {%- endfor -%}
@@ -44,7 +44,7 @@ Args:__NL__
     {%- for arg in command.Arguments -%}
 {%- capture line -%}
   [<{{ arg.Name }}>]
-                                                                                                                                            {%- endcapture -%}
+                                        {% endcapture -%}
 {{ line | strip_newlines | truncate: 40, "" }}{{ arg.Help }} {{ arg.Examples }}__NL__
     {%- endfor -%}
 {%- endif -%}
@@ -77,7 +77,7 @@ Commands:__NL__
         {%- for argument in command.Arguments -%}
  <{{argument.Name}}>
         {%- endfor -%}
-                                                                                                                                            {%- endcapture -%}
+                                        {% endcapture -%}
 {{ line | strip_newlines | truncate: 40, "" }}{{ command.Help }} {{ command.Examples }}__NL__
     {%- endfor -%}
 {%- endif -%}

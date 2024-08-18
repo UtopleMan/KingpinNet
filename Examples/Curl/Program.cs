@@ -14,6 +14,7 @@ namespace Curl
                 .ApplicationName("curl")
                 .Help("An example implementation of curl.")
                 .ExitOnHelp()
+                .ExitOnParseErrors()
                 .ShowHelpOnParsingErrors()
                 .Log((serverity, message, exception) => {
                     Console.WriteLine($"[{serverity}]\t{message}");
@@ -31,9 +32,9 @@ namespace Curl
             var get = getCategory.Command("get", "GET a resource.").IsDefault();
             var getFlag = get.Flag("test", "Test flag").IsBool();
             var getUrl = get.Command("url", "Retrieve a URL.").IsDefault();
-            var getUrlUrl = getUrl.Argument("url", "URL to GET.").IsRequired().IsUrl().SetSuggestions("http://localhost", "http://192.168.1.1", "http://0.0.0.0");
+            var getUrlArgument = getUrl.Argument("url", "URL to GET.").IsRequired().IsUrl().SetSuggestions("http://localhost", "http://192.168.1.1", "http://0.0.0.0");
             var getFile = get.Command("file", "Retrieve a file.");
-            var getFileFile = getFile.Argument("file", "File to retrieve.").IsRequired(); // .ExistingFile()
+            var getFileArgument = getFile.Argument("file", "File to retrieve.").IsRequired(); // .ExistingFile()
 
             var post = getCategory.Command("post", "POST a resource.");
             var postData = post.Flag("data", "Key-value data to POST").Short('d'); // .PlaceHolder("KEY:VALUE").StringMap()
