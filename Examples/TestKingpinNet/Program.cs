@@ -9,8 +9,10 @@ namespace TestKingpinNet
         {
             var runCommand = Kingpin.Command("run", "run a command").IsDefault();
             var runUrlCommand = runCommand.Command("url", "Run a URL");
+            var runUrlsCommand = runCommand.Command("urls", "Run URLs");
             var runUrlArgument = runUrlCommand.Argument("url", "the url to run").IsRequired().IsUrl();
-
+            var runUrlsArgument = runUrlsCommand.Argument<int>("urls", "the url to run").IsRequired().IsList();
+            Kingpin.Parse(args);
             var configuration = new ConfigurationBuilder().AddKingpinNetCommandLine(args).Build();
             if (configuration["Command"] == runCommand.Path)
             {

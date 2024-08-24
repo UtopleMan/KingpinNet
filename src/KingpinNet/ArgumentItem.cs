@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace KingpinNet;
 
@@ -19,6 +20,15 @@ public class ArgumentItem<T> : BaseItem<T>
         get
         {
             return Item.Value;
+        }
+    }
+    public List<T> Values
+    {
+        get
+        {
+            if (!Item.IsList)
+                return [Item.Value];
+            return Item.Values;
         }
     }
 
@@ -43,7 +53,11 @@ public class ArgumentItem<T> : BaseItem<T>
         Item.IsRequired = true;
         return this;
     }
-
+    public ArgumentItem<T> IsList()
+    {
+        Item.IsList = true;
+        return this;
+    }
     public ArgumentItem<T> IsBool()
     {
         Item.ValueType = ValueType.Bool;
@@ -123,5 +137,4 @@ public class ArgumentItem<T> : BaseItem<T>
         Item.DefaultValue = defaultValue;
         return this;
     }
-
 }

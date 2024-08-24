@@ -38,11 +38,13 @@ public class CommandLineItem<T>
     public string Name { get; internal set; }
     public string Help { get; internal set; }
     public bool IsRequired { get; internal set; }
+    public bool IsList { get; internal set; }
     public bool FileShouldExist { get; internal set; }
     public bool DirectoryShouldExist { get; internal set; }
     public Type TypeOfEnum { get; internal set; }
     public string DefaultValue { get; internal set; }
     public T Value { get; internal set; }
+    public List<T> Values { get; internal set; } = [];
     public bool IsDefault { get; internal set; }
     public char ShortName { get; internal set; }
     public Action<T> Action { get; internal set; }
@@ -52,24 +54,38 @@ public class CommandLineItem<T>
     public string[] Suggestions { get; internal set; }
     public string ValueName { get; internal set; }
     public CommandCategory Category { get; internal set; }
-
     internal void ConvertAndSetValue(string value)
+    {
+        Value = ConvertToType(value);
+        Action?.Invoke(Value);
+    }
+    internal void ConvertAndSetValues(List<string> values)
+    {
+        Values = [];
+        foreach (string value in values)
+        {
+            var convertedValue = ConvertToType(value);
+            Values.Add(convertedValue);
+            Action?.Invoke(convertedValue);
+        }
+    }
+    internal T ConvertToType(string value)
     {
         if (typeof(T) == typeof(string))
         {
-            Value = (T)Convert.ChangeType(value, typeof(string));
+            return (T)Convert.ChangeType(value, typeof(string));
         }
         else if (ValueType == ValueType.Bool)
         {
             if (bool.TryParse(value, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(bool));
+                return (T)Convert.ChangeType(result, typeof(bool));
             else
                 throw new ArgumentException($"{value} is not of type bool", nameof(value));
         }
         else if (ValueType == ValueType.Duration)
         {
             if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(TimeSpan));
+                return (T)Convert.ChangeType(result, typeof(TimeSpan));
             else
                 throw new ArgumentException($"'{value}' is not a duration (Days.Hours:Minutes:Seconds.Milli)", nameof(value));
         }
@@ -78,7 +94,7 @@ public class CommandLineItem<T>
             try
             {
                 var resultEnum = Enum.Parse(TypeOfEnum, value);
-                Value = (T)Convert.ChangeType(resultEnum, TypeOfEnum);
+                return (T)Convert.ChangeType(resultEnum, TypeOfEnum);
             }
             catch (ArgumentException)
             {
@@ -89,50 +105,51 @@ public class CommandLineItem<T>
         else if (ValueType == ValueType.Float)
         {
             if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(float));
+                return (T)Convert.ChangeType(result, typeof(float));
             else
                 throw new ArgumentException($"'{value}' is not a float", nameof(value));
         }
         else if (ValueType == ValueType.Int)
         {
             if (Int32.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(Int32));
+                return (T)Convert.ChangeType(result, typeof(Int32));
             else
                 throw new ArgumentException($"'{value}' is not an integer", nameof(value));
         }
         else if (ValueType == ValueType.Long)
         {
             if (Int64.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(Int64));
+                return (T)Convert.ChangeType(result, typeof(Int64));
             else
                 throw new ArgumentException($"'{value}' is not a long", nameof(value));
         }
 
         else if (ValueType == ValueType.Ip || ValueType == ValueType.Tcp || ValueType == ValueType.String)
         {
-            Value = (T)Convert.ChangeType(value, typeof(string));
+            return (T)Convert.ChangeType(value, typeof(string));
         }
         else if (ValueType == ValueType.Url)
         {
             if (typeof(T) == typeof(Uri))
             {
                 if (Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out var uriResult))
-                    Value = (T) Convert.ChangeType(uriResult, typeof(Uri));
+                    return (T)Convert.ChangeType(uriResult, typeof(Uri));
                 else
                     throw new ArgumentException($"'{value}' is not a Uri", nameof(value));
             }
             else
             {
-                Value = (T)Convert.ChangeType(value, typeof(string));
+                return (T)Convert.ChangeType(value, typeof(string));
             }
         }
         else if (ValueType == ValueType.Date)
         {
             if (DateTime.TryParseExact(value, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                Value = (T)Convert.ChangeType(result, typeof(DateTime));
+                return (T)Convert.ChangeType(result, typeof(DateTime));
             else
                 throw new ArgumentException($"'{value}' is not a date", nameof(value));
         }
-        Action?.Invoke(Value);
+        else
+            throw new ArgumentException($"'{ValueType}' is not allowed", nameof(value));
     }
 }

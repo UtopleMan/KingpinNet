@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace KingpinNet;
 
@@ -7,10 +9,12 @@ public interface IItem
 {
     string DefaultValue { get; }
     string StringValue { get; set; }
+    List<string> ListStringValues { get; set; }
     bool IsSet { get; set; }
     string Name { get; }
     char ShortName { get; }
     bool Required { get; }
+    bool List { get; }
     ValueType ValueType { get; }
     bool DirectoryShouldExist { get; }
     bool FileShouldExist { get; }
@@ -47,6 +51,7 @@ public class BaseItem<T> : IItem
     }
 
     public bool Required => Item.IsRequired;
+    public bool List => Item.IsList;
 
     public string DefaultValue => Item.DefaultValue;
 
@@ -69,7 +74,17 @@ public class BaseItem<T> : IItem
             Item.ConvertAndSetValue(value);
         }
     }
-
+    public List<string> ListStringValues
+    {
+        get
+        {
+            return Item.Values.Select(x => x.ToString()).ToList();
+        }
+        set
+        {
+            Item.ConvertAndSetValues(value);
+        }
+    }
     public string Name => Item.Name;
 
     public char ShortName => Item.ShortName;

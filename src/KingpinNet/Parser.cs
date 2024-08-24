@@ -350,6 +350,11 @@ public class Parser
             }
             else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
             {
+                if (argumentFound.List)
+                {
+                    argumentFound.ListStringValues = _args.ToArray()[_currentItem..].ToList();
+                    _currentItem = _args.Count;
+                }
                 Merge("Command", argumentFound);
                 _currentItem++;
             }
