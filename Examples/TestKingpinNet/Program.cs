@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using KingpinNet;
 using Microsoft.Extensions.Configuration;
 namespace TestKingpinNet
@@ -11,7 +12,7 @@ namespace TestKingpinNet
             var runUrlCommand = runCommand.Command("url", "Run a URL");
             var runUrlsCommand = runCommand.Command("urls", "Run URLs");
             var runUrlArgument = runUrlCommand.Argument("url", "the url to run").IsRequired().IsUrl();
-            var runUrlsArgument = runUrlsCommand.Argument<int>("urls", "the url to run").IsRequired().IsList();
+            var runUrlsArgument = runUrlsCommand.Argument<List<string>>("urls", "the url to run").IsRequired();
             Kingpin.Parse(args);
             var configuration = new ConfigurationBuilder().AddKingpinNetCommandLine(args).Build();
             if (configuration["Command"] == runCommand.Path)

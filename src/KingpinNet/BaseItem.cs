@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,12 +10,11 @@ public interface IItem
 {
     string DefaultValue { get; }
     string StringValue { get; set; }
-    List<string> ListStringValues { get; set; }
+    List<string> StringValues { get; set; }
     bool IsSet { get; set; }
     string Name { get; }
     char ShortName { get; }
     bool Required { get; }
-    bool List { get; }
     ValueType ValueType { get; }
     bool DirectoryShouldExist { get; }
     bool FileShouldExist { get; }
@@ -51,8 +51,6 @@ public class BaseItem<T> : IItem
     }
 
     public bool Required => Item.IsRequired;
-    public bool List => Item.IsList;
-
     public string DefaultValue => Item.DefaultValue;
 
     public ValueType ValueType
@@ -74,11 +72,13 @@ public class BaseItem<T> : IItem
             Item.ConvertAndSetValue(value);
         }
     }
-    public List<string> ListStringValues
+    public List<string> StringValues
     {
         get
         {
-            return Item.Values.Select(x => x.ToString()).ToList();
+            if (ValueType == ValueType.ListOfString)
+                return ((IEnumerable)Item.Value).Cast<string>().ToList();
+            return [StringValue];
         }
         set
         {

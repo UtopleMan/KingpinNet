@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace KingpinNet;
 public class CommandLineItem<T>
@@ -38,13 +39,11 @@ public class CommandLineItem<T>
     public string Name { get; internal set; }
     public string Help { get; internal set; }
     public bool IsRequired { get; internal set; }
-    public bool IsList { get; internal set; }
     public bool FileShouldExist { get; internal set; }
     public bool DirectoryShouldExist { get; internal set; }
     public Type TypeOfEnum { get; internal set; }
     public string DefaultValue { get; internal set; }
     public T Value { get; internal set; }
-    public List<T> Values { get; internal set; } = [];
     public bool IsDefault { get; internal set; }
     public char ShortName { get; internal set; }
     public Action<T> Action { get; internal set; }
@@ -59,15 +58,19 @@ public class CommandLineItem<T>
         Value = ConvertToType(value);
         Action?.Invoke(Value);
     }
-    internal void ConvertAndSetValues(List<string> values)
+    internal void ConvertAndSetValues(List<string> value)
     {
-        Values = [];
-        foreach (string value in values)
+        Value = ConvertToType(value);
+        Action?.Invoke(Value);
+    }
+    internal T ConvertToType(List<string> values)
+    {
+        if (ValueType == ValueType.ListOfString)
         {
-            var convertedValue = ConvertToType(value);
-            Values.Add(convertedValue);
-            Action?.Invoke(convertedValue);
+            return (T)Convert.ChangeType(values, typeof(List<string>));
         }
+        else
+            throw new ArgumentException($"'{ValueType}' is not allowed", nameof(values));
     }
     internal T ConvertToType(string value)
     {
@@ -148,6 +151,10 @@ public class CommandLineItem<T>
                 return (T)Convert.ChangeType(result, typeof(DateTime));
             else
                 throw new ArgumentException($"'{value}' is not a date", nameof(value));
+        }
+        else if (ValueType == ValueType.ListOfString)
+        {
+            return (T) Convert.ChangeType(value.Split(",").ToList(), typeof(List<string>));
         }
         else
             throw new ArgumentException($"'{ValueType}' is not allowed", nameof(value));

@@ -43,7 +43,6 @@ public class FlagItem<T> : BaseItem<T>
         Item.IsRequired = true;
         return this;
     }
-
     public FlagItem<T> IsBool()
     {
         Item.ValueType = ValueType.Bool;

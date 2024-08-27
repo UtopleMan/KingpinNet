@@ -350,9 +350,9 @@ public class Parser
             }
             else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
             {
-                if (argumentFound.List)
+                if (argumentFound.ValueType == ValueType.ListOfString)
                 {
-                    argumentFound.ListStringValues = _args.ToArray()[_currentItem..].ToList();
+                    argumentFound.StringValues = _args.Skip(_currentItem).ToList();
                     _currentItem = _args.Count;
                 }
                 Merge("Command", argumentFound);
@@ -623,6 +623,10 @@ public class Parser
                 return (false, $"'{argument}' is not a date");
         }
         else if (item.ValueType == ValueType.String)
+        {
+            return (true, "");
+        }
+        else if (item.ValueType == ValueType.ListOfString)
         {
             return (true, "");
         }
