@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace KingpinNet;
 
@@ -22,15 +21,6 @@ public class ArgumentItem<T> : BaseItem<T>
             return Item.Value;
         }
     }
-    public List<T> Values
-    {
-        get
-        {
-            if (!Item.IsList)
-                return [Item.Value];
-            return Item.Values;
-        }
-    }
 
     public ArgumentItem<T> SetExamples(params string[] examples)
     {
@@ -51,11 +41,6 @@ public class ArgumentItem<T> : BaseItem<T>
     public ArgumentItem<T> IsRequired()
     {
         Item.IsRequired = true;
-        return this;
-    }
-    public ArgumentItem<T> IsList()
-    {
-        Item.IsList = true;
         return this;
     }
     public ArgumentItem<T> IsBool()

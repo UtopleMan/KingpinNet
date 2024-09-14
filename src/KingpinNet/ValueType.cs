@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace KingpinNet;
 public enum ValueType
@@ -13,7 +14,8 @@ public enum ValueType
     Duration,
     Tcp,
     Float,
-    Date
+    Date,
+    ListOfString
 }
 
 public static class ValueTypeConverter
@@ -36,6 +38,8 @@ public static class ValueTypeConverter
             return ValueType.Url;
         if (type.IsEnum)
             return ValueType.Enum;
+        if (type == typeof(List<string>))
+            return ValueType.ListOfString;
         return ValueType.String;
     }
 }

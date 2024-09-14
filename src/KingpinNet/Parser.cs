@@ -350,9 +350,9 @@ public class Parser
             }
             else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
             {
-                if (argumentFound.List)
+                if (argumentFound.ValueType == ValueType.ListOfString)
                 {
-                    argumentFound.ListStringValues = _args.ToArray()[_currentItem..].ToList();
+                    argumentFound.StringValues = _args.Skip(_currentItem).ToList();
                     _currentItem = _args.Count;
                 }
                 Merge("Command", argumentFound);
@@ -479,13 +479,13 @@ public class Parser
         if (parts.Length == 1)
             if (item.ValueType == ValueType.Bool)
             {
-                item.Action?.Invoke(arg);
+                item.Action?.Invoke("true");
                 return "true";
             }
             else
                 throw new ParseException("Not a boolean " + arg);
 
-        item.Action?.Invoke(arg);
+        item.Action?.Invoke(parts[1]);
         return parts[1];
     }
 
@@ -500,7 +500,7 @@ public class Parser
 
     private bool IsValidFlag(IItem flag, string arg, List<string> listOfErrors)
     {
-        var parts = arg.Split('=');
+        var parts = arg.SplitFirst('=');
 
         if (parts.Length == 1)
             if (flag.ValueType == ValueType.Bool)
@@ -513,7 +513,7 @@ public class Parser
                 return false;
             }
 
-        if (parts.Length >= 2)
+        if (parts.Length > 1)
         {
             var result = IsValidItem(flag, parts[1]);
             if (!result.success)
@@ -626,6 +626,10 @@ public class Parser
         {
             return (true, "");
         }
+        else if (item.ValueType == ValueType.ListOfString)
+        {
+            return (true, "");
+        }
         return (false, "Unknown error");
     }
 
@@ -647,8 +651,8 @@ public class Parser
 
         if (arg.StartsWith("--"))
         {
-            var foundLocalFlags = flags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
-                IsValidFlag(f, arg, errors)).ToList();
+            var flagName = GetFlagName(arg);
+            var foundLocalFlags = flags.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors)).ToList();
             var foundGlobalFlags = globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
                 IsValidFlag(f, arg, errors));
             return EvaluateItem(foundLocalFlags, foundGlobalFlags, arg, errors, out item);
