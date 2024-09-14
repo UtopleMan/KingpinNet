@@ -42,6 +42,7 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 - Customizable console help using the awesome [Liquid syntax](https://shopify.github.io/liquid/basics/introduction/)
 - Context sensitive help output
 - TAB Auto-completion on ZSH, Bash and Powershell
+- Arguments containing lists of values
 
 ## Usage
 
@@ -130,6 +131,8 @@ iex "$({Your-tool-executable} --suggestion-script-pwsh)"
 After you run the script, you are able to have TAB auto complete on your tool.
 
 ## Changelog
+ - 1.1.15
+   - Added argument containing list of values
  - 1.1
    - Various clean ups
  - 1.0
