@@ -39,7 +39,7 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 - Type safe arguments and flags
 - Beautiful console help
 - POSIX Style short flags
-- Customizable console help using the awesome [Liquid syntax](https://shopify.github.io/liquid/basics/introduction/)
+- Customizable console help using [Liquid syntax](https://shopify.github.io/liquid/basics/introduction/) (rendered with [Scriban](https://github.com/scriban/scriban))
 - Context sensitive help output
 - TAB Auto-completion on ZSH, Bash and Powershell
 - Arguments containing lists of values
@@ -129,6 +129,20 @@ iex "$({Your-tool-executable} --suggestion-script-pwsh)"
 ```
 
 After you run the script, you are able to have TAB auto complete on your tool.
+
+## What's New
+
+### Phase 2 — Modern .NET compatibility
+ - Replaced DotLiquid with Scriban for trimming-safe help rendering
+ - Library is now marked `IsAotCompatible` with trim, AOT, and single-file analyzers enabled
+ - Help rendering no longer uses reflection — models are built as explicit `ScriptObject`/`ScriptArray` values
+ - `Environment.ProcessPath` replaces `Assembly.Location` to support single-file publish
+ - CI now gates on AOT and single-file publish of an example app
+
+### Phase 1 — Stabilization
+ - Resolved inconsistencies in `BaseItem.cs` and `Parser.cs`
+ - Tightened parser edge-case test coverage
+ - Target framework aligned to `net10.0`
 
 ## Changelog
  - 1.1.15

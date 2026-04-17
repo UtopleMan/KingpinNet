@@ -1,13 +1,13 @@
 # build
 on:
   push:
-    branches:    
+    branches:
       - master
     paths:
       - '.github/workflows/build.yml'
-      - '.github/workflows/build-CrawlService.yml'
       - 'src/**'
       - 'test/**'
+      - 'Examples/**'
 
 name: KingpinNet
 jobs:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Build Test Push
-        shell: bash         
+        shell: bash
         run: |
           dotnet restore
           sed 's/9999/'"${{github.run_number}}"'/g' src/KingpinNet/KingpinNet.csproj > src/KingpinNet/KingpinNet.final.csproj
@@ -27,6 +27,45 @@ jobs:
           dotnet build --configuration Release
           dotnet test --configuration Release --no-build --logger "junit;LogFilePath=results.xml"
           dotnet pack src/KingpinNet/KingpinNet.csproj
-          find .
           dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
 
+  aot-gate:
+    name: AOT and single-file publish gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: AOT publish example app
+        shell: bash
+        run: |
+          set -e
+          OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
+            -c Release -f net10.0 -r linux-x64 --self-contained \
+            -p:PublishAot=true 2>&1)
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -E "warning IL[0-9]+|error"; then
+            echo "::error::AOT publish produced warnings or errors"
+            exit 1
+          fi
+
+      - name: Single-file publish example app
+        shell: bash
+        run: |
+          set -e
+          OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
+            -c Release -f net10.0 -r linux-x64 --self-contained \
+            -p:PublishSingleFile=true -p:PublishAot=false 2>&1)
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -E "warning IL[0-9]+"; then
+            echo "::error::Single-file publish produced IL warnings"
+            exit 1
+          fi

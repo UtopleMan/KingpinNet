@@ -36,14 +36,16 @@ public class KingpinApplication
 
     public KingpinApplication()
     {
-        exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
-        exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+        var processPath = Environment.ProcessPath ?? "";
+        exeFileName = Path.GetFileNameWithoutExtension(processPath);
+        exeFileExtension = Path.GetExtension(processPath);
         console = new DefaultConsole();
     }
     public KingpinApplication(IConsole console)
     {
-        exeFileName = Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
-        exeFileExtension = Path.GetExtension(System.Reflection.Assembly.GetEntryAssembly().Location);
+        var processPath = Environment.ProcessPath ?? "";
+        exeFileName = Path.GetFileNameWithoutExtension(processPath);
+        exeFileExtension = Path.GetExtension(processPath);
         this.console = console;
     }
     public void Initialize()
@@ -56,8 +58,9 @@ public class KingpinApplication
 
     private void GenerateScript(string resource)
     {
+        var processPath = Environment.ProcessPath ?? "";
         var content = GetResource(resource)
-            .Replace("{{AppPath}}", Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + Path.DirectorySeparatorChar)
+            .Replace("{{AppPath}}", Path.GetDirectoryName(processPath) + Path.DirectorySeparatorChar)
             .Replace("{{AppName}}", exeFileName)
             .Replace("{{AppExtension}}", exeFileExtension);
 

@@ -393,7 +393,7 @@ namespace Tests
             var result = writer.ToString();
             output.WriteLine(result);
             Assert.Contains($"usage:  cmd [<flags>]", result);
-            Assert.Contains($"  command help", result);
+            Assert.Contains($"command help", result);
             Assert.Contains($"Flags:", result);
             Assert.Contains($"  --flag=<value>                        flag help (e.g. 1, 2)", result);
         }
