@@ -1,4 +1,5 @@
-﻿using DotLiquid;
+using Scriban;
+using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,33 +18,26 @@ public class HelpGenerator
         this.console = console;
     }
 
-    public void Generate(TextWriter output, string liquidTemplateText)
+    public void Generate(TextWriter output, string templateText)
     {
         try
         {
-            var template = Template.Parse(liquidTemplateText);
-            var application = ToDrop(_application);
-            var result = template.Render(Hash.FromAnonymousObject(new { application = application }));
+            var template = Template.ParseLiquid(templateText);
+            if (template.HasErrors)
+            {
+                console.Out.WriteLine($"Syntax error in template: {string.Join(", ", template.Messages)}");
+                return;
+            }
+            var root = new ScriptObject();
+            root["application"] = BuildApplicationObject(_application);
+            var result = RenderWithRoot(template, root);
             result = result.Replace("\n", "").Replace("\r", "").Replace(NewLine, Environment.NewLine);
             output.Write(result);
-        }
-        catch (DotLiquid.Exceptions.SyntaxException exception)
-        {
-            console.Out.WriteLine($"Syntax error in template [{liquidTemplateText}]: {exception.Message}");
         }
         catch (Exception exception)
         {
             console.Out.WriteLine(exception.ToString());
         }
-    }
-
-    private ILiquidizable ToDrop(KingpinApplication application)
-    {
-        return new ApplicationDrop(application);
-    }
-    private ILiquidizable ToDrop(CommandItem command)
-    {
-        return new CommandDrop(command);
     }
 
     public string ReadResourceInExecutingAssembly(string resource)
@@ -54,207 +48,108 @@ public class HelpGenerator
         return reader.ReadToEnd();
     }
 
-    public void Generate(CommandItem command, TextWriter output, string liquidTemplateText)
+    public void Generate(CommandItem command, TextWriter output, string templateText)
     {
         try
         {
-            var template = Template.Parse(liquidTemplateText);
-            var applicationDrop = ToDrop(_application);
-            var commandDrop = ToDrop(command);
-            var result = template.Render(Hash.FromAnonymousObject(new { application = applicationDrop, command = commandDrop }));
+            var template = Template.ParseLiquid(templateText);
+            if (template.HasErrors)
+            {
+                console.Out.WriteLine($"Syntax error in template: {string.Join(", ", template.Messages)}");
+                return;
+            }
+            var root = new ScriptObject();
+            root["application"] = BuildApplicationObject(_application);
+            root["command"] = BuildCommandObject(command, command.Name);
+            var result = RenderWithRoot(template, root);
             result = result.Replace("\n", "").Replace("\r", "").Replace(NewLine, Environment.NewLine);
             output.Write(result);
-        }
-        catch (DotLiquid.Exceptions.SyntaxException exception)
-        {
-            console.Out.WriteLine($"Syntax error in template [{liquidTemplateText}]: {exception.Message}");
         }
         catch (Exception exception)
         {
             console.Out.WriteLine(exception.ToString());
         }
     }
-}
 
-internal class ApplicationDrop : Drop
-{
-    private readonly KingpinApplication application;
-
-    public ApplicationDrop(KingpinApplication application)
+    private static string RenderWithRoot(Template template, ScriptObject root)
     {
-        this.application = application;
+        var context = new LiquidTemplateContext { MemberRenamer = member => member.Name };
+        context.PushGlobal(root);
+        return template.Render(context);
     }
 
-    public override object BeforeMethod(string method)
+    private static ScriptObject BuildApplicationObject(KingpinApplication application)
     {
-        if (method == "Name")
-            return application.Name;
-        if (method == "Help")
-            return application.HelpText;
-        if (method == "Flags")
-            return ToFlagsDrop(application.Flags);
-        if (method == "Commands")
-            return ToCommandsDrop(application.Commands);
-        if (method == "RecursedCommands")
-            return ToFinalCommandsDrop();
-        if (method == "Arguments")
-            return ToArgumentsDrop(application.Arguments);
-        return null;
-    }
-    private object ToFinalCommandsDrop()
-    {
-        var commands = new List<CommandDrop>();
-        RecurseCommands("", application.Commands, commands);
-        return commands;
+        var obj = new ScriptObject();
+        obj["Name"] = application.Name ?? "";
+        obj["Help"] = application.HelpText ?? "";
+        obj["Flags"] = ToScriptArray(application.Flags.Select(BuildItemObject));
+        obj["Commands"] = ToScriptArray(application.Commands.Select(c => BuildCommandObject(c, c.Name)));
+        obj["RecursedCommands"] = ToScriptArray(RecurseCommands("", application.Commands));
+        obj["Arguments"] = ToScriptArray(application.Arguments.Select(BuildItemObject));
+        return obj;
     }
 
-    private object ToArgumentsDrop(IEnumerable<IItem> arguments)
+    private static ScriptObject BuildCommandObject(CommandItem command, string fullCommand)
     {
-        return arguments.Select(x => new ItemDrop(x));
+        var obj = new ScriptObject();
+        obj["Name"] = command.Name ?? "";
+        obj["FullCommand"] = fullCommand ?? "";
+        obj["Help"] = command.Help ?? "";
+        obj["Examples"] = FormatExamples(command.Examples);
+        obj["Flags"] = ToScriptArray(command.Flags.Select(BuildItemObject));
+        obj["Commands"] = ToScriptArray(command.Commands.Select(c => BuildCommandObject(c, c.Name)));
+        obj["Arguments"] = ToScriptArray(command.Arguments.Select(BuildItemObject));
+        obj["RecursedCommands"] = ToScriptArray(RecurseCommands("", command.Commands));
+        return obj;
     }
 
-    private object ToCommandsDrop(IEnumerable<CommandItem> commands)
+    private static ScriptArray ToScriptArray(IEnumerable<ScriptObject> items)
     {
-        return commands.Select(x => new CommandDrop(x));
+        var array = new ScriptArray();
+        foreach (var item in items)
+            array.Add(item);
+        return array;
     }
 
-    private object ToFlagsDrop(IEnumerable<IItem> flags)
+    private static ScriptObject BuildItemObject(IItem item)
     {
-        return flags.Select(x => new ItemDrop(x));
+        var obj = new ScriptObject();
+        obj["Name"] = item.Name ?? "";
+        obj["ShortName"] = item.ShortName == 0 ? "" : item.ShortName.ToString();
+        obj["Help"] = item.Help ?? "";
+        obj["Examples"] = FormatExamples(item.Examples);
+        obj["DefaultValue"] = item.DefaultValue ?? "";
+        obj["Hidden"] = item.Hidden;
+        obj["ValueType"] = item.ValueType.ToString();
+        obj["ValueName"] = item.ValueName ?? "";
+        return obj;
     }
 
-    private void RecurseCommands(string currentCommand, IEnumerable<CommandItem> commands,
-        List<CommandDrop> finalCommands)
+    private static List<ScriptObject> RecurseCommands(string currentCommand, IEnumerable<CommandItem> commands)
     {
+        var result = new List<ScriptObject>();
         foreach (var command in commands)
         {
-            if (command.Commands == null || command.Commands.Count() == 0)
+            var path = (currentCommand + " " + command.Name).Trim();
+            if (command.Commands == null || !command.Commands.Any())
             {
-                finalCommands.Add(new CommandDrop((currentCommand + " " + command.Name).Trim(), command));
+                result.Add(BuildCommandObject(command, path));
             }
             else
             {
                 if (!command.Hidden)
-                    finalCommands.Add(new CommandDrop((currentCommand + " " + command.Name).Trim(), command));
-                RecurseCommands((currentCommand + " " + command.Name).Trim(), command.Commands, finalCommands);
+                    result.Add(BuildCommandObject(command, path));
+                result.AddRange(RecurseCommands(path, command.Commands));
             }
         }
-    }
-}
-
-internal class CommandDrop : Drop
-{
-    private string fullCommand;
-    private CommandItem x;
-
-    public CommandDrop(CommandItem x)
-    {
-        this.fullCommand = x.Name;
-        this.x = x;
-    }
-    public CommandDrop(string fullCommand, CommandItem x)
-    {
-        this.fullCommand = fullCommand;
-        this.x = x;
-    }
-    public override object BeforeMethod(string method)
-    {
-        if (method == "Name")
-            return x.Name ?? "";
-        if (method == "FullCommand")
-            return fullCommand ?? "";
-        if (method == "Examples")
-            return GenerateExamples(x.Examples) ?? "";
-        if (method == "Help")
-            return x.Help ?? "";
-        if (method == "Flags")
-            return ToFlagsDrop(x.Flags);
-        if (method == "Commands")
-            return ToCommandsDrop(x.Commands);
-        if (method == "Arguments")
-            return ToArgumentsDrop(x.Arguments);
-        if (method == "RecursedCommands")
-            return ToFinalCommandsDrop();
-        throw new NotImplementedException($"Didn't implement {method} on CommandDrop");
-    }
-    private object ToArgumentsDrop(IEnumerable<IItem> arguments)
-    {
-        return arguments.Select(x => new ItemDrop(x));
+        return result;
     }
 
-    private object ToCommandsDrop(IEnumerable<CommandItem> commands)
-    {
-        return commands.Select(x => new CommandDrop(x));
-    }
-
-    private object ToFlagsDrop(IEnumerable<IItem> flags)
-    {
-        return flags.Select(x => new ItemDrop(x));
-    }
-    private object ToFinalCommandsDrop()
-    {
-        var commands = new List<CommandDrop>();
-        RecurseCommands("", x.Commands, commands);
-        return commands;
-    }
-    private void RecurseCommands(string currentCommand, IEnumerable<CommandItem> commands, List<CommandDrop> finalCommands)
-    {
-        foreach (var command in commands)
-        {
-            if (command.Commands == null || command.Commands.Count() == 0)
-            {
-                finalCommands.Add(new CommandDrop((currentCommand + " " + command.Name).Trim(), command));
-            }
-            else
-            {
-                if (!command.Hidden)
-                    finalCommands.Add(new CommandDrop((currentCommand + " " + command.Name).Trim(), command));
-                RecurseCommands((currentCommand + " " + command.Name).Trim(), command.Commands, finalCommands);
-            }
-        }
-    }
-    private string GenerateExamples(string[] examples)
+    private static string FormatExamples(string[] examples)
     {
         if (examples == null || examples.Length == 0)
             return "";
-        var result = examples.Aggregate((current, example) => current + ", " + example);
-        return "(e.g. " + result + ")";
-    }
-}
-
-internal class ItemDrop : Drop
-{
-    private IItem x;
-
-    public ItemDrop(IItem x)
-    {
-        this.x = x;
-    }
-    public override object BeforeMethod(string method)
-    {
-        if (method == "Name")
-            return x.Name ?? "";
-        if (method == "ShortName")
-            return x.ShortName == 0 ? "" : x.ShortName.ToString();
-        if (method == "Help")
-            return x.Help ?? "";
-        if (method == "Examples")
-            return GenerateExamples(x.Examples);
-        if (method == "DefaultValue")
-            return x.DefaultValue ?? "";
-        if (method == "Hidden")
-            return x.Hidden;
-        if (method == "ValueType")
-            return x.ValueType;
-        if (method == "ValueName")
-            return x.ValueName ?? "";
-        throw new NotImplementedException($"Didn't implement {method} on ItemDrop");
-    }
-    private string GenerateExamples(string[] examples)
-    {
-        if (examples == null || examples.Length == 0)
-            return "";
-        var result = examples.Aggregate((current, example) => current + ", " + example);
-        return "(e.g. " + result + ")";
+        return "(e.g. " + string.Join(", ", examples) + ")";
     }
 }

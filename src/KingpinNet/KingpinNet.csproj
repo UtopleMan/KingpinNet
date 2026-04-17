@@ -25,6 +25,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <LangVersion>latest</LangVersion>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Help\ApplicationHelp.liquid" />
@@ -52,7 +56,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.3.197" />
+    <PackageReference Include="Scriban" Version="7.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
   </ItemGroup>
 </Project>

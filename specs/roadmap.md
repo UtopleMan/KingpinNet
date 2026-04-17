@@ -10,13 +10,13 @@ Items are ordered by dependency — earlier items unblock later ones.
 - [x] Audit and tighten test coverage of parser edge cases
 - [x] Align library target framework with `net10.0`
 
-## Phase 2 — Modern .NET Compatibility
+## Phase 2 — Modern .NET Compatibility ✓
 
 **Goal:** Make KingpinNet a first-class citizen in modern .NET publish scenarios.
 
-- [ ] **AOT / trimming support** — Evaluate replacing DotLiquid with a trimming-safe templating approach (Scriban or compile-time help generation); validate with `dotnet publish -p:PublishAot=true`
-- [ ] Ensure single-file publish works without warnings
-- [ ] Update CI to include AOT publish as a build gate
+- [x] **AOT / trimming support** — Evaluate replacing DotLiquid with a trimming-safe templating approach (Scriban or compile-time help generation); validate with `dotnet publish -p:PublishAot=true`
+- [x] Ensure single-file publish works without warnings
+- [x] Update CI to include AOT publish as a build gate
 
 ## Phase 3 — Async Execution
 
