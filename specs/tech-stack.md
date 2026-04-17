@@ -5,7 +5,7 @@
 | Layer | Technology | Notes |
 |---|---|---|
 | Language | C# | |
-| Target framework | `netstandard2.1` (library), `net8.0` (tests/examples) | |
+| Target framework | `net10.0` | |
 | Help templating | DotLiquid | Renders Liquid templates for help output |
 | Configuration | `Microsoft.Extensions.Configuration` 8.0.0 | Config source integration |
 | Test framework | xUnit 2.8.0 | |

@@ -2,13 +2,13 @@
 
 Items are ordered by dependency — earlier items unblock later ones.
 
-## Phase 1 — Stabilization (current)
+## Phase 1 — Stabilization ✓
 
 **Goal:** Clean internal foundations before adding new capabilities.
 
-- [ ] **Technical debt** — Resolve inconsistencies in `BaseItem.cs` and `Parser.cs` (in progress on `master`)
-- [ ] Audit and tighten test coverage of parser edge cases
-- [ ] Align library target framework with `net8.0` and `net9.0` outputting to both frameworks
+- [x] **Technical debt** — Resolve inconsistencies in `BaseItem.cs` and `Parser.cs`
+- [x] Audit and tighten test coverage of parser edge cases
+- [x] Align library target framework with `net10.0`
 
 ## Phase 2 — Modern .NET Compatibility
 

@@ -28,7 +28,7 @@ Internal logic may be restructured beyond just fixing what is broken today. The 
 
 ### Framework targets
 
-Remove `netstandard2.1`. The library `.csproj` will multi-target `net8.0;net9.0`. Tests and examples already target `net8.0` and should be extended to cover both.
+Remove `netstandard2.1`. The library `.csproj` will target `net10.0`. Tests and examples target the same.
 
 ## Out of Scope
 

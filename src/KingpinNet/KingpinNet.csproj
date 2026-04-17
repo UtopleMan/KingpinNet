@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>KingpinNet</Title>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
     <PackageVersion>1.1.9999</PackageVersion>
@@ -35,7 +35,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.202" PrivateAssets="All" />
   </ItemGroup>
   
   <ItemGroup>
@@ -52,8 +52,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.692" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="DotLiquid" Version="2.3.197" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
   </ItemGroup>
 </Project>

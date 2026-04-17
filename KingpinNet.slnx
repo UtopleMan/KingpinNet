@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Deployment/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Examples/">
+    <Project Path="Examples/Curl/Curl.csproj" />
+    <Project Path="Examples/Motif/Motif.csproj" />
+    <Project Path="Examples/Ping/Ping.csproj" />
+    <Project Path="Examples/TestKingpinNet/TestKingpinNet.csproj" />
+  </Folder>
+  <Project Path="src/KingpinNet/KingpinNet.csproj" />
+  <Project Path="test/UnitTests/Tests.csproj" />
+</Solution>

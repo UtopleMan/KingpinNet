@@ -24,22 +24,38 @@
 
 ## Group 3 — Framework Retargeting
 
-3.1 Update `src/KingpinNet/KingpinNet.csproj`: change `TargetFramework` to `TargetFrameworks` with value `net8.0;net9.0`.
+3.1 Update `src/KingpinNet/KingpinNet.csproj`: set `TargetFrameworks` to `net10.0`.
 
-3.2 Update `src/KingpinNet.UI/KingpinNet.UI.csproj` to the same dual targets.
+3.2 Update `src/KingpinNet.UI/KingpinNet.UI.csproj` to the same target.
 
-3.3 Update test and example projects to run against both TFMs where practical.
+3.3 Update test and example projects to target `net10.0`.
 
-3.4 Resolve any API differences between `net8.0` and `net9.0` (conditional compilation with `#if NET9_0_OR_GREATER` only if necessary).
+3.4 Build the full solution in Release configuration — zero warnings required before this group is closed.
 
-3.5 Build the full solution in Release configuration for both TFMs — zero warnings required before this group is closed.
+## Group 4 — Solution File Migration
 
-## Group 4 — Integration Check
+4.1 Convert `KingpinNet.sln` to `KingpinNet.slnx` format using `dotnet sln` or the Visual Studio migration tool.
 
-4.1 Run the full xUnit suite on both `net8.0` and `net9.0` targets.
+4.2 Verify all projects are correctly referenced in the new `.slnx` file.
 
-4.2 Build all example projects (`Ping`, `Curl`, `Motif`, `Integration`, `Widgets`, `Checque`) against both TFMs.
+4.3 Confirm `dotnet build KingpinNet.slnx` and `dotnet test` resolve correctly from the new solution file.
 
-4.3 Manually exercise at least one example end-to-end to confirm help output and flag parsing are unaffected.
+4.4 Delete the old `KingpinNet.sln` once the `.slnx` file is validated.
 
-4.4 Review diff for any accidental public API surface changes — confirm none before raising PR.
+## Group 5 — Package Updates
+
+5.1 Audit all NuGet package references across the solution for outdated versions.
+
+5.2 Update all packages to their latest stable versions compatible with `net10.0`.
+
+5.3 Build and run the full test suite to confirm no regressions from updated packages.
+
+## Group 6 — Integration Check
+
+6.1 Run the full xUnit suite on `net10.0`.
+
+6.2 Build all example projects (`Ping`, `Curl`, `Motif`, `Integration`, `Widgets`, `Checque`) against `net10.0`.
+
+6.3 Manually exercise at least one example end-to-end to confirm help output and flag parsing are unaffected.
+
+6.4 Review diff for any accidental public API surface changes — confirm none before raising PR.
