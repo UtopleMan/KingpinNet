@@ -352,7 +352,7 @@ public class Parser
             {
                 if (argumentFound.ValueType == ValueType.ListOfString)
                 {
-                    argumentFound.StringValues = _args.Skip(_currentItem).ToList();
+                    argumentFound.StringValues = _args.Skip(_currentItem).First().Split(',')?.Select(x => x.Trim()).ToList();
                     _currentItem = _args.Count;
                 }
                 Merge("Command", argumentFound);
@@ -388,7 +388,7 @@ public class Parser
     {
         item.IsSet = true;
         _result.Result.Add(name, item.Name);
-        Log(Serverity.Info, $"Found command {name}");
+        Log(Serverity.Info, $"Found command {item.Name}");
     }
 
     private void Merge(string name, IItem item)
@@ -488,7 +488,20 @@ public class Parser
         item.Action?.Invoke(parts[1]);
         return parts[1];
     }
+    private List<string> GetValues(IItem item, string arg)
+    {
+        var parts = arg.SplitFirst('=');
 
+        if (parts.Length == 1)
+            throw new ParseException("Not a boolean " + arg);
+
+        var list = parts[1].Split(',')?.Select(x => x.Trim()).ToList();
+        if (list == null)
+            throw new ParseException("Couldn't parse " + parts[1] + " to list of strings");
+
+        item.ListAction?.Invoke(list);
+        return list;
+    }
 
     private bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
     {
@@ -689,7 +702,11 @@ public class Parser
             throw new ParseException("Found multiple flags with same name " + arg);
         }
         item = localItems.SingleOrDefault() ?? globalItems.Single();
-        item.StringValue = GetValue(item, arg);
+
+        if (item.ValueType == ValueType.ListOfString)
+            item.StringValues = GetValues(item, arg);
+        else
+            item.StringValue = GetValue(item, arg);
         return true;
     }
 
