@@ -20,6 +20,7 @@ public interface IItem
     bool FileShouldExist { get; }
     Type TypeOfEnum { get; }
     Action<string> Action { get; }
+    Action<List<string>> ListAction { get; }
     bool Hidden { get; }
     string ValueName { get; }
     string Help { get; }
@@ -96,6 +97,7 @@ public class BaseItem<T> : IItem
     public Type TypeOfEnum => Item.TypeOfEnum;
 
     Action<string> IItem.Action => null;
+    Action<List<string>> IItem.ListAction => null;
 
     public bool Hidden => Item.IsHidden;
 

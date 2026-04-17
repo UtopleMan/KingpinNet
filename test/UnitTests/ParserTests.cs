@@ -1,6 +1,7 @@
 using KingpinNet;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -642,6 +643,201 @@ namespace Tests
             // Act
             var subject = new Parser(application);
             Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void ParseListOfStringFlag()
+        {
+            // Arrange
+            string[] args = new[] { "--items=alpha,beta,gamma" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag<List<string>>("items", "");
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.Equal(new List<string> { "alpha", "beta", "gamma" }, flag.Value);
+        }
+
+        [Fact]
+        public void ParseListOfStringFlagTrimsWhitespace()
+        {
+            // Arrange
+            string[] args = new[] { "--items= alpha , beta , gamma " };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag<List<string>>("items", "");
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.Equal(new List<string> { "alpha", "beta", "gamma" }, flag.Value);
+        }
+
+        [Fact]
+        public void ParseFlagWithEqualsSignInValue()
+        {
+            // Arrange
+            string[] args = new[] { "--connstr=Server=localhost;Database=mydb" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag("connstr", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("Server=localhost;Database=mydb", result.Result["connstr"]);
+        }
+
+        [Fact]
+        public void ParseFlagWithSpecialCharsInValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=hello@world!#$%" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("hello@world!#$%", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ActionCallbackIsInvokedOnFlagParse()
+        {
+            // Arrange
+            string[] args = new[] { "--name=Alice" };
+            var application = new KingpinApplication(consoleMock.Object);
+            string captured = null;
+            application.Flag("name", "").Action(v => captured = v);
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.Equal("Alice", captured);
+        }
+
+        [Fact]
+        public void ActionCallbackIsInvokedOnBoolFlag()
+        {
+            // Arrange
+            string[] args = new[] { "--verbose" };
+            var application = new KingpinApplication(consoleMock.Object);
+            bool captured = false;
+            application.Flag<bool>("verbose", "").Action(v => captured = v);
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.True(captured);
+        }
+
+        [Fact]
+        public void UnknownCommandThrowsParseException()
+        {
+            // Arrange
+            string[] args = new[] { "notacommand" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Command("run", "");
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void GlobalFlagParsedAlongsideCommand()
+        {
+            // Arrange
+            string[] args = new[] { "--verbose", "run" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("verbose", "").IsBool();
+            application.Command("run", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("true", result.Result["verbose"]);
+            Assert.Equal("run", result.Result["Command"]);
+        }
+
+        [Fact]
+        public void ShortFlagParsedOnCommand()
+        {
+            // Arrange
+            string[] args = new[] { "run", "-o=output.txt" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var command = application.Command("run", "");
+            command.Flag("output", "").Short('o');
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("output.txt", result.Result["run:output"]);
+        }
+
+        [Fact]
+        public void RequiredFlagOnCommandThrowsWhenMissing()
+        {
+            // Arrange
+            string[] args = new[] { "run" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var command = application.Command("run", "");
+            command.Flag("output", "").IsRequired();
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void ParseTripleNestedCommand()
+        {
+            // Arrange
+            string[] args = new[] { "cmd1", "cmd2", "cmd3" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var cmd1 = application.Command("cmd1", "");
+            var cmd2 = cmd1.Command("cmd2", "");
+            cmd2.Command("cmd3", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("cmd1:cmd2:cmd3", result.Result["Command"]);
+        }
+
+        [Fact]
+        public void ParseIsIdempotent()
+        {
+            // Arrange
+            string[] args = new[] { "--flag=first" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "");
+            var subject = new Parser(application);
+
+            // Act
+            subject.Parse(args);
+            var result = subject.Parse(new[] { "--flag=second" });
+
+            // Assert
+            Assert.Equal("second", result.Result["flag"]);
         }
     }
 }

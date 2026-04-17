@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,149 +7,131 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 namespace KingpinNet;
+
 public class Parser
 {
-    private readonly List<CommandItem> commands;
-    private readonly List<IItem> globalFlags;
-    private readonly List<IItem> globalArguments;
-    private readonly Action<Serverity, string, Exception> logger;
-    private readonly string exeFileName;
-    private readonly string exeFileExtension;
-    private readonly CommandLineTokenizer commandLineTokenizer;
-    private ParseResult _result;
-    private List<string> _args;
-    private int _currentItem;
-    private string _suggestionString;
+    private readonly List<CommandItem> _commands;
+    private readonly List<IItem> _globalFlags;
+    private readonly List<IItem> _globalArguments;
+    private readonly Action<Serverity, string, Exception> _logger;
+    private readonly string _exeFileName;
+    private readonly CommandLineTokenizer _commandLineTokenizer;
 
     public Parser(KingpinApplication application)
-    {
-        commands = application.Commands.ToList();
-        globalFlags = application.Flags.ToList();
-        globalArguments = application.Arguments.ToList();
-        logger = application.log;
-        exeFileName = application.exeFileName;
-        exeFileExtension = application.exeFileExtension;
-        this.commandLineTokenizer = new CommandLineTokenizer();
-    }
+        : this(application, new CommandLineTokenizer()) { }
+
     public Parser(KingpinApplication application, CommandLineTokenizer commandLineTokenizer)
     {
-        commands = application.Commands.ToList();
-        globalFlags = application.Flags.ToList();
-        globalArguments = application.Arguments.ToList();
-        logger = application.log;
-        exeFileName = application.exeFileName;
-        exeFileExtension = application.exeFileExtension;
-        this.commandLineTokenizer = commandLineTokenizer;
+        _commands = application.Commands.ToList();
+        _globalFlags = application.Flags.ToList();
+        _globalArguments = application.Arguments.ToList();
+        _logger = application.log;
+        _exeFileName = application.exeFileName;
+        _commandLineTokenizer = commandLineTokenizer;
     }
 
     public ParseResult Parse(IEnumerable<string> args)
     {
-        _result = new ParseResult();
-        _args = args.ToList();
-        _currentItem = 0;
-        _suggestionString = "";
-        MainParse();
-        return _result;
+        var ctx = new ParseContext { Args = args.ToList() };
+        MainParse(ctx);
+        return ctx.Result;
     }
 
-    private void Log(Serverity serverity, string message, Exception exception = null)
+    private sealed class ParseContext
     {
-        if (logger == null)
+        public ParseResult Result { get; } = new ParseResult();
+        public List<string> Args { get; set; } = new List<string>();
+        public int CurrentItem { get; set; }
+        public string SuggestionString { get; set; } = "";
+    }
+
+    private void Log(Serverity severity, string message, Exception exception = null)
+    {
+        if (_logger == null)
             return;
-        try
-        {
-            logger.Invoke(serverity, message, exception);
-        }
-        catch
-        {
-        }
+        try { _logger.Invoke(severity, message, exception); }
+        catch { }
     }
 
-    private void MainParse()
+    private void MainParse(ParseContext ctx)
     {
-        SetDefaults();
+        SetDefaults(ctx);
 
-        if (_args.Count > 0)
+        if (ctx.Args.Count > 0)
         {
-            InvestigateSuggestions();
-            while (_currentItem < _args.Count)
+            InvestigateSuggestions(ctx);
+            while (ctx.CurrentItem < ctx.Args.Count)
             {
-                if (IsCommand(_args[_currentItem], commands, out CommandItem commandFound))
+                if (IsCommand(ctx.Args[ctx.CurrentItem], _commands, out CommandItem commandFound))
                 {
-                    AddCommand("Command", commandFound);
-
-                    _currentItem++;
-                    CommandFound(commandFound);
+                    AddCommand("Command", commandFound, ctx);
+                    ctx.CurrentItem++;
+                    CommandFound(commandFound, ctx);
                 }
-                else if (IsFlag(_args[_currentItem], new List<IItem>(), globalFlags, out IItem flagFound))
+                else if (IsFlag(ctx.Args[ctx.CurrentItem], new List<IItem>(), _globalFlags, ctx, out IItem flagFound))
                 {
-                    Add(flagFound);
-                    _currentItem++;
+                    Add(flagFound, ctx);
+                    ctx.CurrentItem++;
                 }
-                else if (IsArgument(_args[_currentItem], globalArguments, out IItem argumentFound) && !_result.IsSuggestion)
+                else if (IsArgument(ctx.Args[ctx.CurrentItem], _globalArguments, out IItem argumentFound) && !ctx.Result.IsSuggestion)
                 {
-                    Add(argumentFound);
-                    _currentItem++;
+                    Add(argumentFound, ctx);
+                    ctx.CurrentItem++;
                 }
                 else
                 {
-                    if (!_result.IsSuggestion)
-                        throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
-                    _suggestionString = _args[_currentItem];
-                    _currentItem++;
+                    if (!ctx.Result.IsSuggestion)
+                        throw new ParseException($"Didn't expect argument {ctx.Args[ctx.CurrentItem]}");
+                    ctx.SuggestionString = ctx.Args[ctx.CurrentItem];
+                    ctx.CurrentItem++;
                 }
             }
         }
-        if (_result.IsSuggestion)
-        {
-            _result.Suggestions.AddRange(ParseSuggestions(_suggestionString));
-        }
+
+        if (ctx.Result.IsSuggestion)
+            ctx.Result.Suggestions.AddRange(ParseSuggestions(ctx.SuggestionString));
         else
             CheckAllRequiredItemsIsSet();
     }
 
-    private void InvestigateSuggestions()
+    private void InvestigateSuggestions(ParseContext ctx)
     {
-        if (!IsSuggestion(_args[0]))
+        if (!IsSuggestion(ctx.Args[0]))
             return;
-        if (_args.Count > 1 && IsPosition(_args[1]))
-        {
-            _args = _args.Skip(3).ToList();
-        }
-        else
-        {
-            _args = _args.Skip(1).ToList();
-        }
-        _result.IsSuggestion = true;
-        if (_args.Count == 0) return;
-        var argsStr = _args.Aggregate((c, n) => c + " " + n);
 
+        ctx.Args = ctx.Args.Count > 1 && IsPosition(ctx.Args[1])
+            ? ctx.Args.Skip(3).ToList()
+            : ctx.Args.Skip(1).ToList();
+
+        ctx.Result.IsSuggestion = true;
+        if (ctx.Args.Count == 0) return;
+
+        var argsStr = ctx.Args.Aggregate((c, n) => c + " " + n);
         Log(Serverity.Info, $"Suggestion arguments: '{argsStr}'");
-
         argsStr = RemoveApplicationName(argsStr);
-        _args = commandLineTokenizer.ToTokens(argsStr);
+        ctx.Args = _commandLineTokenizer.ToTokens(argsStr);
     }
 
     private bool IsPosition(string flag)
     {
         if (flag == "--position")
-            Log(Serverity.Info, $"Found --position flag");
+            Log(Serverity.Info, "Found --position flag");
         return flag == "--position";
     }
 
     private bool IsSuggestion(string command)
     {
         if (command == "suggest")
-            Log(Serverity.Info, $"Found suggest command");
+            Log(Serverity.Info, "Found suggest command");
         return command == "suggest";
     }
 
     private IEnumerable<string> ParseSuggestions(string partString)
     {
         var result = new List<string>();
-        result.AddRange(GetSuggestionsOnCommands(commands, partString));
-        result.AddRange(GetSuggestionsOnFlags(globalFlags, partString));
-        result.AddRange(GetSuggestionsOnCommandArgument(commands, partString));
+        result.AddRange(GetSuggestionsOnCommands(_commands, partString));
+        result.AddRange(GetSuggestionsOnFlags(_globalFlags, partString));
+        result.AddRange(GetSuggestionsOnCommandArgument(_commands, partString));
         result.AddRange(GetSuggestionsOnGlobalArguments(partString));
 
         if (result.Any())
@@ -162,21 +144,21 @@ public class Parser
 
     private IEnumerable<string> GetSuggestionsOnGlobalArguments(string partString)
     {
-        var result = new List<string>();
-        if (commands.All(x => !x.IsSet))
+        if (_commands.All(x => !x.IsSet))
         {
-            result.AddRange(globalArguments
+            return _globalArguments
                 .SelectMany(x => x.Examples)
-                .Where(x => string.IsNullOrWhiteSpace(partString) ? true : x.ToLowerInvariant().Contains(partString)));
+                .Where(x => string.IsNullOrWhiteSpace(partString) || x.ToLowerInvariant().Contains(partString));
         }
-        return result;
+        return Enumerable.Empty<string>();
     }
 
     private string RemoveApplicationName(string partString)
     {
-        if (partString.IndexOf(exeFileName) == -1)
+        var index = partString.IndexOf(_exeFileName);
+        if (index == -1)
             return partString;
-        var index = partString.IndexOf(exeFileName) + exeFileName.Length;
+        index += _exeFileName.Length;
         var firstSpace = partString.Substring(index).IndexOf(" ");
         if (firstSpace == -1)
             return "";
@@ -186,16 +168,16 @@ public class Parser
     private IEnumerable<string> GetSuggestionsOnFlags(IEnumerable<IItem> flags, string partString)
     {
         var result = new List<string>();
-        result.AddRange(flags.Where(
-            x => (!x.IsSet || !String.IsNullOrEmpty(x.DefaultValue))
-            && (string.IsNullOrWhiteSpace(partString) ? true : ("--" + x.Name.ToLowerInvariant()).Contains(partString))
-            && !x.Hidden)
+        result.AddRange(flags
+            .Where(x => (!x.IsSet || !string.IsNullOrEmpty(x.DefaultValue))
+                && (string.IsNullOrWhiteSpace(partString) || ("--" + x.Name.ToLowerInvariant()).Contains(partString))
+                && !x.Hidden)
             .Select(x => "--" + x.Name));
-        result.AddRange(flags.Where(x => !x.IsSet
-        && x.ShortName != '\0'
-        && (string.IsNullOrWhiteSpace(partString) ? true : ("-" + x.ShortName).Contains(partString))
-
-        && !x.Hidden)
+        result.AddRange(flags
+            .Where(x => !x.IsSet
+                && x.ShortName != '\0'
+                && (string.IsNullOrWhiteSpace(partString) || ("-" + x.ShortName).Contains(partString))
+                && !x.Hidden)
             .Select(x => "-" + x.ShortName));
         return result;
     }
@@ -206,14 +188,12 @@ public class Parser
 
         if (commands.All(x => !x.IsSet))
         {
-            result.AddRange(
-                commands
-                .Where(x => (string.IsNullOrWhiteSpace(partString) ? true : x.Name.ToLowerInvariant().Contains(partString))
-                        && !x.Hidden)
+            result.AddRange(commands
+                .Where(x => (string.IsNullOrWhiteSpace(partString) || x.Name.ToLowerInvariant().Contains(partString))
+                    && !x.Hidden)
                 .Select(x => x.Name));
             return result;
         }
-
 
         foreach (var command in commands)
         {
@@ -222,16 +202,15 @@ public class Parser
 
             if (command.Commands.All(x => !x.IsSet))
             {
-                result.AddRange(
-                    command.Commands
-                    .Where(x => (string.IsNullOrWhiteSpace(partString) ? true : x.Name.ToLowerInvariant().Contains(partString))
-                            && !x.Hidden)
+                result.AddRange(command.Commands
+                    .Where(x => (string.IsNullOrWhiteSpace(partString) || x.Name.ToLowerInvariant().Contains(partString))
+                        && !x.Hidden)
                     .Select(x => x.Name));
                 result.AddRange(GetSuggestionsOnFlags(command.Flags, partString));
                 return result;
             }
 
-            if (command.Commands != null && command.Commands.Count() > 0)
+            if (command.Commands.Any())
                 result.AddRange(GetSuggestionsOnCommands(command.Commands, partString));
         }
         return result;
@@ -242,10 +221,7 @@ public class Parser
         var result = new List<string>();
 
         if (commands.All(x => !x.IsSet))
-        {
             return result;
-        }
-
 
         foreach (var command in commands)
         {
@@ -254,10 +230,9 @@ public class Parser
 
             if (!command.Commands.Any() || command.Commands.All(x => !x.IsSet))
             {
-                result.AddRange(
-                    command.Arguments.SelectMany(x => x.Suggestions)
-                    .Where(x => string.IsNullOrWhiteSpace(partString) ? true : x.ToLowerInvariant().Contains(partString))
-                    .Select(x => x));
+                result.AddRange(command.Arguments
+                    .SelectMany(x => x.Suggestions)
+                    .Where(x => string.IsNullOrWhiteSpace(partString) || x.ToLowerInvariant().Contains(partString)));
                 return result;
             }
 
@@ -266,40 +241,48 @@ public class Parser
         return result;
     }
 
-    private void SetDefaults()
+    private void SetDefaults(ParseContext ctx)
     {
-        SetCommandsToDefault(commands);
-        SetToDefault(globalFlags, true);
-        SetToDefault(globalArguments, true);
+        SetCommandsToDefault(_commands);
+        SetToDefault(_globalFlags, ctx);
+        SetToDefault(_globalArguments, ctx);
     }
 
-    private void SetCommandsToDefault(IEnumerable<CommandItem> commands)
+    private static void SetCommandsToDefault(IEnumerable<CommandItem> commands)
     {
         foreach (var command in commands)
         {
-            if (command.Commands != null && command.Commands.Count() > 0)
+            if (command.Commands.Any())
                 SetCommandsToDefault(command.Commands);
-            SetToDefault(command.Flags, false);
-            SetToDefault(command.Arguments, false);
+            ApplyDefaults(command.Flags);
+            ApplyDefaults(command.Arguments);
         }
     }
 
-    private void SetToDefault(IEnumerable<IItem> items, bool addToResult)
+    private static void ApplyDefaults(IEnumerable<IItem> items)
     {
-        foreach (var item in items)
-            if (!string.IsNullOrWhiteSpace(item.DefaultValue))
-            {
-                item.IsSet = true;
-                item.StringValue = item.DefaultValue;
-                if (addToResult) Add(item);
-            }
+        foreach (var item in items.Where(x => !string.IsNullOrWhiteSpace(x.DefaultValue)))
+        {
+            item.IsSet = true;
+            item.StringValue = item.DefaultValue;
+        }
+    }
+
+    private void SetToDefault(IEnumerable<IItem> items, ParseContext ctx)
+    {
+        foreach (var item in items.Where(x => !string.IsNullOrWhiteSpace(x.DefaultValue)))
+        {
+            item.IsSet = true;
+            item.StringValue = item.DefaultValue;
+            Add(item, ctx);
+        }
     }
 
     private void CheckAllRequiredItemsIsSet()
     {
-        CheckCommands(commands);
-        CheckFlags(globalFlags);
-        CheckArguments(globalArguments);
+        CheckCommands(_commands);
+        CheckFlags(_globalFlags);
+        CheckArguments(_globalArguments);
     }
 
     private void CheckCommands(IEnumerable<CommandItem> commands)
@@ -312,185 +295,167 @@ public class Parser
             if (!command.IsSet)
                 continue;
 
-            if (command.Commands != null && command.Commands.Count() > 0)
+            if (command.Commands.Any())
                 CheckCommands(command.Commands);
             CheckFlags(command.Flags);
             CheckArguments(command.Arguments);
         }
     }
 
-    private void CheckArguments(IEnumerable<IItem> arguments)
+    private static void CheckArguments(IEnumerable<IItem> arguments)
     {
         foreach (var argument in arguments)
             if (argument.Required && !argument.IsSet)
                 throw new ParseException($"Required argument <{argument.Name}> not set");
     }
 
-    private void CheckFlags(IEnumerable<IItem> flags)
+    private static void CheckFlags(IEnumerable<IItem> flags)
     {
         foreach (var flag in flags)
             if (flag.Required && !flag.IsSet)
                 throw new ParseException($"Required flag --{flag.Name} not set");
     }
 
-    private void CommandFound(CommandItem command)
+    private void CommandFound(CommandItem command, ParseContext ctx)
     {
-        while (_currentItem < _args.Count)
+        while (ctx.CurrentItem < ctx.Args.Count)
         {
-            if (IsCommand(_args[_currentItem], command.Commands, out CommandItem commandFound))
+            if (IsCommand(ctx.Args[ctx.CurrentItem], command.Commands, out CommandItem commandFound))
             {
-                MergeCommand("Command", commandFound);
-                _currentItem++;
-                CommandFound(commandFound);
+                MergeCommand("Command", commandFound, ctx);
+                ctx.CurrentItem++;
+                CommandFound(commandFound, ctx);
             }
-            else if (IsFlag(_args[_currentItem], command.Flags, globalFlags, out IItem flagFound))
+            else if (IsFlag(ctx.Args[ctx.CurrentItem], command.Flags, _globalFlags, ctx, out IItem flagFound))
             {
-                Merge("Command", flagFound);
-                _currentItem++;
+                Merge("Command", flagFound, ctx);
+                ctx.CurrentItem++;
             }
-            else if (IsArgument(_args[_currentItem], command.Arguments, out IItem argumentFound) && !_result.IsSuggestion)
+            else if (IsArgument(ctx.Args[ctx.CurrentItem], command.Arguments, out IItem argumentFound) && !ctx.Result.IsSuggestion)
             {
                 if (argumentFound.ValueType == ValueType.ListOfString)
                 {
-                    argumentFound.StringValues = _args.Skip(_currentItem).ToList();
-                    _currentItem = _args.Count;
+                    argumentFound.StringValues = ctx.Args[ctx.CurrentItem].Split(',').Select(x => x.Trim()).ToList();
+                    ctx.CurrentItem = ctx.Args.Count;
                 }
-                Merge("Command", argumentFound);
-                _currentItem++;
+                Merge("Command", argumentFound, ctx);
+                ctx.CurrentItem++;
             }
             else
             {
-                if (!_result.IsSuggestion)
-                    throw new ParseException($"Didn't expect argument {_args[_currentItem]}");
-                _suggestionString = _args[_currentItem];
-                _currentItem++;
+                if (!ctx.Result.IsSuggestion)
+                    throw new ParseException($"Didn't expect argument {ctx.Args[ctx.CurrentItem]}");
+                ctx.SuggestionString = ctx.Args[ctx.CurrentItem];
+                ctx.CurrentItem++;
             }
         }
     }
 
-    private void MergeCommand(string name, CommandItem item)
+    private void MergeCommand(string name, CommandItem item, ParseContext ctx)
     {
         item.IsSet = true;
-        _result.Result[name] = _result.Result[name] + ":" + item.Name;
-        Log(Serverity.Info, $"Found command {_result.Result[name]}");
+        ctx.Result.Result[name] = ctx.Result.Result[name] + ":" + item.Name;
+        Log(Serverity.Info, $"Found command {ctx.Result.Result[name]}");
 
-        CheckForDefaultValues(_result.Result[name], item.Flags);
-        CheckForDefaultValues(_result.Result[name], item.Arguments);
+        CheckForDefaultValues(ctx.Result.Result[name], item.Flags, ctx);
+        CheckForDefaultValues(ctx.Result.Result[name], item.Arguments, ctx);
     }
 
-    private void CheckForDefaultValues(string name, IEnumerable<IItem> items)
+    private static void CheckForDefaultValues(string name, IEnumerable<IItem> items, ParseContext ctx)
     {
         foreach (var item in items.Where(x => x.IsSet))
-            _result.Result[name + ":" + item.Name] = item.StringValue;
+            ctx.Result.Result[name + ":" + item.Name] = item.StringValue;
     }
 
-    private void AddCommand(string name, IItem item)
+    private void AddCommand(string name, IItem item, ParseContext ctx)
     {
         item.IsSet = true;
-        _result.Result.Add(name, item.Name);
-        Log(Serverity.Info, $"Found command {name}");
+        ctx.Result.Result.Add(name, item.Name);
+        Log(Serverity.Info, $"Found command {item.Name}");
     }
 
-    private void Merge(string name, IItem item)
+    private void Merge(string name, IItem item, ParseContext ctx)
     {
         item.IsSet = true;
-        var value = item.StringValue;
-        if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-            value = item.DefaultValue;
-
-        AddOrUpdateResult(name, value, item);
+        var value = string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue)
+            ? item.DefaultValue
+            : item.StringValue;
+        AddOrUpdateResult(name, value, item, ctx);
     }
 
-    private void AddOrUpdateResult(string name, string value, IItem item)
+    private void AddOrUpdateResult(string name, string value, IItem item, ParseContext ctx)
     {
-        if (globalFlags.Contains(item) || globalArguments.Contains(item))
+        if (_globalFlags.Contains(item) || _globalArguments.Contains(item))
         {
-            if (_result.Result.ContainsKey(item.Name))
-            {
-                _result.Result[item.Name] = value;
-                Log(Serverity.Info, $"Updated global flag {item.Name} with value {value}");
-            }
-            else
-            {
-                _result.Result.Add(item.Name, value);
-                Log(Serverity.Info, $"Found global flag {item.Name} with value {value}");
-            }
-
+            ctx.Result.Result[item.Name] = value;
+            Log(Serverity.Info, $"Found/updated global flag {item.Name} with value {value}");
         }
         else
         {
-            if (_result.Result.ContainsKey(_result.Result[name] + ":" + item.Name))
-            {
-                _result.Result[_result.Result[name] + ":" + item.Name] = value;
-                Log(Serverity.Info, $"Updated {_result.Result[name] + ":" + item.Name} with value {value}");
-            }
-            else
-            {
-                _result.Result.Add(_result.Result[name] + ":" + item.Name, value);
-                Log(Serverity.Info, $"Found {_result.Result[name] + ":" + item.Name} with value {value}");
-            }
+            var key = ctx.Result.Result[name] + ":" + item.Name;
+            ctx.Result.Result[key] = value;
+            Log(Serverity.Info, $"Found/updated {key} with value {value}");
         }
     }
 
-    private void Add(IItem item)
+    private void Add(IItem item, ParseContext ctx)
     {
         item.IsSet = true;
-        var value = item.StringValue;
-        if (string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue))
-            value = item.DefaultValue;
-        if (_result.Result.ContainsKey(item.Name))
-        {
-            _result.Result[item.Name] = value;
-            Log(Serverity.Info, $"Updated {item.Name} with value {value}");
-        }
-        else
-        {
-            _result.Result.Add(item.Name, value);
-            Log(Serverity.Info, $"Found {item.Name} with value {value}");
-        }
+        var value = string.IsNullOrWhiteSpace(item.StringValue) && !string.IsNullOrWhiteSpace(item.DefaultValue)
+            ? item.DefaultValue
+            : item.StringValue;
+        ctx.Result.Result[item.Name] = value;
+        Log(Serverity.Info, $"Found/updated {item.Name} with value {value}");
     }
 
-    private bool IsArgument(string arg, IEnumerable<IItem> arguments,
-        out IItem item)
+    private bool IsArgument(string arg, IEnumerable<IItem> arguments, out IItem item)
     {
         item = null;
         var errors = new List<string>();
 
-        if (arguments.Any())
-        {
-            var argumentsFound = arguments.Where(a => IsValidArgument(a, arg, errors)).ToList();
-            if (argumentsFound.Count() > 1)
-                throw new ParseException("Found multiple arguments");
-            if (argumentsFound.Count() == 0)
-                return false;
-            item = argumentsFound.First();
-            item.StringValue = arg;
-            return true;
-        }
-        return false;
+        if (!arguments.Any())
+            return false;
+
+        var argumentsFound = arguments.Where(a => IsValidArgument(a, arg, errors)).ToList();
+        if (argumentsFound.Count > 1)
+            throw new ParseException("Found multiple arguments");
+        if (argumentsFound.Count == 0)
+            return false;
+
+        item = argumentsFound[0];
+        item.StringValue = arg;
+        return true;
     }
 
-
-
-    private string GetValue(IItem item, string arg)
+    private static string GetValue(IItem item, string arg)
     {
         var parts = arg.SplitFirst('=');
 
         if (parts.Length == 1)
+        {
             if (item.ValueType == ValueType.Bool)
-            {
-                item.Action?.Invoke("true");
                 return "true";
-            }
-            else
-                throw new ParseException("Not a boolean " + arg);
+            throw new ParseException("Not a boolean " + arg);
+        }
 
-        item.Action?.Invoke(parts[1]);
         return parts[1];
     }
 
+    private static List<string> GetValues(IItem item, string arg)
+    {
+        var parts = arg.SplitFirst('=');
 
-    private bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
+        if (parts.Length == 1)
+            throw new ParseException("Not a list value " + arg);
+
+        var list = parts[1].Split(',').Select(x => x.Trim()).ToList();
+        if (list.Count == 0)
+            throw new ParseException("Couldn't parse " + parts[1] + " to list of strings");
+
+        return list;
+    }
+
+    private static bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
     {
         var result = IsValidItem(argument, arg);
         if (!result.success)
@@ -498,65 +463,47 @@ public class Parser
         return result.success;
     }
 
-    private bool IsValidFlag(IItem flag, string arg, List<string> listOfErrors)
+    private static bool IsValidFlag(IItem flag, string arg, List<string> listOfErrors)
     {
         var parts = arg.SplitFirst('=');
 
         if (parts.Length == 1)
-            if (flag.ValueType == ValueType.Bool)
-            {
-                return true;
-            }
-            else
-            {
-                listOfErrors.Add($"--{flag.Name} need a value");
-                return false;
-            }
-
-        if (parts.Length > 1)
         {
-            var result = IsValidItem(flag, parts[1]);
-            if (!result.success)
-                listOfErrors.Add(result.errorMessage);
-            return result.success;
+            if (flag.ValueType == ValueType.Bool)
+                return true;
+            listOfErrors.Add($"--{flag.Name} need a value");
+            return false;
         }
 
-        return false;
+        var result = IsValidItem(flag, parts[1]);
+        if (!result.success)
+            listOfErrors.Add(result.errorMessage);
+        return result.success;
     }
 
-
-    private (bool success, string errorMessage) IsValidItem(IItem item, string argument)
+    private static (bool success, string errorMessage) IsValidItem(IItem item, string argument)
     {
         if (item.ValueType == ValueType.Bool)
-        {
-            if (bool.TryParse(argument, out _))
+            return bool.TryParse(argument, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not a boolean (true/false)");
 
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a boolean (true/false)");
-        }
-        else if (item.DirectoryShouldExist)
-        {
-            if (Directory.Exists(argument))
-                return (true, "");
-            else
-                return (false, $"directory '{argument}' does not exist");
-        }
-        else if (item.FileShouldExist)
-        {
-            if (File.Exists(argument))
-                return (true, "");
-            else
-                return (false, $"file '{argument}' does not exist");
-        }
-        else if (item.ValueType == ValueType.Duration)
-        {
-            if (TimeSpan.TryParse(argument, CultureInfo.InvariantCulture, out _))
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a duration (Days.Hours:Minutes:Seconds.Milli)");
-        }
-        else if (item.ValueType == ValueType.Enum)
+        if (item.DirectoryShouldExist)
+            return Directory.Exists(argument)
+                ? (true, "")
+                : (false, $"directory '{argument}' does not exist");
+
+        if (item.FileShouldExist)
+            return File.Exists(argument)
+                ? (true, "")
+                : (false, $"file '{argument}' does not exist");
+
+        if (item.ValueType == ValueType.Duration)
+            return TimeSpan.TryParse(argument, CultureInfo.InvariantCulture, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not a duration (Days.Hours:Minutes:Seconds.Milli)");
+
+        if (item.ValueType == ValueType.Enum)
         {
             try
             {
@@ -565,86 +512,66 @@ public class Parser
             }
             catch (ArgumentException)
             {
-
                 var values = string.Join(",", Enum.GetNames(item.TypeOfEnum));
                 return (false, $"'{argument}' is not any for the values {values}");
             }
         }
-        else if (item.ValueType == ValueType.Float)
-        {
-            if (float.TryParse(argument, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a float");
-        }
-        else if (item.ValueType == ValueType.Int)
-        {
-            if (Int32.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not an integer");
-        }
-        else if (item.ValueType == ValueType.Long)
-        {
-            if (Int64.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a long");
-        }
-        else if (item.ValueType == ValueType.Ip)
-        {
-            var result = Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument);
-            if (result)
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not an IP address");
-        }
-        else if (item.ValueType == ValueType.Tcp)
-        {
-            var result = Regex(@"(([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})|(\w*.\w*.\w*)):[0-9]{1,5}", argument);
-            if (result)
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a hostname");
-        }
-        else if (item.ValueType == ValueType.Url)
-        {
-            var result = Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute);
-            if (result)
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a well formed URL");
-        }
-        else if (item.ValueType == ValueType.Date)
-        {
-            if (DateTime.TryParseExact(argument, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-                return (true, "");
-            else
-                return (false, $"'{argument}' is not a date");
-        }
-        else if (item.ValueType == ValueType.String)
-        {
+
+        if (item.ValueType == ValueType.Float)
+            return float.TryParse(argument, NumberStyles.Float, CultureInfo.InvariantCulture, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not a float");
+
+        if (item.ValueType == ValueType.Int)
+            return int.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not an integer");
+
+        if (item.ValueType == ValueType.Long)
+            return long.TryParse(argument, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not a long");
+
+        if (item.ValueType == ValueType.Ip)
+            return MatchesRegex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", argument)
+                ? (true, "")
+                : (false, $"'{argument}' is not an IP address");
+
+        if (item.ValueType == ValueType.Tcp)
+            return MatchesRegex(@"(([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})|(\w*.\w*.\w*)):[0-9]{1,5}", argument)
+                ? (true, "")
+                : (false, $"'{argument}' is not a hostname");
+
+        if (item.ValueType == ValueType.Url)
+            return Uri.IsWellFormedUriString(argument, UriKind.RelativeOrAbsolute)
+                ? (true, "")
+                : (false, $"'{argument}' is not a well formed URL");
+
+        if (item.ValueType == ValueType.Date)
+            return DateTime.TryParseExact(argument, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" },
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out _)
+                ? (true, "")
+                : (false, $"'{argument}' is not a date");
+
+        if (item.ValueType == ValueType.String || item.ValueType == ValueType.ListOfString)
             return (true, "");
-        }
-        else if (item.ValueType == ValueType.ListOfString)
-        {
-            return (true, "");
-        }
+
         return (false, "Unknown error");
     }
 
-    private bool Regex(string regex, string input)
+    private static bool MatchesRegex(string pattern, string input)
     {
-        var regexEngine = new Regex(regex);
-        var match = regexEngine.Match(input);
-        return match.Success;
+        return new Regex(pattern).IsMatch(input);
     }
 
-    private bool IsFlag(string arg, IEnumerable<IItem> flags, IEnumerable<IItem> globalFlags, out IItem item)
+    private bool IsFlag(string arg, IEnumerable<IItem> flags, IEnumerable<IItem> globalFlags, ParseContext ctx, out IItem item)
     {
         item = null;
 
-        if ((flags == null || flags.Count() == 0) && (globalFlags == null || globalFlags.Count() == 0))
+        var localFlags = flags?.ToList() ?? new List<IItem>();
+        var globalFlagsList = globalFlags?.ToList() ?? new List<IItem>();
+
+        if (!localFlags.Any() && !globalFlagsList.Any())
             return false;
 
         var errors = new List<string>();
@@ -652,62 +579,67 @@ public class Parser
         if (arg.StartsWith("--"))
         {
             var flagName = GetFlagName(arg);
-            var foundLocalFlags = flags.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors)).ToList();
-            var foundGlobalFlags = globalFlags.Where(f => GetFlagName(arg) == f.Name.ToLower() &&
-                IsValidFlag(f, arg, errors));
-            return EvaluateItem(foundLocalFlags, foundGlobalFlags, arg, errors, out item);
+            var foundLocal = localFlags.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors)).ToList();
+            var foundGlobal = globalFlagsList.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors)).ToList();
+            return EvaluateItem(foundLocal, foundGlobal, arg, errors, ctx, out item);
         }
+
         if (arg.StartsWith("-"))
         {
             var flagName = GetFlagName(arg);
             if (flagName.Length == 0 || flagName.Length > 2)
             {
-                if (_result.IsSuggestion) return false;
+                if (ctx.Result.IsSuggestion) return false;
                 throw new ParseException("Short name arguments are only one character " + flagName);
             }
-            var foundLocalFlags = flags.Where(f => f.ShortName == flagName[0] &&
-                IsValidFlag(f, arg, errors)).ToList();
-            var foundGlobalFlags = globalFlags.Where(f => GetFlagName(arg)[0] == f.ShortName &&
-                IsValidFlag(f, arg, errors));
-            return EvaluateItem(foundLocalFlags, foundGlobalFlags, arg, errors, out item);
+            var foundLocal = localFlags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
+            var foundGlobal = globalFlagsList.Where(f => flagName[0] == f.ShortName && IsValidFlag(f, arg, errors)).ToList();
+            return EvaluateItem(foundLocal, foundGlobal, arg, errors, ctx, out item);
         }
+
         return false;
     }
 
-    private bool EvaluateItem(IEnumerable<IItem> localItems,
-        IEnumerable<IItem> globalItems, string arg, List<string> errors, out IItem item)
+    private bool EvaluateItem(List<IItem> localItems, List<IItem> globalItems, string arg, List<string> errors, ParseContext ctx, out IItem item)
     {
         item = null;
+
         if (!localItems.Any() && !globalItems.Any())
         {
-            if (_result.IsSuggestion) return false;
+            if (ctx.Result.IsSuggestion) return false;
             throw new ParseException("Illegal flag " + arg, errors);
         }
-        if (localItems.Count() > 1 || globalItems.Count() > 1)
+        if (localItems.Count > 1 || globalItems.Count > 1)
         {
-            if (_result.IsSuggestion) return false;
+            if (ctx.Result.IsSuggestion) return false;
             throw new ParseException("Found multiple flags with same name " + arg);
         }
-        item = localItems.SingleOrDefault() ?? globalItems.Single();
-        item.StringValue = GetValue(item, arg);
+
+        item = localItems.FirstOrDefault() ?? globalItems[0];
+
+        if (item.ValueType == ValueType.ListOfString)
+            item.StringValues = GetValues(item, arg);
+        else
+            item.StringValue = GetValue(item, arg);
         return true;
     }
 
-    private string GetFlagName(string arg)
+    private static string GetFlagName(string arg)
     {
-        var flagName = arg.TrimStart('-').Split('=');
-        return flagName[0].ToLower();
+        return arg.TrimStart('-').Split('=')[0].ToLower();
     }
 
-    private bool IsCommand(string arg, IEnumerable<CommandItem> commands, out CommandItem commandFound)
+    private static bool IsCommand(string arg, IEnumerable<CommandItem> commands, out CommandItem commandFound)
     {
         commandFound = null;
         foreach (var command in commands)
-            if (arg.ToLower() == command.Name.ToLower())
+        {
+            if (arg.Equals(command.Name, StringComparison.OrdinalIgnoreCase))
             {
                 commandFound = command;
                 return true;
             }
+        }
         return false;
     }
 }
@@ -715,30 +647,23 @@ public class Parser
 [Serializable]
 public class ParseException : Exception
 {
-    private List<string> _errors = new List<string>();
+    private readonly List<string> _errors = new List<string>();
     public List<string> Errors => _errors;
-    public ParseException()
-    {
-    }
 
-    public ParseException(object p) : base(p?.ToString())
-    {
-    }
+    public ParseException() { }
 
-    public ParseException(string message) : base(message)
-    {
-    }
+    public ParseException(object p) : base(p?.ToString()) { }
+
+    public ParseException(string message) : base(message) { }
 
     public ParseException(string message, List<string> errors) : base(message)
     {
         _errors.AddRange(errors);
     }
 
-    public ParseException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
+    public ParseException(string message, Exception innerException) : base(message, innerException) { }
 
-    protected ParseException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
+#pragma warning disable SYSLIB0051
+    protected ParseException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+#pragma warning restore SYSLIB0051
 }
