@@ -18,6 +18,11 @@ public class CommandItem : BaseItem<string>
         Item._flags.Add(result);
         return result;
     }
+    public FlagItem<string> Flag(FlagItem<string> item)
+    {
+        Item._flags.Add(item);
+        return item;
+    }
     public ArgumentItem<string> Argument(string name, string help = "")
     {
         var result = new ArgumentItem<string>($"{Path}:{name}", name, help);
@@ -29,6 +34,11 @@ public class CommandItem : BaseItem<string>
         var result = new FlagItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
         Item._flags.Add(result);
         return result;
+    }
+    public FlagItem<T> Flag<T>(FlagItem<T> item)
+    {
+        Item._flags.Add(item);
+        return item;
     }
     public ArgumentItem<T> Argument<T>(string name, string help = "")
     {
