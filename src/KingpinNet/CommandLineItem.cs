@@ -147,8 +147,10 @@ public class CommandLineItem<T>
         }
         else if (ValueType == ValueType.Date)
         {
-            if (DateTime.TryParseExact(value, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                return (T)Convert.ChangeType(result, typeof(DateTime));
+            if (typeof(T) == typeof(DateOnly) && DateOnly.TryParseExact(value, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var resultDate))
+                return (T)Convert.ChangeType(resultDate, typeof(T));
+            else if (DateTime.TryParseExact(value, new[] { "yyyy.MM.dd", "yyyy-MM-dd", "yyyy/MM/dd", "yyyy/MM/ddTHH:mm:ss", "yyyy-MM-ddTHH:mm:ss",  "yyyy.MM.ddTHH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                return (T)Convert.ChangeType(result, typeof(T));
             else
                 throw new ArgumentException($"'{value}' is not a date", nameof(value));
         }

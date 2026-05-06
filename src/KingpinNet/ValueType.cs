@@ -26,6 +26,8 @@ public static class ValueTypeConverter
             return ValueType.Int;
         if (type == typeof(Int64))
             return ValueType.Long;
+        if (type == typeof(DateOnly))
+            return ValueType.Date;
         if (type == typeof(DateTime))
             return ValueType.Date;
         if (type == typeof(TimeSpan))

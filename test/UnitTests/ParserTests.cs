@@ -253,7 +253,21 @@ namespace Tests
             // Assert
             Assert.Equal("1:00:00", result.Result["time"]);
         }
+        [Fact]
+        public void ParseDateSuccess()
+        {
+            // Arrange
+            string[] args = new[] { "--date=2026-12-27" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag<DateOnly>("date", "");
 
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            flag.Value.Equals(DateOnly.Parse("2026-12-27"));
+        }
         [Fact]
         public void ParseDurationSuccessWithDays()
         {
