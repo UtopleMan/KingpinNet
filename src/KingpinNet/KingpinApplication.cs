@@ -30,6 +30,8 @@ public class KingpinApplication
     public string AuthorName { get; private set; }
     public bool HelpShownOnParsingErrors { get; private set; }
     public bool ExitOnParsingErrors { get; private set; }
+    public bool ThrowOnParsingErrors { get; private set; }
+    public bool ParsingErrorsShown { get; private set; } = true;
     public bool ExitWhenHelpIsShown { get; private set; }
     public bool HelpShownOnNoArguments { get; private set; }
     public bool ExitWhenNoArguments { get; private set; }
@@ -149,6 +151,18 @@ public class KingpinApplication
         return this;
     }
 
+    public KingpinApplication HideParseErrors()
+    {
+        ParsingErrorsShown = false;
+        return this;
+    }
+    
+    public KingpinApplication ThrowOnParseErrors()
+    {
+        ExitOnParsingErrors = true;
+        return this;
+    }
+
     public KingpinApplication ExitOnHelp()
     {
         ExitWhenHelpIsShown = true;
@@ -209,15 +223,19 @@ public class KingpinApplication
         }
         catch (ParseException exception)
         {
-            console.Out.WriteLine(exception.Message);
-            foreach (var error in exception.Errors)
-                console.Out.WriteLine($"   {error}");
-
+            if (ParsingErrorsShown)
+            {
+                console.Out.WriteLine(exception.Message);
+                foreach (var error in exception.Errors)
+                    console.Out.WriteLine($"   {error}");
+            }
             if (HelpShownOnParsingErrors)
                 GenerateHelp();
             if (ExitOnParsingErrors)
                 Environment.Exit(-1);
-            throw;
+            if (ThrowOnParsingErrors)
+                throw;
+            return new ParseResult { ParsingFailed = true, ErrorMessage = exception.Message, Errors = exception.Errors };
         }
     }
 

@@ -12,4 +12,7 @@ public class ParseResult
     public Dictionary<string, string> Result { get; }
     public List<string> Suggestions { get; }
     public bool IsSuggestion { get; set; }
+    public bool ParsingFailed { get; set; }
+    public string ErrorMessage { get; set; }
+    public List<string> Errors { get; set; } = [];
 }

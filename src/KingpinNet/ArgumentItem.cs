@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KingpinNet;
+namespace KingpinNet; 
 
 public class ArgumentItem<T> : BaseItem<T>
 {

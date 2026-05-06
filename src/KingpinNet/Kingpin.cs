@@ -32,6 +32,16 @@ public class Kingpin
     {
         return Application.ExitOnParseErrors();
     }
+
+    public static KingpinApplication HideParseErrors()
+    {
+        return Application.HideParseErrors();
+    }
+
+    public static KingpinApplication ThrowOnParseErrors()
+    {
+        return Application.ThrowOnParseErrors();
+    }
     public static KingpinApplication ShowHelpOnNoArguments()
     {
         return Application.ShowHelpOnNoArguments();
