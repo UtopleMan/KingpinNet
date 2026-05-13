@@ -130,7 +130,110 @@ iex "$({Your-tool-executable} --suggestion-script-pwsh)"
 
 After you run the script, you are able to have TAB auto complete on your tool.
 
+## AI-friendly help (`--help-ai`)
+
+KingpinNet apps emit a YAML description of their command tree designed for LLM agents to consume directly, alongside the human-rendered `--help`. Two global flags are registered automatically (parallel to `--help`) once `Initialize()` runs:
+
+- `--help-ai` — writes the YAML to stdout.
+- `--help-ai-file` — writes a Markdown-wrapped copy to `<exename>-ai-help.md` next to the executable. Pass an explicit path with `--help-ai-file=/path/to/file.md` to override.
+
+Both flags are available at the root and on every subcommand; invoking on a subcommand scopes the output to that subtree. The human `--help` output gains a single footer line — `For agents: run with --help-ai for a machine-readable description.` — so an LLM that reads `--help` first can discover the AI variant without external docs.
+
+### Authoring the global sections
+
+Five fluent methods on `KingpinApplication` (and the static `Kingpin` facade) populate the root-level sections of the YAML — each is emitted only when non-empty:
+
+```csharp
+Kingpin
+    .ExitCode(0, "Success")
+    .ExitCode(1, "Network or protocol error")
+
+    .Example("Fetch a URL", "curl-ai get url https://example.com")
+
+    .Note("All commands accept --timeout to bound network operations.")
+
+    .Prefer(
+        rule:  "Always pass --timeout explicitly",
+        when:  "Non-interactive or scripted invocations",
+        why:   "Without --timeout, curl-ai blocks indefinitely on dead peers.")
+
+    .Avoid(
+        rule:    "Don't use --insecure",
+        unless:  "Hitting a trusted endpoint with a known-bad certificate during dev",
+        why:     "Disables TLS verification globally; opens the request to MITM.");
+```
+
+Per-flag/argument, `.Unit("seconds")` declares what a value means and `.Caution("...")` surfaces destructive-flag warnings inline:
+
+```csharp
+Kingpin.Flag("timeout", "Set connection timeout.")
+    .Short('t').IsInt().Unit("seconds").Default("5");
+
+Kingpin.Flag("insecure", "Skip TLS certificate verification.")
+    .Short('k').IsBool()
+    .Caution("Disables TLS verification; only use against trusted hosts you control.");
+```
+
+### Sample output
+
+Running the bundled `Examples/CurlAi` with `--help-ai` produces, in part:
+
+```yaml
+command: curl-ai
+summary: An example implementation of curl exercising the AI-friendly help surface.
+synopsis: "curl-ai [commands] [flags]"
+
+global_flags:
+  - long: --timeout
+    short: "-t"
+    type: int
+    takes_value: true
+    unit: seconds
+    default: "5"
+    required: false
+    help: Set connection timeout.
+  - long: --insecure
+    short: "-k"
+    type: bool
+    takes_value: false
+    required: false
+    help: Skip TLS certificate verification.
+    caution: Disables TLS verification; only use against trusted hosts you control.
+
+commands:
+  - path: [get, url]
+    summary: Retrieve a URL.
+    synopsis: "curl-ai get url <arguments>"
+    argument:
+      - type: url
+        takes_value: true
+        required: true
+        help: URL to GET.
+
+exit_codes:
+  0: Success
+  1: Network or protocol error
+
+prefer:
+  - rule: Always pass --timeout explicitly
+    when: Non-interactive or scripted invocations
+    why: Without --timeout, curl-ai blocks indefinitely on dead peers.
+
+conventions:
+  flag_form: "--flag=value preferred; bare for booleans"
+  inheritance: Commands inherit flags from each ancestor and from global_flags
+```
+
+The full set of fields, the inheritance rule, and the format of every section are documented in `specs/roadmap.md` under "Phase 3 — AI-Friendly Help".
+
 ## What's New
+
+### Phase 3 — AI-friendly help
+ - New `--help-ai` and `--help-ai-file` global flags emit a YAML description of the command tree
+ - Fluent API for declaring `ExitCode`, `Example`, `Note`, `Prefer`, and `Avoid` sections
+ - Per-flag/argument `.Unit(...)` and `.Caution(...)` for machine-readable hints
+ - Hand-rolled, trim/AOT-safe YAML emitter (no `YamlDotNet` runtime dependency)
+ - `Examples/CurlAi/` exercises the full surface end-to-end
 
 ### Phase 2 — Modern .NET compatibility
  - Replaced DotLiquid with Scriban for trimming-safe help rendering

@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/Examples/">
     <Project Path="Examples/Curl/Curl.csproj" />
+    <Project Path="Examples/CurlAi/CurlAi.csproj" />
     <Project Path="Examples/Motif/Motif.csproj" />
     <Project Path="Examples/Ping/Ping.csproj" />
     <Project Path="Examples/TestKingpinNet/TestKingpinNet.csproj" />

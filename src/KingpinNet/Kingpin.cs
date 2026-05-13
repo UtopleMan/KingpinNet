@@ -110,4 +110,29 @@ public class Kingpin
     {
         return Application.Parse(args);
     }
+
+    public static KingpinApplication ExitCode(int code, string description)
+    {
+        return Application.ExitCode(code, description);
+    }
+
+    public static KingpinApplication Example(string intent, string command)
+    {
+        return Application.Example(intent, command);
+    }
+
+    public static KingpinApplication Note(string text)
+    {
+        return Application.Note(text);
+    }
+
+    public static KingpinApplication Prefer(string rule, string when, string why)
+    {
+        return Application.Prefer(rule, when, why);
+    }
+
+    public static KingpinApplication Avoid(string rule, string unless, string why)
+    {
+        return Application.Avoid(rule, unless, why);
+    }
 }

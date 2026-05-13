@@ -122,4 +122,16 @@ public class ArgumentItem<T> : BaseItem<T>
         Item.DefaultValue = defaultValue;
         return this;
     }
+
+    public new ArgumentItem<T> Unit(string unit)
+    {
+        Item.Unit = unit;
+        return this;
+    }
+
+    public new ArgumentItem<T> Caution(string caution)
+    {
+        Item.Caution = caution;
+        return this;
+    }
 }

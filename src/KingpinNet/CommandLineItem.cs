@@ -52,6 +52,8 @@ public class CommandLineItem<T>
     public string[] Examples { get; internal set; }
     public string[] Suggestions { get; internal set; }
     public string ValueName { get; internal set; }
+    public string Unit { get; internal set; }
+    public string Caution { get; internal set; }
     public CommandCategory Category { get; internal set; }
     internal void ConvertAndSetValue(string value)
     {
