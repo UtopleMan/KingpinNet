@@ -127,4 +127,16 @@ public class FlagItem<T> : BaseItem<T>
         Item.DefaultValue = defaultValue;
         return this;
     }
+
+    public new FlagItem<T> Unit(string unit)
+    {
+        Item.Unit = unit;
+        return this;
+    }
+
+    public new FlagItem<T> Caution(string caution)
+    {
+        Item.Caution = caution;
+        return this;
+    }
 }

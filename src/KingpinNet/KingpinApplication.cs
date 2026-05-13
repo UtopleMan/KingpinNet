@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using KingpinNet.AiHelp;
 
 namespace KingpinNet;
 public class KingpinApplication
@@ -10,6 +11,11 @@ public class KingpinApplication
     private List<CommandItem> _commands = new List<CommandItem>();
     private List<IItem> _flags = new List<IItem>();
     private List<IItem> _arguments = new List<IItem>();
+    private readonly List<ExitCode> _exitCodes = new();
+    private readonly List<Example> _examples = new();
+    private readonly List<Note> _notes = new();
+    private readonly List<Prefer> _prefers = new();
+    private readonly List<Avoid> _avoids = new();
 
     // Used in the parser
     internal Action<Serverity, string, Exception> log = (a, b, c) => { };
@@ -19,10 +25,15 @@ public class KingpinApplication
     private string commandHelpResource = "KingpinNet.Help.CommandHelp.liquid";
     private readonly IConsole console;
 
-    public IEnumerable<CommandCategory> Categories => _categories;
-    public IEnumerable<CommandItem> Commands => _commands;
-    public IEnumerable<IItem> Flags => _flags;
-    public IEnumerable<IItem> Arguments => _arguments;
+    public IReadOnlyList<CommandCategory> Categories => _categories;
+    public IReadOnlyList<CommandItem> Commands => _commands;
+    public IReadOnlyList<IItem> Flags => _flags;
+    public IReadOnlyList<IItem> Arguments => _arguments;
+    public IReadOnlyList<ExitCode> ExitCodes => _exitCodes;
+    public IReadOnlyList<Example> Examples => _examples;
+    public IReadOnlyList<Note> Notes => _notes;
+    public IReadOnlyList<Prefer> Prefers => _prefers;
+    public IReadOnlyList<Avoid> Avoids => _avoids;
 
     public string Name { get; private set; }
     public string HelpText { get; private set; }
@@ -53,6 +64,8 @@ public class KingpinApplication
     public void Initialize()
     {
         Flag("help", "Show context-sensitive help").Short('h').IsBool().Action(x => GenerateHelp());
+        Flag<bool>("help-ai").IsHidden().Action(x => GenerateAiHelp(scope: null));
+        Flag<string>("help-ai-file").IsHidden().Action(path => GenerateAiHelpFile(path, scope: null));
         Flag<bool>("suggestion-script-bash").IsHidden().Action(x => GenerateScript("bash.sh"));
         Flag<bool>("suggestion-script-zsh").IsHidden().Action(x => GenerateScript("zsh.sh"));
         Flag<bool>("suggestion-script-pwsh").IsHidden().Action(x => GenerateScript("pwsh.ps1"));
@@ -81,7 +94,7 @@ public class KingpinApplication
         var helpGenerator = new HelpGenerator(this, console);
         var liquidText = helpGenerator.ReadResourceInExecutingAssembly(applicationHelpResource);
         helpGenerator.Generate(console.Out, liquidText);
-                                                       
+
         if (ExitWhenHelpIsShown)
         {
             Environment.Exit(0);
@@ -95,6 +108,68 @@ public class KingpinApplication
         if (ExitWhenHelpIsShown)
         {
             Environment.Exit(0);
+        }
+    }
+
+    internal void GenerateAiHelp(CommandItem scope)
+    {
+        var writer = new AiHelp.AiHelpYamlWriter(console.Out);
+        writer.Write(this, scope);
+        if (ExitWhenHelpIsShown)
+        {
+            Environment.Exit(0);
+        }
+    }
+
+    internal void GenerateAiHelpFile(string path, CommandItem scope)
+    {
+        var resolved = ResolveAiHelpFilePath(path);
+        var displayName = !string.IsNullOrEmpty(Name) ? Name : exeFileName;
+        if (string.IsNullOrEmpty(displayName)) displayName = "app";
+
+        using (var file = new StreamWriter(resolved))
+        {
+            file.Write("# ");
+            file.Write(displayName);
+            file.WriteLine(" help");
+            file.WriteLine();
+            file.WriteLine("```yaml");
+            var writer = new AiHelp.AiHelpYamlWriter(file);
+            writer.Write(this, scope);
+            file.WriteLine("```");
+        }
+        console.Out.WriteLine($"Wrote AI help to {resolved}");
+        if (ExitWhenHelpIsShown)
+        {
+            Environment.Exit(0);
+        }
+    }
+
+    private string ResolveAiHelpFilePath(string requested)
+    {
+        if (!string.IsNullOrWhiteSpace(requested) && requested != AiHelpFileSentinel)
+            return requested;
+
+        var displayName = !string.IsNullOrEmpty(Name) ? Name : exeFileName;
+        if (string.IsNullOrEmpty(displayName)) displayName = "app";
+
+        var processPath = Environment.ProcessPath ?? "";
+        var dir = !string.IsNullOrEmpty(processPath)
+            ? Path.GetDirectoryName(processPath)
+            : AppContext.BaseDirectory;
+        if (string.IsNullOrEmpty(dir)) dir = Directory.GetCurrentDirectory();
+
+        return Path.Combine(dir, displayName + "-ai-help.md");
+    }
+
+    internal const string AiHelpFileSentinel = "__ai_help_default_location__";
+
+    private static void ExpandBareHelpAiFile(List<string> args)
+    {
+        for (int i = 0; i < args.Count; i++)
+        {
+            if (args[i] == "--help-ai-file")
+                args[i] = "--help-ai-file=" + AiHelpFileSentinel;
         }
     }
 
@@ -199,13 +274,17 @@ public class KingpinApplication
             if (command.Commands.Count() > 0)
                 AddCommandHelpOnAllCommands(command.Commands);
             //else
-            command.Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(command));
+            var scope = command;
+            command.Flag<string>("help", "Show context-sensitive help").IsHidden().Short('h').IsBool().Action(x => GenerateCommandHelp(scope));
+            command.Flag<bool>("help-ai").IsHidden().Action(x => GenerateAiHelp(scope));
+            command.Flag<string>("help-ai-file").IsHidden().Action(path => GenerateAiHelpFile(path, scope));
         }
     }
 
     public ParseResult Parse(IEnumerable<string> args)
     {
-        if (args == null || args.Count() == 0)
+        var argsList = args?.ToList() ?? new List<string>();
+        if (argsList.Count == 0)
         {
             if (HelpShownOnNoArguments)
                 GenerateHelp();
@@ -213,11 +292,13 @@ public class KingpinApplication
                 Environment.Exit(-1);
         }
 
+        ExpandBareHelpAiFile(argsList);
+
         var parser = new Parser(this, new CommandLineTokenizer());
         AddCommandHelpOnAllCommands();
         try
         {
-            var result = parser.Parse(args);
+            var result = parser.Parse(argsList);
             InvestigateSuggestions(result);
             return result;
         }
@@ -282,6 +363,36 @@ public class KingpinApplication
     public KingpinApplication Log(Action<Serverity, string, Exception> log)
     {
         this.log = log;
+        return this;
+    }
+
+    public KingpinApplication ExitCode(int code, string description)
+    {
+        _exitCodes.Add(new ExitCode(code, description));
+        return this;
+    }
+
+    public KingpinApplication Example(string intent, string command)
+    {
+        _examples.Add(new Example(intent, command));
+        return this;
+    }
+
+    public KingpinApplication Note(string text)
+    {
+        _notes.Add(new Note(text));
+        return this;
+    }
+
+    public KingpinApplication Prefer(string rule, string when, string why)
+    {
+        _prefers.Add(new Prefer(rule, when, why));
+        return this;
+    }
+
+    public KingpinApplication Avoid(string rule, string unless, string why)
+    {
+        _avoids.Add(new Avoid(rule, unless, why));
         return this;
     }
 }

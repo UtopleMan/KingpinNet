@@ -27,6 +27,8 @@ public interface IItem
     string[] Examples { get; }
     ItemType ItemType { get; }
     string[] Suggestions { get; }
+    string Unit { get; }
+    string Caution { get; }
 }
 
 public class BaseItem<T> : IItem
@@ -110,6 +112,9 @@ public class BaseItem<T> : IItem
     public string[] Suggestions => Item.Suggestions;
 
     public ItemType ItemType => Item.ItemType;
+
+    public string Unit => Item.Unit;
+    public string Caution => Item.Caution;
 
     public void Action(Action<T> action)
     {
