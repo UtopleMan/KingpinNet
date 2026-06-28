@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace System.CodeDom.Compiler;
+
 public class CompilerErrorCollection : List<CompilerError>
 {
 }

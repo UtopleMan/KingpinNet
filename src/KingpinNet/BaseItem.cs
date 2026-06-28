@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace KingpinNet;
 
-
 public interface IItem
 {
     string DefaultValue { get; }
@@ -33,48 +32,32 @@ public interface IItem
 
 public class BaseItem<T> : IItem
 {
-    protected CommandLineItem<T> Item { get; set; }
-
     internal BaseItem(string path, string name, string help, ItemType itemType, ValueType valueType = ValueType.String)
     {
         Item = new CommandLineItem<T>(path, name, help, itemType, valueType, null);
     }
 
-    public string Path => Item.Path;
+    protected CommandLineItem<T> Item { get; set; }
 
-    public bool IsSet {
-        get
-        {
-            return Item.IsSet;
-        }
-        set
-        {
-            Item.IsSet = value;
-        }
+    protected string Path => Item.Path;
+
+    public bool IsSet
+    {
+        get => Item.IsSet;
+        set => Item.IsSet = value;
     }
 
     public bool Required => Item.IsRequired;
     public string DefaultValue => Item.DefaultValue;
 
-    public ValueType ValueType
-    {
-        get
-        {
-            return Item.ValueType;
-        }
-    }
+    public ValueType ValueType => Item.ValueType;
 
     public string StringValue
     {
-        get
-        {
-            return Item.Value.ToString();
-        }
-        set
-        {
-            Item.ConvertAndSetValue(value);
-        }
+        get => Item.Value.ToString();
+        set => Item.ConvertAndSetValue(value);
     }
+
     public List<string> StringValues
     {
         get
@@ -83,11 +66,9 @@ public class BaseItem<T> : IItem
                 return ((IEnumerable)Item.Value).Cast<string>().ToList();
             return [StringValue];
         }
-        set
-        {
-            Item.ConvertAndSetValues(value);
-        }
+        set => Item.ConvertAndSetValues(value);
     }
+
     public string Name => Item.Name;
 
     public char ShortName => Item.ShortName;

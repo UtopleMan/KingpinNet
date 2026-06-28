@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace KingpinNet;
+
 public enum ValueType
 {
     String,
@@ -22,9 +23,9 @@ public static class ValueTypeConverter
 {
     internal static ValueType Convert(Type type)
     {
-        if (type == typeof(Int32) || type == typeof(Int16))
+        if (type == typeof(int) || type == typeof(short))
             return ValueType.Int;
-        if (type == typeof(Int64))
+        if (type == typeof(long))
             return ValueType.Long;
         if (type == typeof(DateOnly))
             return ValueType.Date;

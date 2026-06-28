@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KingpinNet; 
+namespace KingpinNet;
 
 public class ArgumentItem<T> : BaseItem<T>
 {
@@ -14,24 +14,20 @@ public class ArgumentItem<T> : BaseItem<T>
     {
     }
 
-    public T Value
-    {
-        get
-        {
-            return Item.Value;
-        }
-    }
+    public T Value => Item.Value;
 
     public ArgumentItem<T> SetExamples(params string[] examples)
     {
         Item.Examples = examples;
         return this;
     }
+
     public ArgumentItem<T> SetSuggestions(params string[] suggestions)
     {
         Item.Suggestions = suggestions;
         return this;
     }
+
     public ArgumentItem<T> IsUrl()
     {
         Item.ValueType = ValueType.Url;
@@ -43,6 +39,7 @@ public class ArgumentItem<T> : BaseItem<T>
         Item.IsRequired = true;
         return this;
     }
+
     public ArgumentItem<T> IsBool()
     {
         Item.ValueType = ValueType.Bool;

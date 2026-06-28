@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,10 @@ public sealed class AiHelpYamlWriter
         _out = output ?? throw new ArgumentNullException(nameof(output));
     }
 
-    public void Write(KingpinApplication app) => Write(app, scope: null);
+    public void Write(KingpinApplication app)
+    {
+        Write(app, null);
+    }
 
     public void Write(KingpinApplication app, CommandItem scope)
     {
@@ -26,13 +30,9 @@ public sealed class AiHelpYamlWriter
         var rootName = ResolveRootName(app);
 
         if (scope == null)
-        {
             WriteRoot(app, rootName);
-        }
         else
-        {
             WriteScoped(app, rootName, scope);
-        }
 
         WriteGlobalSections(app);
         WriteConventions();
@@ -51,7 +51,7 @@ public sealed class AiHelpYamlWriter
             _out.WriteLine();
             _out.WriteLine("argument:");
             foreach (var arg in visibleArgs)
-                WriteFlagOrArgument(arg, depth: 1, isFlag: false);
+                WriteFlagOrArgument(arg, 1, false);
         }
 
         var visibleFlags = app.Flags.Where(f => !f.Hidden).ToList();
@@ -60,7 +60,7 @@ public sealed class AiHelpYamlWriter
             _out.WriteLine();
             _out.WriteLine("global_flags:");
             foreach (var flag in visibleFlags)
-                WriteFlagOrArgument(flag, depth: 1, isFlag: true);
+                WriteFlagOrArgument(flag, 1, true);
         }
 
         var visibleCommands = app.Commands.Where(c => !c.Hidden).ToList();
@@ -69,7 +69,7 @@ public sealed class AiHelpYamlWriter
             _out.WriteLine();
             _out.WriteLine("commands:");
             foreach (var cmd in visibleCommands)
-                WriteCommand(rootName, cmd, new[] { cmd.Name }, depth: 1);
+                WriteCommand(rootName, cmd, new[] { cmd.Name }, 1);
         }
     }
 
@@ -83,8 +83,8 @@ public sealed class AiHelpYamlWriter
             WriteScalar(0, "summary", scope.Help);
         WriteScalar(0, "synopsis", BuildCommandSynopsis(rootName, path, scope));
 
-        WriteArgumentsBlock(scope.Arguments.Where(a => !a.Hidden).ToList(), depth: 0);
-        WriteFlagsBlock(scope.Flags.Where(f => !f.Hidden).ToList(), depth: 0);
+        WriteArgumentsBlock(scope.Arguments.Where(a => !a.Hidden).ToList(), 0);
+        WriteFlagsBlock(scope.Flags.Where(f => !f.Hidden).ToList(), 0);
 
         var visibleChildren = scope.Commands.Where(c => !c.Hidden).ToList();
         if (visibleChildren.Count > 0)
@@ -94,7 +94,7 @@ public sealed class AiHelpYamlWriter
             foreach (var child in visibleChildren)
             {
                 var childPath = path.Concat(new[] { child.Name }).ToArray();
-                WriteCommand(rootName, child, childPath, depth: 1);
+                WriteCommand(rootName, child, childPath, 1);
             }
         }
     }
@@ -134,7 +134,7 @@ public sealed class AiHelpYamlWriter
         if (args.Count == 0) return;
         WriteKey(depth, "argument");
         foreach (var a in args)
-            WriteFlagOrArgument(a, depth + 1, isFlag: false);
+            WriteFlagOrArgument(a, depth + 1, false);
     }
 
     private void WriteFlagsBlock(IReadOnlyList<IItem> flags, int depth)
@@ -142,7 +142,7 @@ public sealed class AiHelpYamlWriter
         if (flags.Count == 0) return;
         WriteKey(depth, "flags");
         foreach (var f in flags)
-            WriteFlagOrArgument(f, depth + 1, isFlag: true);
+            WriteFlagOrArgument(f, depth + 1, true);
     }
 
     private void WriteFlagOrArgument(IItem item, int depth, bool isFlag)
@@ -194,7 +194,7 @@ public sealed class AiHelpYamlWriter
             _out.WriteLine();
             _out.WriteLine("exit_codes:");
             foreach (var ec in app.ExitCodes)
-                WriteScalar(1, ec.Code.ToString(System.Globalization.CultureInfo.InvariantCulture), ec.Description);
+                WriteScalar(1, ec.Code.ToString(CultureInfo.InvariantCulture), ec.Description);
         }
 
         if (app.Examples.Count > 0)
@@ -311,8 +311,10 @@ public sealed class AiHelpYamlWriter
         return value;
     }
 
-    private static bool ContainsNewline(string value) =>
-        !string.IsNullOrEmpty(value) && (value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0);
+    private static bool ContainsNewline(string value)
+    {
+        return !string.IsNullOrEmpty(value) && (value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0);
+    }
 
     private static bool NeedsDoubleQuoting(string v)
     {
@@ -323,7 +325,6 @@ public sealed class AiHelpYamlWriter
         if (LooksLikeNumber(v)) return true;
 
         foreach (var c in v)
-        {
             switch (c)
             {
                 case ':':
@@ -348,7 +349,6 @@ public sealed class AiHelpYamlWriter
                 case '\t':
                     return true;
             }
-        }
 
         switch (v[0])
         {
@@ -370,11 +370,11 @@ public sealed class AiHelpYamlWriter
 
     private static bool LooksLikeNumber(string v)
     {
-        if (double.TryParse(v, System.Globalization.NumberStyles.Float,
-            System.Globalization.CultureInfo.InvariantCulture, out _))
+        if (double.TryParse(v, NumberStyles.Float,
+                CultureInfo.InvariantCulture, out _))
             return true;
-        if (long.TryParse(v, System.Globalization.NumberStyles.Integer,
-            System.Globalization.CultureInfo.InvariantCulture, out _))
+        if (long.TryParse(v, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out _))
             return true;
         return false;
     }
@@ -383,7 +383,6 @@ public sealed class AiHelpYamlWriter
     {
         var sb = new StringBuilder(v.Length + 8);
         foreach (var c in v)
-        {
             switch (c)
             {
                 case '\\': sb.Append("\\\\"); break;
@@ -393,30 +392,35 @@ public sealed class AiHelpYamlWriter
                 case '\t': sb.Append("\\t"); break;
                 default: sb.Append(c); break;
             }
-        }
+
         return sb.ToString();
     }
 
-    private static string YamlTypeOf(ValueType vt) => vt switch
+    private static string YamlTypeOf(ValueType vt)
     {
-        ValueType.Bool => "bool",
-        ValueType.Int => "int",
-        ValueType.Long => "long",
-        ValueType.Float => "float",
-        ValueType.Url => "url",
-        ValueType.Ip => "ip",
-        ValueType.Tcp => "tcp",
-        ValueType.Duration => "duration",
-        ValueType.Date => "date",
-        ValueType.Enum => "enum",
-        ValueType.ListOfString => "list",
-        _ => "string",
-    };
+        return vt switch
+        {
+            ValueType.Bool => "bool",
+            ValueType.Int => "int",
+            ValueType.Long => "long",
+            ValueType.Float => "float",
+            ValueType.Url => "url",
+            ValueType.Ip => "ip",
+            ValueType.Tcp => "tcp",
+            ValueType.Duration => "duration",
+            ValueType.Date => "date",
+            ValueType.Enum => "enum",
+            ValueType.ListOfString => "list",
+            _ => "string"
+        };
+    }
 
-    private static string ResolveRootName(KingpinApplication app) =>
-        !string.IsNullOrEmpty(app.Name) ? app.Name
-        : !string.IsNullOrEmpty(app.exeFileName) ? app.exeFileName
-        : "app";
+    private static string ResolveRootName(KingpinApplication app)
+    {
+        return !string.IsNullOrEmpty(app.Name) ? app.Name
+            : !string.IsNullOrEmpty(app.exeFileName) ? app.exeFileName
+            : "app";
+    }
 
     private static string BuildSynopsis(string rootName, KingpinApplication app)
     {
@@ -444,6 +448,7 @@ public sealed class AiHelpYamlWriter
             var found = FindPath(top, target, new List<string>());
             if (found != null) return found;
         }
+
         // Fallback: just the command's own name.
         return new[] { target.Name };
     }
@@ -457,6 +462,7 @@ public sealed class AiHelpYamlWriter
             var found = FindPath(child, target, withSelf);
             if (found != null) return found;
         }
+
         return null;
     }
 }

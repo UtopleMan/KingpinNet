@@ -31,23 +31,23 @@
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Help\ApplicationHelp.liquid" />
-    <None Remove="Help\CommandHelp.liquid" />
-    <None Remove="Scripts\bash.sh" />
-    <None Remove="Scripts\pwsh.ps1" />
-    <None Remove="Scripts\zsh.sh" />
+    <None Remove="Help\ApplicationHelp.liquid"/>
+    <None Remove="Help\CommandHelp.liquid"/>
+    <None Remove="Scripts\bash.sh"/>
+    <None Remove="Scripts\pwsh.ps1"/>
+    <None Remove="Scripts\zsh.sh"/>
   </ItemGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.202" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <EmbeddedResource Include="Help\ApplicationHelp.liquid" />
-    <EmbeddedResource Include="Help\CommandHelp.liquid" />
-    <EmbeddedResource Include="Scripts\bash.sh" />
-    <EmbeddedResource Include="Scripts\pwsh.ps1" />
-    <EmbeddedResource Include="Scripts\zsh.sh" />
+    <EmbeddedResource Include="Help\ApplicationHelp.liquid"/>
+    <EmbeddedResource Include="Help\CommandHelp.liquid"/>
+    <EmbeddedResource Include="Scripts\bash.sh"/>
+    <EmbeddedResource Include="Scripts\pwsh.ps1"/>
+    <EmbeddedResource Include="Scripts\zsh.sh"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
@@ -56,7 +56,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Scriban" Version="7.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
+    <PackageReference Include="Scriban" Version="7.2.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
   </ItemGroup>
 </Project>

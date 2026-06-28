@@ -5,80 +5,69 @@ namespace KingpinNet;
 
 public class CommandItem : BaseItem<string>
 {
-    internal CommandItem(string path, string name, string help, CommandCategory category) : base(path, name, help, ItemType.Command)
+    internal CommandItem(string path, string name, string help, CommandCategory category) : base(path, name, help,
+        ItemType.Command)
     {
         Item.Category = category;
     }
+
     internal CommandItem(string path, string name, string help) : base(path, name, help, ItemType.Command)
     {
     }
+
+    public CommandCategory Category => Item.Category;
+
+    public IEnumerable<CommandItem> Commands => Item.Commands;
+
+    public IEnumerable<IItem> Flags => Item.Flags;
+
+    public IEnumerable<IItem> Arguments => Item.Arguments;
+
     public FlagItem<string> Flag(string name, string help = "")
     {
         var result = new FlagItem<string>($"{Path}:{name}", name, help);
-        Item._flags.Add(result);
+        Item.flags.Add(result);
         return result;
     }
+
     public FlagItem<string> Flag(FlagItem<string> item)
     {
-        Item._flags.Add(item);
+        Item.flags.Add(item);
         return item;
     }
+
     public ArgumentItem<string> Argument(string name, string help = "")
     {
         var result = new ArgumentItem<string>($"{Path}:{name}", name, help);
-        Item._arguments.Add(result);
+        Item.arguments.Add(result);
         return result;
     }
+
     public FlagItem<T> Flag<T>(string name, string help = "")
     {
         var result = new FlagItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
-        Item._flags.Add(result);
+        Item.flags.Add(result);
         return result;
     }
+
     public FlagItem<T> Flag<T>(FlagItem<T> item)
     {
-        Item._flags.Add(item);
+        Item.flags.Add(item);
         return item;
     }
+
     public ArgumentItem<T> Argument<T>(string name, string help = "")
     {
         var result = new ArgumentItem<T>($"{Path}:{name}", name, help, ValueTypeConverter.Convert(typeof(T)));
-        Item._arguments.Add(result);
+        Item.arguments.Add(result);
         return result;
     }
+
     public CommandItem Command(string name, string help = "")
     {
         var result = new CommandItem($"{Path}:{name}", name, help);
-        Item._commands.Add(result);
+        Item.commands.Add(result);
         return result;
-    }
-    public CommandCategory Category
-    {
-        get
-        {
-            return Item.Category;
-        }
-    }
-    public IEnumerable<CommandItem> Commands
-    {
-        get
-        {
-            return Item._commands;
-        }
-    }
-    public IEnumerable<IItem> Flags
-    {
-        get
-        {
-            return Item.Flags;
-        }
-    }
-    public IEnumerable<IItem> Arguments
-    {
-        get
-        {
-            return Item.Arguments;
-        }
     }
 
     public CommandItem IsDefault()
@@ -110,11 +99,13 @@ public class CommandItem : BaseItem<string>
         Item.ValueType = ValueType.Int;
         return this;
     }
+
     public CommandItem IsLong()
     {
         Item.ValueType = ValueType.Long;
         return this;
     }
+
     public CommandItem FileExists()
     {
         Item.FileShouldExist = true;

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace KingpinNet;
+
 public class Kingpin
 {
-    private static readonly KingpinApplication Application = new KingpinApplication();
+    private static readonly KingpinApplication Application = new();
 
     static Kingpin()
     {
@@ -18,6 +19,7 @@ public class Kingpin
         //Flag("completion-script-bash", "Generate completion script for bash.").IsHidden().Action(a.generateBashCompletionScript).Bool()
         //Flag("completion-script-zsh", "Generate completion script for ZSH.").IsHidden().Action(a.generateZSHCompletionScript).Bool()
     }
+
     public static KingpinApplication Log(Action<Serverity, string, Exception> log)
     {
         return Application.Log(log);
@@ -42,6 +44,7 @@ public class Kingpin
     {
         return Application.ThrowOnParseErrors();
     }
+
     public static KingpinApplication ShowHelpOnNoArguments()
     {
         return Application.ShowHelpOnNoArguments();
@@ -51,6 +54,7 @@ public class Kingpin
     {
         return Application.ExitOnNoArguments();
     }
+
     public static CommandCategory Category(string name, string description)
     {
         return Application.Category(name, description);

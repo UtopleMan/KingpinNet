@@ -1,15 +1,17 @@
-using Scriban;
-using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Scriban;
+using Scriban.Runtime;
 
 namespace KingpinNet;
+
 public interface ITemplateRunner
 {
     Task<string> Run(string templateName, IDictionary<string, object> application);
 }
+
 public class TemplateRunner : ITemplateRunner
 {
     private readonly IConsole console;
@@ -18,6 +20,7 @@ public class TemplateRunner : ITemplateRunner
     {
         this.console = console;
     }
+
     public async Task<string> Run(string templateName, IDictionary<string, object> application)
     {
         try
@@ -26,7 +29,8 @@ public class TemplateRunner : ITemplateRunner
             var template = Template.ParseLiquid(templateContent);
             if (template.HasErrors)
             {
-                console.Out.WriteLine($"Syntax error in template {templateName}: {string.Join(", ", template.Messages)}");
+                console.Out.WriteLine(
+                    $"Syntax error in template {templateName}: {string.Join(", ", template.Messages)}");
                 return await Task.FromResult("");
             }
 
@@ -52,8 +56,8 @@ public class TemplateRunner : ITemplateRunner
     private string ReadResource(string resourceName)
     {
         var assembly = typeof(TemplateRunner).Assembly;
-        using Stream stream = assembly.GetManifestResourceStream(resourceName);
-        using StreamReader reader = new StreamReader(stream);
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
 }

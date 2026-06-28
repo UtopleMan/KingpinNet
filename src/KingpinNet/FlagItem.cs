@@ -1,15 +1,9 @@
 ﻿using System;
 
 namespace KingpinNet;
+
 public class FlagItem<T> : BaseItem<T>
 {
-    public T Value {
-        get
-        {
-            return Item.Value;
-        }
-    }
-
     internal FlagItem(string path, string name, string help)
         : base(path, name, help, ItemType.Flag)
     {
@@ -19,6 +13,8 @@ public class FlagItem<T> : BaseItem<T>
         : base(path, name, help, ItemType.Flag, valueType)
     {
     }
+
+    public T Value => Item.Value;
 
     public new FlagItem<T> ValueName(string valueName)
     {
@@ -43,6 +39,7 @@ public class FlagItem<T> : BaseItem<T>
         Item.IsRequired = true;
         return this;
     }
+
     public FlagItem<T> IsBool()
     {
         Item.ValueType = ValueType.Bool;

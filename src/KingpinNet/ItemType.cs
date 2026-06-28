@@ -1,4 +1,5 @@
 ﻿namespace KingpinNet;
+
 public enum ItemType
 {
     None,

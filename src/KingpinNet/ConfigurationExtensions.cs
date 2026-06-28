@@ -2,12 +2,14 @@
 using Microsoft.Extensions.Configuration;
 
 namespace KingpinNet;
+
 public static class KingpinNetCommandLineConfigurationExtensions
 {
-    public static IConfigurationBuilder AddKingpinNetCommandLine(this IConfigurationBuilder configurationBuilder, string[] args,
+    public static IConfigurationBuilder AddKingpinNetCommandLine(this IConfigurationBuilder configurationBuilder,
+        string[] args,
         KingpinApplication application = null)
     {
-        configurationBuilder.Add(new KingpinNetCommandLineConfigurationSource()
+        configurationBuilder.Add(new KingpinNetCommandLineConfigurationSource
         {
             KingpinApplication = application,
             Args = args
@@ -20,17 +22,17 @@ public class KingpinNetCommandLineConfigurationSource : IConfigurationSource
 {
     public IEnumerable<string> Args { get; set; }
     public KingpinApplication KingpinApplication { get; set; }
+
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         return new KingpinCommandLineConfigurationProvider(Args, KingpinApplication);
     }
 }
 
-
 public class KingpinCommandLineConfigurationProvider : ConfigurationProvider
 {
-    private KingpinApplication _kingpinApplication;
-    private IEnumerable<string> _args;
+    private readonly IEnumerable<string> _args;
+    private readonly KingpinApplication _kingpinApplication;
 
     public KingpinCommandLineConfigurationProvider(IEnumerable<string> args, KingpinApplication application)
     {

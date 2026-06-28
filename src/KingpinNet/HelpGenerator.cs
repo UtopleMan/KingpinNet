@@ -1,17 +1,19 @@
-using Scriban;
-using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Scriban;
+using Scriban.Runtime;
 
 namespace KingpinNet;
+
 public class HelpGenerator
 {
+    private const string NewLine = "__NL__";
     private readonly KingpinApplication _application;
     private readonly IConsole console;
-    private const string NewLine = "__NL__";
+
     public HelpGenerator(KingpinApplication application, IConsole console)
     {
         _application = application;
@@ -28,6 +30,7 @@ public class HelpGenerator
                 console.Out.WriteLine($"Syntax error in template: {string.Join(", ", template.Messages)}");
                 return;
             }
+
             var root = new ScriptObject();
             root["application"] = BuildApplicationObject(_application);
             var result = RenderWithRoot(template, root);
@@ -58,6 +61,7 @@ public class HelpGenerator
                 console.Out.WriteLine($"Syntax error in template: {string.Join(", ", template.Messages)}");
                 return;
             }
+
             var root = new ScriptObject();
             root["application"] = BuildApplicationObject(_application);
             root["command"] = BuildCommandObject(command, command.Name);
@@ -143,6 +147,7 @@ public class HelpGenerator
                 result.AddRange(RecurseCommands(path, command.Commands));
             }
         }
+
         return result;
     }
 
