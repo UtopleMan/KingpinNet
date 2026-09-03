@@ -69,7 +69,7 @@ public class Parser
                 else if (IsFlag(ctx.Args[ctx.CurrentItem], new List<IItem>(), _globalFlags, ctx, out var flagFound))
                 {
                     Add(flagFound, ctx);
-                    ctx.CurrentItem++;
+                    ctx.CurrentItem += 1 + ctx.ExtraTokensConsumed;
                 }
                 else if (IsArgument(ctx.Args[ctx.CurrentItem], _globalArguments, out var argumentFound) &&
                          !ctx.Result.IsSuggestion)
@@ -329,7 +329,7 @@ public class Parser
             else if (IsFlag(ctx.Args[ctx.CurrentItem], command.Flags, _globalFlags, ctx, out var flagFound))
             {
                 Merge("Command", flagFound, ctx);
-                ctx.CurrentItem++;
+                ctx.CurrentItem += 1 + ctx.ExtraTokensConsumed;
             }
             else if (IsArgument(ctx.Args[ctx.CurrentItem], command.Arguments, out var argumentFound) &&
                      !ctx.Result.IsSuggestion)
@@ -428,32 +428,47 @@ public class Parser
         return true;
     }
 
-    private static string GetValue(IItem item, string arg)
+    /// <summary>
+    ///     Single source of truth for resolving the raw value of a flag. Handles both the
+    ///     <c>--flag=value</c> form and the space separated <c>--flag value</c> form.
+    /// </summary>
+    private static bool TryResolveFlagValue(IItem flag, string arg, string nextToken, out string rawValue,
+        out bool consumesNext, out string error)
     {
+        rawValue = null;
+        consumesNext = false;
+        error = null;
+
         var parts = arg.SplitFirst('=');
 
-        if (parts.Length == 1)
+        if (parts.Length > 1)
         {
-            if (item.ValueType == ValueType.Bool)
-                return "true";
-            throw new ParseException("Not a boolean " + arg);
+            rawValue = parts[1];
+        }
+        else if (flag.ValueType == ValueType.Bool)
+        {
+            // Booleans never consume the next token; they are bare or --flag=false.
+            rawValue = "true";
+        }
+        else if (nextToken == null || nextToken.StartsWith("-"))
+        {
+            error = $"--{flag.Name} need a value";
+            return false;
+        }
+        else
+        {
+            rawValue = nextToken;
+            consumesNext = true;
         }
 
-        return parts[1];
-    }
+        var result = IsValidItem(flag, rawValue);
+        if (!result.success)
+        {
+            error = result.errorMessage;
+            return false;
+        }
 
-    private static List<string> GetValues(IItem item, string arg)
-    {
-        var parts = arg.SplitFirst('=');
-
-        if (parts.Length == 1)
-            throw new ParseException("Not a list value " + arg);
-
-        var list = parts[1].Split(',').Select(x => x.Trim()).ToList();
-        if (list.Count == 0)
-            throw new ParseException("Couldn't parse " + parts[1] + " to list of strings");
-
-        return list;
+        return true;
     }
 
     private static bool IsValidArgument(IItem argument, string arg, List<string> listOfErrors)
@@ -464,22 +479,13 @@ public class Parser
         return result.success;
     }
 
-    private static bool IsValidFlag(IItem flag, string arg, List<string> listOfErrors)
+    private static bool IsValidFlag(IItem flag, string arg, string nextToken, List<string> listOfErrors)
     {
-        var parts = arg.SplitFirst('=');
+        if (TryResolveFlagValue(flag, arg, nextToken, out _, out _, out var error))
+            return true;
 
-        if (parts.Length == 1)
-        {
-            if (flag.ValueType == ValueType.Bool)
-                return true;
-            listOfErrors.Add($"--{flag.Name} need a value");
-            return false;
-        }
-
-        var result = IsValidItem(flag, parts[1]);
-        if (!result.success)
-            listOfErrors.Add(result.errorMessage);
-        return result.success;
+        listOfErrors.Add(error);
+        return false;
     }
 
     private static (bool success, string errorMessage) IsValidItem(IItem item, string argument)
@@ -567,6 +573,7 @@ public class Parser
         out IItem item)
     {
         item = null;
+        ctx.ExtraTokensConsumed = 0;
 
         var localFlags = flags?.ToList() ?? new List<IItem>();
         var globalFlagsList = globalFlags?.ToList() ?? new List<IItem>();
@@ -575,15 +582,18 @@ public class Parser
             return false;
 
         var errors = new List<string>();
+        var nextToken = ctx.CurrentItem + 1 < ctx.Args.Count ? ctx.Args[ctx.CurrentItem + 1] : null;
 
         if (arg.StartsWith("--"))
         {
             var flagName = GetFlagName(arg);
-            var foundLocal = localFlags.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors))
+            var foundLocal = localFlags
+                .Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, nextToken, errors))
                 .ToList();
-            var foundGlobal = globalFlagsList.Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, errors))
+            var foundGlobal = globalFlagsList
+                .Where(f => flagName == f.Name.ToLower() && IsValidFlag(f, arg, nextToken, errors))
                 .ToList();
-            return EvaluateItem(foundLocal, foundGlobal, arg, errors, ctx, out item);
+            return EvaluateItem(foundLocal, foundGlobal, arg, nextToken, errors, ctx, out item);
         }
 
         if (arg.StartsWith("-"))
@@ -595,17 +605,19 @@ public class Parser
                 throw new ParseException("Short name arguments are only one character " + flagName);
             }
 
-            var foundLocal = localFlags.Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, errors)).ToList();
-            var foundGlobal = globalFlagsList.Where(f => flagName[0] == f.ShortName && IsValidFlag(f, arg, errors))
+            var foundLocal = localFlags
+                .Where(f => f.ShortName == flagName[0] && IsValidFlag(f, arg, nextToken, errors)).ToList();
+            var foundGlobal = globalFlagsList
+                .Where(f => flagName[0] == f.ShortName && IsValidFlag(f, arg, nextToken, errors))
                 .ToList();
-            return EvaluateItem(foundLocal, foundGlobal, arg, errors, ctx, out item);
+            return EvaluateItem(foundLocal, foundGlobal, arg, nextToken, errors, ctx, out item);
         }
 
         return false;
     }
 
-    private bool EvaluateItem(List<IItem> localItems, List<IItem> globalItems, string arg, List<string> errors,
-        ParseContext ctx, out IItem item)
+    private bool EvaluateItem(List<IItem> localItems, List<IItem> globalItems, string arg, string nextToken,
+        List<string> errors, ParseContext ctx, out IItem item)
     {
         item = null;
 
@@ -623,10 +635,18 @@ public class Parser
 
         item = localItems.FirstOrDefault() ?? globalItems[0];
 
+        if (!TryResolveFlagValue(item, arg, nextToken, out var rawValue, out var consumesNext, out var error))
+        {
+            if (ctx.Result.IsSuggestion) return false;
+            throw new ParseException("Illegal flag " + arg, new List<string> { error });
+        }
+
         if (item.ValueType == ValueType.ListOfString)
-            item.StringValues = GetValues(item, arg);
+            item.StringValues = rawValue.Split(',').Select(x => x.Trim()).ToList();
         else
-            item.StringValue = GetValue(item, arg);
+            item.StringValue = rawValue;
+
+        ctx.ExtraTokensConsumed = consumesNext ? 1 : 0;
         return true;
     }
 
@@ -653,6 +673,13 @@ public class Parser
         public ParseResult Result { get; } = new();
         public List<string> Args { get; set; } = new();
         public int CurrentItem { get; set; }
+
+        /// <summary>
+        ///     Number of extra tokens the last matched flag consumed as its value
+        ///     (1 for the space separated <c>--flag value</c> form, otherwise 0).
+        /// </summary>
+        public int ExtraTokensConsumed { get; set; }
+
         public string SuggestionString { get; set; } = "";
     }
 }

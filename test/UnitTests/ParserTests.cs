@@ -853,5 +853,345 @@ namespace Tests
             // Assert
             Assert.Equal("second", result.Result["flag"]);
         }
+
+        // ----------------------------------------------------------------
+        // Space-separated flag values: --flag value / -f value
+        // ----------------------------------------------------------------
+
+        [Fact]
+        public void ParseGlobalFlagWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--myflag", "danish" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("myflag", "This is the flag of the person");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("danish", result.Result["myflag"]);
+        }
+
+        [Fact]
+        public void ParseCommandFlagWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "run", "--myflag", "danish" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var command = application.Command("run", "This is a command");
+            command.Flag("myflag", "This is the flag of the person");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("run", result.Result["Command"]);
+            Assert.Equal("danish", result.Result["run:myflag"]);
+        }
+
+        [Fact]
+        public void ParseGlobalShortFlagWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "-i", "help" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("ielp", "This is the help").Short('i');
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("help", result.Result["ielp"]);
+        }
+
+        [Fact]
+        public void ParseIntWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "1" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsInt();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("1", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseFloatWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "1.000" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsFloat();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("1.000", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseDurationWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--time", "1:00:00" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("time", "").IsDuration();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("1:00:00", result.Result["time"]);
+        }
+
+        [Fact]
+        public void ParseDateWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--date", "2026-12-27" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag<DateOnly>("date", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            var expected = DateOnly.Parse("2026-12-27");
+            // StringValue round-trips through the typed value, so Result holds DateOnly.ToString()
+            // for both --date=2026-12-27 and --date 2026-12-27.
+            Assert.Equal(expected.ToString(), result.Result["date"]);
+            Assert.Equal(expected, flag.Value);
+        }
+
+        [Fact]
+        public void ParseUrlWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "http://www.google.com" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsUrl();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("http://www.google.com", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseIpWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "123.123.123.123" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsIp();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("123.123.123.123", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseTcpWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "myfancyhostname123:1234" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsTcp();
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("myfancyhostname123:1234", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseEnumWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "NotSoChecked" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsEnum(typeof(CheckMe));
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("NotSoChecked", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void ParseListOfStringFlagWithSpaceSeparatedValue()
+        {
+            // Arrange
+            string[] args = new[] { "--items", "alpha,beta,gamma" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var flag = application.Flag<List<string>>("items", "");
+
+            // Act
+            var subject = new Parser(application);
+            subject.Parse(args);
+
+            // Assert
+            Assert.Equal(new List<string> { "alpha", "beta", "gamma" }, flag.Value);
+        }
+
+        [Fact]
+        public void ParseMixedFlagFormsOnSameCommandLine()
+        {
+            // Arrange
+            string[] args = new[] { "run", "--a=1", "--b", "2" };
+            var application = new KingpinApplication(consoleMock.Object);
+            var command = application.Command("run", "");
+            command.Flag("a", "");
+            command.Flag("b", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("run", result.Result["Command"]);
+            Assert.Equal("1", result.Result["run:a"]);
+            Assert.Equal("2", result.Result["run:b"]);
+        }
+
+        [Fact]
+        public void ParseRepeatedSpaceSeparatedFlagLastWins()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "first", "--flag", "second" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("second", result.Result["flag"]);
+        }
+
+        [Fact]
+        public void SpaceSeparatedFlagWithoutValueThrows()
+        {
+            // Arrange
+            string[] args = new[] { "--flag" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "");
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void SpaceSeparatedFlagDoesNotConsumeDashLeadingToken()
+        {
+            // Arrange
+            string[] args = new[] { "--host", "--port=1" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("host", "");
+            application.Flag("port", "").IsInt();
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void SpaceSeparatedIntFlagWithBadValueThrows()
+        {
+            // Arrange
+            string[] args = new[] { "--flag", "x1x" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("flag", "").IsInt();
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void SpaceSeparatedListOfStringFlagWithoutValueThrows()
+        {
+            // Arrange
+            string[] args = new[] { "--items" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag<List<string>>("items", "");
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void BoolFlagDoesNotConsumeFollowingCommand()
+        {
+            // Arrange
+            string[] args = new[] { "--verbose", "run" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("verbose", "").IsBool();
+            application.Command("run", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("true", result.Result["verbose"]);
+            Assert.Equal("run", result.Result["Command"]);
+        }
+
+        [Fact]
+        public void BoolFlagDoesNotConsumeFollowingValue()
+        {
+            // Arrange
+            string[] args = new[] { "--bool", "true" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag<bool>("bool", "");
+
+            // Act
+            var subject = new Parser(application);
+            Assert.Throws<ParseException>(() => subject.Parse(args));
+        }
+
+        [Fact]
+        public void SpaceSeparatedFlagShadowsDeclaredCommand()
+        {
+            // Arrange
+            string[] args = new[] { "--host", "deploy" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Flag("host", "");
+            application.Command("deploy", "");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            Assert.Equal("deploy", result.Result["host"]);
+            Assert.False(result.Result.ContainsKey("Command"));
+        }
     }
 }

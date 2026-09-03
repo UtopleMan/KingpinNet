@@ -255,7 +255,7 @@ public sealed class AiHelpYamlWriter
     {
         _out.WriteLine();
         _out.WriteLine("conventions:");
-        WriteScalar(1, "flag_form", "--flag=value preferred; bare for booleans");
+        WriteScalar(1, "flag_form", "--flag=value and --flag value are interchangeable for value-taking flags (same for -f=value and -f value); booleans are bare or --flag=false and never consume the next token; values starting with - require the = form");
         WriteScalar(1, "inheritance", "Commands inherit flags from each ancestor and from global_flags");
     }
 

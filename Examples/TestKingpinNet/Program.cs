@@ -15,12 +15,12 @@ namespace TestKingpinNet
             var runUrlsArgument = runUrlsCommand.Argument<List<string>>("urls", "the url to run").IsRequired();
             Kingpin.Parse(args);
             var configuration = new ConfigurationBuilder().AddKingpinNetCommandLine(args).Build();
-            if (configuration["Command"] == runCommand.Path)
+            if (configuration["Command"] == runCommand.Name)
             {
                 // Only run command specified on command line
             }
 
-            if (configuration["Command"] == runCommand.Path)
+            if (configuration["Command"] == runCommand.Name)
             {
                 // run url https://something specified on commandline
             }

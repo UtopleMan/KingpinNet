@@ -251,6 +251,17 @@ public class AiHelpYamlTests
     }
 
     [Fact]
+    public void ConventionsBlock_FlagForm_DocumentsSpaceSeparatedValues()
+    {
+        var app = NewApp();
+        var yaml = Emit(app);
+        Assert.Contains("--flag=value and --flag value are interchangeable", yaml);
+        Assert.Contains("booleans are bare or --flag=false", yaml);
+        Assert.Contains("values starting with - require the = form", yaml);
+        Assert.DoesNotContain("--flag=value preferred", yaml);
+    }
+
+    [Fact]
     public void HiddenFlagsAndCommands_AreOmitted()
     {
         var app = NewApp();

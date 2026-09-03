@@ -1,4 +1,4 @@
-using KingpinNet;
+﻿using KingpinNet;
 using Moq;
 using System.Linq;
 using Xunit;
@@ -138,6 +138,51 @@ namespace Tests
             Assert.True(result.IsSuggestion);
             Assert.Equal("--myflag", result.Suggestions[0]);
         }
+        // ---------------------------------------------------------------------
+        // Space-separated flag values in the suggest path
+        // ---------------------------------------------------------------------
+
+        [Fact]
+        public void SuggestFlagWithoutValueDoesNotThrow()
+        {
+            // Arrange
+            string[] args = new[] { "suggest", "--myflag" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Command("cmd1");
+            application.Flag("myflag");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            // The flag has no value, so it never resolves and falls through to the
+            // suggestion string. No exception, and the flag is still suggested.
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("--myflag", result.Suggestions.Single());
+        }
+
+        [Fact]
+        public void SuggestFlagWithSpaceSeparatedValueDoesNotThrow()
+        {
+            // Arrange
+            string[] args = new[] { "suggest", "--myflag", "va" };
+            var application = new KingpinApplication(consoleMock.Object);
+            application.Command("cmd1");
+            application.Flag("myflag");
+
+            // Act
+            var subject = new Parser(application);
+            var result = subject.Parse(args);
+
+            // Assert
+            // "va" is consumed as the value of --myflag, so it is never recorded as the
+            // suggestion string. The flag is now set and drops out of the suggestions,
+            // leaving the commands suggested against an empty suggestion string.
+            Assert.True(result.IsSuggestion);
+            Assert.Equal("cmd1", result.Suggestions.Single());
+        }
+
         [Fact]
         public void SuggestCommandShowShortNamedFlag()
         {

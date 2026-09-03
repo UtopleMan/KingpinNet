@@ -2,6 +2,10 @@ usage: {{ application.Name }}{% if application.Flags.size > 0 %} [<flags>]{% end
 {%- if application.Help != "" -%}
 {{ application.Help }}__NL____NL__
 {%- endif -%}
+{%- assign visibleFlags = 0 -%}
+{%- for flag in application.Flags -%}
+{%- if flag.Hidden != true -%}{%- assign visibleFlags = visibleFlags | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
 {%- if application.Flags.size > 0 -%}
 Flags:__NL__
 {%- for flag in application.Flags -%}
@@ -10,6 +14,9 @@ Flags:__NL__
 {{ line | strip_newlines | truncate: 40, " " }}{{ flag.Help }} {{ flag.Examples }}__NL__
 {%- endif -%}
 {%- endfor -%}
+{%- if visibleFlags > 0 -%}
+__NL__  Value flags accept --flag=value or --flag value (short: -f=value or -f value). Booleans are bare or --flag=false.__NL__
+{%- endif -%}
 {%- endif -%}
 {%- if application.Arguments.size > 0 -%}
 __NL__Args:__NL__

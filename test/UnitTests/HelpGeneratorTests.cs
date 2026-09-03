@@ -140,6 +140,23 @@ namespace Tests
             output.WriteLine(result);
             Assert.Contains($"Flags:", result);
             Assert.Contains($"  --flag=<value>                        flag help", result);
+            Assert.Contains("Value flags accept --flag=value or --flag value", result);
+        }
+
+        [Fact]
+        public void FlagFormLegendIsOmittedWhenEveryFlagIsHidden()
+        {
+            // Arrange
+            var application = new KingpinApplication(console);
+            application.Flag("flag", "flag help").IsHidden();
+            // Act
+            var subject = new HelpGenerator(application, console);
+            var appText = subject.ReadResourceInExecutingAssembly("KingpinNet.Help.ApplicationHelp.liquid");
+            subject.Generate(writer, appText);
+            // Assert
+            var result = writer.ToString();
+            output.WriteLine(result);
+            Assert.DoesNotContain("Value flags accept", result);
         }
 
         [Fact]
