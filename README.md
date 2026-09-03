@@ -53,6 +53,32 @@ The Nuget package can be found [here](https://www.nuget.org/packages/Newtonsoft.
 
 Here is the two major ways to add rich support for command line aruments into your application
 
+### Flag syntax
+
+Value-taking flags accept two fully interchangeable forms:
+
+```sh
+myapp --host=localhost      # equals form
+myapp --host localhost      # space form
+myapp -h=localhost          # short flag, equals form
+myapp -h localhost          # short flag, space form
+myapp --items alpha,beta    # list flags take the space form too
+```
+
+Rules:
+
+- `--flag=value` and `--flag value` are interchangeable, as are `-f=value` and `-f value`.
+  Both forms run the same type validation, so `--port abc` fails exactly like `--port=abc`.
+- Boolean flags **never** consume the next token. `--verbose` sets it to `true`, and
+  `--verbose=false` sets it to `false`; `--verbose false` leaves `false` to be parsed as a
+  command or an argument.
+- A token starting with `-` is never taken as a value. `--host --port=1` fails with
+  `--host need a value`, and so does a trailing `--host` at the end of the command line.
+  Dash-leading values must use the equals form: `--offset=-5`.
+- The space form takes the next token verbatim, even when that token is also a declared
+  command. `myapp --host deploy` sets `host` to `"deploy"` and does **not** run the
+  `deploy` command. Booleans are exempt, so `myapp --verbose deploy` still runs `deploy`.
+
 ### Bare-bone example
 
 In order just to get the simplest command line parsing up and running
@@ -239,7 +265,7 @@ prefer:
     why: Without --timeout, curl-ai blocks indefinitely on dead peers.
 
 conventions:
-  flag_form: "--flag=value preferred; bare for booleans"
+  flag_form: "--flag=value and --flag value are interchangeable for value-taking flags (same for -f=value and -f value); booleans are bare or --flag=false and never consume the next token; values starting with - require the = form"
   inheritance: Commands inherit flags from each ancestor and from global_flags
 ```
 
@@ -247,6 +273,15 @@ The full set of fields, the inheritance rule, and the format of every section ar
 under "Phase 3 — AI-Friendly Help".
 
 ## What's New
+
+### Space-separated flag values
+
+- `--flag value` and `-f value` are now accepted everywhere `--flag=value` and `-f=value` were,
+  including `ListOfString` flags
+- Both forms run the same type validation, so error messages and behaviour are unchanged
+- Boolean flags are deliberately exempt and never consume the next token
+- Tokens starting with `-` are still rejected as values; dash-leading values need the `=` form
+- `--help-ai` `conventions.flag_form` and the rendered help now describe both forms
 
 ### Phase 3 — AI-friendly help
 
@@ -272,6 +307,10 @@ under "Phase 3 — AI-Friendly Help".
 
 ## Changelog
 
+- 1.2
+    - Added space-separated flag values: `--flag value` and `-f value` are interchangeable with
+      `--flag=value` and `-f=value` for every value-taking flag type, including lists. Booleans
+      stay bare-or-`=` only, and dash-leading values still require the `=` form.
 - 1.1.15
     - Added argument containing list of values
 - 1.1
@@ -312,6 +351,16 @@ under "Phase 3 — AI-Friendly Help".
 ### Commands
 
 ### Flags
+
+A flag is declared with `app.Flag("name", "help")` and may be given a POSIX short name with
+`.Short('f')`. Value-taking flags accept `--flag=value` and `--flag value` interchangeably, and
+`-f=value` and `-f value` interchangeably; both forms are validated identically against the
+flag's type. Boolean flags never consume the following token — they are set with a bare
+`--flag` or explicitly with `--flag=false`. Any token starting with `-` is rejected as a value,
+so a value that begins with a dash must use the equals form (`--offset=-5`), and a value-taking
+flag with nothing usable after it fails with `--<name> need a value`. Because the space form
+takes the next token verbatim, `--host deploy` sets `host` to `"deploy"` even when `deploy` is a
+declared command.
 
 ### Arguments
 

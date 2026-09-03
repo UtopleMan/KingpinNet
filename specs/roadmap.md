@@ -123,7 +123,7 @@ avoid:
     why: Requires root, can saturate links, may trigger IDS.
 
 conventions:
-  flag_form: --flag=value preferred; bare for booleans
+  flag_form: "--flag=value and --flag value are interchangeable for value-taking flags (same for -f=value and -f value); booleans are bare or --flag=false and never consume the next token; values starting with - require the = form"
   inheritance: Commands inherit flags from each ancestor in `inherits` and from `global_flags`
 ```
 
@@ -143,6 +143,23 @@ conventions:
 - [ ] **DI integration** — Register command handlers as `IHostedService`-compatible services; integrate with `Microsoft.Extensions.DependencyInjection`
 - [ ] Provide a `UseKingpin()` extension on `IHostBuilder` / `IHostApplicationBuilder`
 - [ ] Example project demonstrating full Generic Host + KingpinNet setup
+
+## Phase 6 — Space-Separated Flag Values
+
+**Goal:** Accept `--flag value` and `-f value` as fully interchangeable with `--flag=value` and `-f=value`, matching what users expect from every other CLI parser.
+
+- [x] **Parser lookahead** — Single `TryResolveFlagValue` helper resolves a flag's raw value from either the `=` form or the next token, then runs the existing type validation, so both forms behave identically
+- [x] Short flags and `ListOfString` flags get the space form too
+- [x] Booleans are exempt — `--verbose` is `true`, `--verbose=false` is `false`, and `--verbose run` still runs the `run` command
+- [x] A token starting with `-` is never consumed as a value; dash-leading values require the `=` form (`--offset=-5`)
+- [x] The suggest/auto-completion path never throws on the space form
+- [x] Documentation: README flag-syntax section and `### Flags` reference, rendered help legend in both Liquid templates, and the `--help-ai` `conventions.flag_form` string
+
+**Accepted consequence:** the space form takes the next token verbatim, so `--host deploy` sets `host` to `"deploy"` even when `deploy` is a declared command. Booleans are exempt.
+
+**Out of scope:** the `--` end-of-flags separator.
+
+_Mark this phase ✓ when `feature/space-separated-flags` merges to `master`._
 
 ## Unprioritized / Backlog
 
