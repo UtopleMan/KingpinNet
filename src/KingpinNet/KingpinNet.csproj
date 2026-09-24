@@ -39,7 +39,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
+    <!-- 10.0.300 reaches Microsoft.Build.Tasks.Git 10.0.300, which carries CVE-2026-62900
+         (GHSA-23fw-v26w-5fgq); 10.0.303 is the first build of that line without it. Build-time only:
+         SourceLink writes source information into the symbols and ships in nothing. -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.303" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
