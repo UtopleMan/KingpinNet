@@ -14,6 +14,9 @@ jobs:
   build-and-test:
     name: Test and Push image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # NuGet trusted publishing exchanges the GitHub OIDC token for a short-lived API key
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -26,7 +29,7 @@ jobs:
             11.0.x
           dotnet-quality: preview
 
-      - name: Build Test Push
+      - name: Build Test Pack
         shell: bash
         run: |
           dotnet restore
@@ -35,7 +38,16 @@ jobs:
           dotnet build --configuration Release
           dotnet test --configuration Release --no-build --logger "junit;LogFilePath=results.xml"
           dotnet pack src/KingpinNet/KingpinNet.csproj
-          dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.nupkg -k ${{secrets.NUGETAPIKEY}} -s https://api.nuget.org/v3/index.json
+
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: UtopleMan
+
+      - name: Push
+        shell: bash
+        run: dotnet nuget push ./src/KingpinNet/source/workspace/packages/KingpinNet.*.nupkg -k ${{steps.nuget-login.outputs.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
 
   aot-gate:
     name: AOT and single-file publish gate
