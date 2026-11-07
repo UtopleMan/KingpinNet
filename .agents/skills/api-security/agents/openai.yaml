@@ -1,0 +1,3 @@
+interface:
+  display_name: "API Security"
+  short_description: "Authentication, authorization and API hardening"

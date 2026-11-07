@@ -1,0 +1,3 @@
+interface:
+  display_name: "Where code lives"
+  short_description: "Server: one project per domain feature, with Models, Services and Repositories"

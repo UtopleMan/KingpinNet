@@ -1,0 +1,5 @@
+interface:
+  display_name: "PA To Spec"
+  short_description: "Turn a conversation into a spec"
+policy:
+  allow_implicit_invocation: false

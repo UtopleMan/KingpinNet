@@ -1,0 +1,5 @@
+interface:
+  display_name: "PA Implement Spec"
+  short_description: "Implement /pa-to-spec and /pa-to-tickets output with BDD"
+policy:
+  allow_implicit_invocation: false

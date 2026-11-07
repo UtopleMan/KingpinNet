@@ -1,0 +1,5 @@
+interface:
+  display_name: "PA To Tickets"
+  short_description: "Split a plan into tickets with Gherkin scenarios"
+policy:
+  allow_implicit_invocation: false

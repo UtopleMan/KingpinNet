@@ -1,0 +1,5 @@
+interface:
+  display_name: "PA To Draft Specs"
+  short_description: "Cut a finished wayfinder map into draft specs"
+policy:
+  allow_implicit_invocation: false

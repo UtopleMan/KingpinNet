@@ -1,0 +1,5 @@
+interface:
+  display_name: "PA Implement"
+  short_description: "Build tickets scenario-first with BDD and TDD"
+policy:
+  allow_implicit_invocation: false

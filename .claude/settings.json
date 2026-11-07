@@ -1,0 +1,32 @@
+{
+    "autoMemoryEnabled": false,
+    "permissions": {
+        "deny": [
+            "NotebookEdit",
+            "CronCreate",
+            "CronDelete",
+            "CronList",
+            "EnterPlanMode",
+            "ExitPlanMode",
+            "PushNotification",
+            "RemoteTrigger",
+            "ReportFindings",
+            "ScheduleWakeup"
+        ]
+    },
+    "enabledPlugins": {
+      "cc-plugin-agents-md@builtin": false,
+      "cc-plugin-you-should-know@builtin": false,
+      "cc-plugin-diff@builtin": false,
+      "cc-plugin-plugin-authoring@builtin": false,
+      "cc-plugin-telemetry@builtin": false
+    },    
+    "disableClaudeAiConnectors": true,
+    "disableWorkflows": true,
+    "disableBundledSkills": true,
+    "disableArtifact": true,
+    "statusLine": {
+        "type": "command",
+        "command": "npx ccstatusline@latest"
+    }
+}

@@ -1,0 +1,3 @@
+interface:
+  display_name: "BDD"
+  short_description: "Specify behaviour as Gherkin scenarios, red to green"
