@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>KingpinNet</Title>
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <PackageId>KingpinNet</PackageId>
-    <PackageVersion>1.1.9999</PackageVersion>
-    <Version>1.1.9999</Version>
-    <FileVersion>1.1.9999</FileVersion>
+    <PackageVersion>1.2.9999-rc</PackageVersion>
+    <Version>1.2.9999-rc</Version>
+    <FileVersion>1.2.9999</FileVersion>
     <Authors>Peter Andersen</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/UtopleMan/KingpinNet</PackageProjectUrl>
@@ -60,6 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Scriban" Version="7.2.4" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+  </ItemGroup>
+  <!-- .NET 11 is at RC, so the package ships as a prerelease until GA; see docs/adr/0001. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="11.0.0-rc.3.26522.148" />
   </ItemGroup>
 </Project>
