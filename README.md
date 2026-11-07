@@ -311,6 +311,8 @@ under "Phase 3 — AI-Friendly Help".
     - Added space-separated flag values: `--flag value` and `-f value` are interchangeable with
       `--flag=value` and `-f=value` for every value-taking flag type, including lists. Booleans
       stay bare-or-`=` only, and dash-leading values still require the `=` form.
+    - Added a `net11.0` target alongside `net10.0`. It is built against .NET 11 RC3, so 1.2 ships as a
+      prerelease (`1.2.x-rc`) until .NET 11 reaches GA.
 - 1.1.15
     - Added argument containing list of values
 - 1.1

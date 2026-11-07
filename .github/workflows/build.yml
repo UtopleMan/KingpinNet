@@ -18,6 +18,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
       - name: Build Test Push
         shell: bash
         run: |
@@ -39,7 +47,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
 
       - name: Restore
         run: dotnet restore
@@ -48,24 +59,28 @@ jobs:
         shell: bash
         run: |
           set -e
-          OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
-            -c Release -f net10.0 -r linux-x64 --self-contained \
-            -p:PublishAot=true 2>&1)
-          echo "$OUTPUT"
-          if echo "$OUTPUT" | grep -E "warning IL[0-9]+|error"; then
-            echo "::error::AOT publish produced warnings or errors"
-            exit 1
-          fi
+          for TFM in net10.0 net11.0; do
+            OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
+              -c Release -f $TFM -r linux-x64 --self-contained \
+              -p:PublishAot=true 2>&1)
+            echo "$OUTPUT"
+            if echo "$OUTPUT" | grep -E "warning IL[0-9]+|error"; then
+              echo "::error::AOT publish for $TFM produced warnings or errors"
+              exit 1
+            fi
+          done
 
       - name: Single-file publish example app
         shell: bash
         run: |
           set -e
-          OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
-            -c Release -f net10.0 -r linux-x64 --self-contained \
-            -p:PublishSingleFile=true -p:PublishAot=false 2>&1)
-          echo "$OUTPUT"
-          if echo "$OUTPUT" | grep -E "warning IL[0-9]+"; then
-            echo "::error::Single-file publish produced IL warnings"
-            exit 1
-          fi
+          for TFM in net10.0 net11.0; do
+            OUTPUT=$(dotnet publish Examples/Ping/Ping.csproj \
+              -c Release -f $TFM -r linux-x64 --self-contained \
+              -p:PublishSingleFile=true -p:PublishAot=false 2>&1)
+            echo "$OUTPUT"
+            if echo "$OUTPUT" | grep -E "warning IL[0-9]+"; then
+              echo "::error::Single-file publish for $TFM produced IL warnings"
+              exit 1
+            fi
+          done
